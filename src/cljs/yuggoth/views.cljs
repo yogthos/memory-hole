@@ -1,7 +1,9 @@
 (ns yuggoth.views
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
-            [yuggoth.bootstrap :as bs]))
+            [yuggoth.bootstrap :as bs]
+            [yuggoth.pages.home :refer [home-page]]
+            [yuggoth.pages.auth :refer [login-page logout]]))
 
 (defn loading-throbber
   []
@@ -14,7 +16,7 @@
   (let [active-page (subscribe [:active-page])]
     [bs/NavItem {:href uri :active (= page @active-page)} title]))
 
-(defn navbar []
+(defn navbar [user]
   [bs/Navbar {:inverse true}
    [bs/Navbar.Header]
    [bs/Navbar.Brand
@@ -22,23 +24,23 @@
      [:span "Issues"]]]
    [bs/Navbar.Collapse
     [bs/Nav
-     [nav-link "#/" "Home" :home]]]])
-
-(defn home-page []
-  [:div.container
-   [:div.row
-    [:div.col-md-12
-     [:h2 "TrackIt"]]]])
-
-
+     [nav-link "#/" "Home" :home]]
+    (when @user
+      [bs/Nav {:pull-right true}
+       [bs/MenuItem {:on-click logout} "Logout"]])]])
 
 (defmulti pages identity)
 (defmethod pages :home [] [home-page])
+(defmethod pages :login [] [login-page])
 (defmethod pages :default [] [:div])
 
 (defn main-page []
-  (r/with-let [active-page (subscribe [:active-page])]
-    [:div.container
-     [navbar]
-     [loading-throbber]
-     (pages @active-page)]))
+  (r/with-let [active-page (subscribe [:active-page])
+               user        (subscribe [:user])]
+    (if @user
+      [:div
+       [navbar user]
+       [loading-throbber]
+       [:div.container
+        (pages @active-page)]]
+      (pages :login))))
