@@ -1,7 +1,8 @@
 (ns yuggoth.routes.services
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [yuggoth.routes.services.auth :as auth]))
 
 (defapi service-routes
   {:swagger {:ui "/swagger-ui"
@@ -11,6 +12,21 @@
                            :description "Sample Services"}}}}
   (context "/api" []
     :tags ["thingie"]
+
+    (POST "/login" req
+      :return auth/LoginResponse
+      :body-params [userid :- String, pass :- String]
+      :summary "User login handler"
+      (auth/login userid pass req))
+
+    (POST "/logout" []
+      :return auth/LogoutResponse
+      :summary "remove the user from the session"
+      (auth/logout))
+
+
+
+
 
     (GET "/plus" []
       :return       Long

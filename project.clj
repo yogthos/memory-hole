@@ -15,7 +15,13 @@
                  [ring-middleware-format "0.7.0"]
                  [metosin/ring-http-response "0.8.0"]
                  [bouncer "1.0.0"]
-                 [org.webjars/bootstrap "4.0.0-alpha.3"]
+                 [org.webjars/bootstrap "3.3.6"]
+                 [cljsjs/bootstrap "3.3.6-0"]
+                 [cljsjs/react-bootstrap "0.29.2-0"]
+                 [cljsjs/react-bootstrap-datetimepicker "0.0.22-0"
+                  :exclusions [org.webjars.bower/jquery]]
+                 [cljsjs/react-select "1.0.0-beta13-0"]
+                 [re-com "0.8.3"]
                  [org.webjars/font-awesome "4.6.3"]
                  [org.webjars.bower/tether "1.3.3"]
                  [org.clojure/tools.logging "0.3.1"]
@@ -32,7 +38,8 @@
                  [org.postgresql/postgresql "9.4.1209"]
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
                  [luminus-immutant "0.2.2"]
-                 [re-frame "0.8.0-alpha11"]]
+                 [re-frame "0.8.0-alpha11"]
+                 [org.clojars.pntblnk/clj-ldap "0.0.12"]]
 
   :min-lein-version "2.0.0"
 
