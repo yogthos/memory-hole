@@ -4,10 +4,15 @@
 
 (register-sub
   :active-page
-  (fn [db _]
+  (fn [db]
     (reaction (:active-page @db))))
 
 (register-sub
   :loading?
   (fn [db]
     (reaction (:loading? @db))))
+
+(register-sub
+  :user
+  (fn [db]
+    (reaction (:user @db))))

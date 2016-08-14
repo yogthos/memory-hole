@@ -8,9 +8,10 @@
 
 (declare ^:dynamic *identity*)
 (declare ^:dynamic *app-context*)
-(parser/set-resource-path!  (clojure.java.io/resource "templates"))
+(parser/set-resource-path! (clojure.java.io/resource "templates"))
 (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field)))
 (filters/add-filter! :markdown (fn [content] [:safe (md-to-html-string content)]))
+(def timestamp (.getTime (java.util.Date.)))
 
 (defn render
   "renders the HTML template located relative to resources/templates"
@@ -21,6 +22,8 @@
         template
         (assoc params
           :page template
+          :user *identity*
+          :timestamp timestamp
           :csrf-token *anti-forgery-token*
           :servlet-context *app-context*)))
     "text/html; charset=utf-8"))

@@ -19,7 +19,6 @@
                            (-> env :ldap :dc)
                            {:filter     (str "sAMAccountName=" userid)
                             :attributes [:displayName
-                                         :name
                                          :memberOf
                                          :sn
                                          :sAMAccountName
@@ -35,11 +34,10 @@
 (def User
   {:id             s/Str
    :display-name   s/Str
-   :name           s/Str
-   :sn             s/Str
-   :cn             s/Str
-   :member-of      s/Str
-   :account-name   s/Str
+   :sn             (s/maybe s/Str)
+   :cn             (s/maybe s/Str)
+   :member-of      (s/maybe s/Str)
+   :account-name   (s/maybe s/Str)
    :client-ip      s/Str
    :source-address s/Str})
 
@@ -51,18 +49,23 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name]}]
-  (if-let [user (authenticate userid pass)]
+  (if-let [user {:display-name "Bob Bobberton"
+                 :sn nil
+                 :cn nil
+                 :account-name nil
+                 :member-of nil}
+           #_(authenticate userid pass)]
     (do
       (log/info "user:" userid "successfully logged in from" remote-addr server-name)
-      {:user
-       (-> user
-           ;;user :display-name as preferred name, fall back to userid if not supplied
-           (update-in [:display-name] #(or (not-empty %) userid))
-           (merge
-             {:id             userid
-              :client-ip      remote-addr
-              :source-address server-name})
-           (ok))})
+      (ok
+        {:user
+         (-> user
+             ;;user :display-name as preferred name, fall back to userid if not supplied
+             (update-in [:display-name] #(or (not-empty %) userid))
+             (merge
+               {:id             userid
+                :client-ip      remote-addr
+                :source-address server-name}))}))
     (do
       (log/info "login failed for" userid remote-addr server-name)
       (unauthorized {:error "The username or password was incorrect."}))))

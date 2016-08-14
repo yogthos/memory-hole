@@ -11,7 +11,7 @@
                            :title "Sample API"
                            :description "Sample Services"}}}}
   (context "/api" []
-    :tags ["thingie"]
+    :tags ["auth"]
 
     (POST "/login" req
       :return auth/LoginResponse
