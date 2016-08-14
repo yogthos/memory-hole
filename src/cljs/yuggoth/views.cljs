@@ -3,8 +3,7 @@
             [re-frame.core :refer [subscribe]]
             [yuggoth.bootstrap :as bs]
             [yuggoth.pages.home :refer [home-page]]
-            [yuggoth.pages.auth :refer [login-page logout]]
-            [secretary.core :as secretary :include-macros true]))
+            [yuggoth.pages.auth :refer [login-page logout]]))
 
 (defn loading-throbber
   []
