@@ -5,11 +5,7 @@
 (register-handler
   :initialize-db
   (fn [_ _]
-    (let [user (when js/user (js->clj js/user))]
-      (assoc
-        db/default-db
-        :user user
-        :active-page (if user :home :login)))))
+    db/default-db))
 
 (register-handler
   :set-active-page

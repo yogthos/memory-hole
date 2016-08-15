@@ -48,16 +48,16 @@
 (def LogoutResponse
   {:result s/Str})
 
-(defn login [userid pass {:keys [remote-addr server-name]}]
+(defn login [userid pass {:keys [remote-addr server-name session]}]
   (if-let [user {:display-name "Bob Bobberton"
-                 :sn nil
-                 :cn nil
+                 :sn           nil
+                 :cn           nil
                  :account-name nil
-                 :member-of nil}
+                 :member-of    nil}
            #_(authenticate userid pass)]
     (do
       (log/info "user:" userid "successfully logged in from" remote-addr server-name)
-      (ok
+      (->
         {:user
          (-> user
              ;;user :display-name as preferred name, fall back to userid if not supplied
@@ -65,7 +65,9 @@
              (merge
                {:id             userid
                 :client-ip      remote-addr
-                :source-address server-name}))}))
+                :source-address server-name}))}
+        ok
+        (assoc :session (assoc session :identity user))))
     (do
       (log/info "login failed for" userid remote-addr server-name)
       (unauthorized {:error "The username or password was incorrect."}))))

@@ -37,8 +37,10 @@
 (defn main-page []
   (r/with-let [active-page (subscribe [:active-page])
                user        (subscribe [:user])]
-    [:div
-     [navbar user]
-     [loading-throbber]
-     [:div.container
-      (pages (if @user @active-page :login))]]))
+    (if @user
+      [:div
+       [navbar user]
+       [loading-throbber]
+       [:div.container
+        (pages @active-page)]]
+      (pages :login))))
