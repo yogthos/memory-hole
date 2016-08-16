@@ -66,3 +66,13 @@ body {
     }
 }
 
+.rounded-panel {
+    border:           1px solid lightgray;
+    border-radius:    4px;
+    padding:          0px 20px 0px 20px;
+}
+code.hljs {
+    border: none;
+    background: none;
+}
+

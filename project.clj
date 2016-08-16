@@ -8,7 +8,7 @@
                  [secretary "1.2.3"]
                  [reagent-utils "0.2.0"]
                  [reagent "0.6.0-rc"]
-                 [org.clojure/clojurescript "1.9.198" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.211" :scope "provided"]
                  [org.clojure/clojure "1.8.0"]
                  [selmer "1.0.7"]
                  [markdown-clj "0.9.89"]
