@@ -71,6 +71,18 @@ body {
     border-radius:    4px;
     padding:          0px 20px 0px 20px;
 }
+.edit-panel {
+    border:           none;
+}
+.edit-issue-title {
+    font-size: 13pt;
+}
+.edit-issue-detail {
+    width:800px;
+}
+.view-issue-detail {
+    white-space: pre-wrap;
+}
 code.hljs {
     border: none;
     background: none;

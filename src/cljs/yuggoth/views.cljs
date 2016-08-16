@@ -3,7 +3,7 @@
             [re-frame.core :refer [subscribe]]
             [yuggoth.bootstrap :as bs]
             [yuggoth.pages.home :refer [home-page]]
-            [yuggoth.pages.issues :refer [edit-issue-page]]
+            [yuggoth.pages.issues :refer [edit-issue-page view-issue-page]]
             [yuggoth.pages.auth :refer [login-page logout]]))
 
 (defn loading-throbber
@@ -31,9 +31,10 @@
        [bs/MenuItem {:on-click logout} "Logout"]])]])
 
 (defmulti pages identity)
-(defmethod pages :home [] [home-page])
+(defmethod pages :home []  [view-issue-page] #_[edit-issue-page] #_[home-page])
 (defmethod pages :login [] [login-page])
 (defmethod pages :edit-issue [] [edit-issue-page])
+(defmethod pages :view-issue [] [view-issue-page])
 (defmethod pages :default [] [:div])
 
 (defn main-page []
