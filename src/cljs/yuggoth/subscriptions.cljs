@@ -1,18 +1,43 @@
 (ns yuggoth.subscriptions
   (:require [reagent.ratom :refer [reaction]]
-            [re-frame.core :refer [register-sub]]))
+            [re-frame.core :refer [reg-sub]]))
 
-(register-sub
+(reg-sub
   :active-page
-  (fn [db]
-    (reaction (:active-page @db))))
+  (fn [db _]
+    (:active-page db)))
 
-(register-sub
+(reg-sub
   :loading?
-  (fn [db]
-    (reaction (:loading? @db))))
+  (fn [db _]
+    (:loading? db)))
 
-(register-sub
+(reg-sub
   :user
-  (fn [db]
-    (reaction (:user @db))))
+  (fn [db _]
+    (:user db)))
+
+(reg-sub
+  :tags
+  (fn [db _]
+    (:tags db)))
+
+(reg-sub
+  :issue
+  (fn [db _]
+    (:issue db)))
+
+(reg-sub
+  :issues
+  (fn [db _]
+    (:issues db)))
+
+(reg-sub
+  :error
+  (fn [db _]
+    (:error db)))
+
+(reg-sub
+  :db-state
+  (fn [db _]
+    (:issue db)))

@@ -20,23 +20,19 @@
                            {:filter     (str "sAMAccountName=" userid)
                             :attributes [:displayName
                                          :memberOf
-                                         :sn
-                                         :sAMAccountName
-                                         :cn]})
+                                         :sAMAccountName]})
             first
+            (select-keys [:displayName :memberOf :sAMAccountName])
             (rename-keys
               {:displayName    :display-name
                :memberOf       :member-of
-               :givenName      :given-name
                :sAMAccountName :account-name})))
       (finally (client/release-connection ldap-pool conn)))))
 
 (def User
   {:id             s/Str
-   :display-name   s/Str
-   :sn             (s/maybe s/Str)
-   :cn             (s/maybe s/Str)
-   :member-of      (s/maybe s/Str)
+   :member-of      [(s/maybe s/Str)]
+   :display-name   (s/maybe s/Str)
    :account-name   (s/maybe s/Str)
    :client-ip      s/Str
    :source-address s/Str})
@@ -49,12 +45,12 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
-  (if-let [user {:display-name "Bob Bobberton"
-                 :sn           nil
-                 :cn           nil
-                 :account-name nil
-                 :member-of    nil}
-           #_(authenticate userid pass)]
+  (if-let [user #_{:display-name "Bob Bobberton"
+                   :sn           nil
+                   :cn           nil
+                   :account-name nil
+                   :member-of    nil}
+           (authenticate userid pass)]
     (do
       (log/info "user:" userid "successfully logged in from" remote-addr server-name)
       (->

@@ -11,6 +11,9 @@
     <!-- scripts and styles -->
     {% style "/assets/bootstrap/css/bootstrap.min.css" %}
     {% style "/assets/font-awesome/css/font-awesome.min.css" %}
+    {% style "assets/css/material-design-iconic-font.min.css" %}
+    {% style "assets/css/re-com.css" %}
+    {% style "/css/hljs.css" %}
     {% style "/css/screen.css" %}
 
     <script type="text/javascript">
@@ -18,6 +21,8 @@
         var csrfToken = "{{csrf-token}}";
         var user = {{user|json|safe}};
     </script>
+    {% script "/js/marked.js" %}
+    {% script "/js/hljs.js" %}
     <script src="{{servlet-context}}/js/app.js?{{timestamp}}" type="text/javascript"></script>
   </body>
 </html>
