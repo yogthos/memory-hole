@@ -21,9 +21,9 @@
       [:div.col-md-10
        [:h2 "Recent Issues"]
        [:p "list most recently viewed issues by default"]
-       (for [{:keys [id title summary tags]} @issues]
-         ^{:key id}
-         [:div.panel.panel-default
-          [:div.panel-heading>h4 title]
-          [:div.panel-body>p summary]
-          [:div.panel-footer>span (str "tags: " (s/join ", " tags))]])]]]))
+       (for [{:keys [support-issue-id title summary tags]} @issues]
+         ^{:key support-issue-id}
+         [bs/Panel
+          {:header (r/as-component [:h2 title])
+           :footer (str "tags: " (s/join ", " tags))}
+          summary])]]]))
