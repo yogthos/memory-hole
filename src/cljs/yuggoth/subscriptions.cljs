@@ -1,6 +1,5 @@
 (ns yuggoth.subscriptions
-  (:require [reagent.ratom :refer [reaction]]
-            [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
   :active-page

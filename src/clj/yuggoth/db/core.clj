@@ -10,7 +10,6 @@
            clojure.lang.IPersistentMap
            clojure.lang.IPersistentVector
            [java.sql
-            BatchUpdateException
             Date
             Timestamp
             PreparedStatement]))
@@ -19,7 +18,10 @@
            :start (conman/connect! {:jdbc-url (env :database-url)})
            :stop (conman/disconnect! *db*))
 
-(conman/bind-connection *db* "sql/queries.sql")
+(conman/bind-connection *db*
+                        "sql/issues.sql"
+                        "sql/tags.sql"
+                        "sql/users.sql")
 
 (defn to-date [^java.sql.Date sql-date]
   (-> sql-date (.getTime) (java.util.Date.)))
