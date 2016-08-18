@@ -10,7 +10,7 @@ CREATE TABLE support_issues
   update_date      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
   last_updated_by  BIGINT    NOT NULL REFERENCES users (user_id),
   delete_date      TIME      NULL,
-  last_viewed      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+  last_viewed_date TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
   views            NUMERIC   DEFAULT 1,
   CONSTRAINT pk_support_issues PRIMARY KEY (support_issue_id)
 )

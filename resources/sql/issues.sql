@@ -7,13 +7,13 @@ RETURNING support_issue_id;
 -- :name update-issue! :! :n
 -- :doc Updates the issue using optimistic concurrency (last-in wins)
 UPDATE support_issues
-SET title           = :title,
-    summary         = :summary,
-    detail          = :detail,
-    last_updated_by = :user_id,
-    update_date     = now(),
-    last_viewed     = now(),
-    views           = views + 1
+SET title            = :title,
+    summary          = :summary,
+    detail           = :detail,
+    last_updated_by  = :user_id,
+    update_date      = now(),
+    last_viewed_date = now(),
+    views            = views + 1
 WHERE
   support_issue_id = :support_issue_id;
 
@@ -27,7 +27,7 @@ SELECT
   si.create_date,
   si.update_date,
   si.delete_date,
-  si.last_viewed,
+  si.last_viewed_date,
   si.views,
   created.first_name AS created_by_first_name,
   created.last_name AS created_by_last_name,
@@ -51,12 +51,11 @@ SELECT
   detail,
   create_date,
   update_date,
-  last_viewed,
+  last_viewed_date,
   views
-FROM support_issues si
-WHERE si.delete_date IS NULL
-ORDER BY last_viewed DESC
-GROUP BY si.support_issue_id
+FROM support_issues
+WHERE delete_date IS NULL
+ORDER BY last_viewed_date ASC
 LIMIT :limit;
 
 -- :name issues-by-views :? :*
@@ -67,14 +66,14 @@ SELECT
   summary,
   create_date,
   update_date,
-  last_viewed,
+  last_viewed_date,
   views
 FROM support_issues
 WHERE delete_date IS NULL
 GROUP BY support_issue_id
-ORDER BY last_viewed DESC;
+ORDER BY last_viewed_date ASC;
 
--- :name support-issues-by-tag :? :*
+-- :name issues-by-tag :? :*
 -- :doc Gets all the issues, in order of popularity, by a given tag.
 SELECT
   si.support_issue_id,
@@ -82,18 +81,17 @@ SELECT
   si.summary,
   si.create_date,
   si.update_date,
-  si.last_viewed,
+  si.last_viewed_date,
   si.views
 FROM support_issues si
   INNER JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
   INNER JOIN tags t ON sit.tag_id = t.tag_id
-  LEFT OUTER JOIN support_issue_scores s ON si.support_issue_id = s.support_issue_id
 WHERE
   t.tag = :tag AND
   delete_date IS NULL
 GROUP BY
   si.support_issue_id
-ORDER BY score;
+ORDER BY last_viewed_date;
 
 -- :name delete-issue! :! :n
 -- :doc Deletes the support issue with the given support_issue_id
@@ -109,7 +107,7 @@ SELECT
   si.summary,
   si.create_date,
   si.update_date,
-  si.last_viewed,
+  si.last_viewed_date,
   si.views
 FROM support_issues si
   INNER JOIN (SELECT DISTINCT
