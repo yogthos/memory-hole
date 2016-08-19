@@ -1,7 +1,7 @@
 -- :name add-issue<! :<! :1
 -- :doc create a new issue
 INSERT INTO support_issues (title, summary, detail, created_by, last_updated_by)
-VALUES (:title, :summary, :detail, :user_id, :user_id)
+VALUES (:title, :summary, :detail, :user-id, :user-id)
 RETURNING support_issue_id;
 
 -- :name update-issue! :! :n
@@ -10,12 +10,12 @@ UPDATE support_issues
 SET title            = :title,
     summary          = :summary,
     detail           = :detail,
-    last_updated_by  = :user_id,
+    last_updated_by  = :user-id,
     update_date      = now(),
     last_viewed_date = now(),
     views            = views + 1
 WHERE
-  support_issue_id = :support_issue_id;
+  support_issue_id = :support-issue-id;
 
 -- :name support-issue* :? :1
 -- :doc Gets the issue with the given support_issue_id
@@ -71,7 +71,9 @@ SELECT
 FROM support_issues
 WHERE delete_date IS NULL
 GROUP BY support_issue_id
-ORDER BY last_viewed_date ASC;
+ORDER BY last_viewed_date ASC
+OFFSET :offset
+LIMIT :limit;
 
 -- :name issues-by-tag :? :*
 -- :doc Gets all the issues, in order of popularity, by a given tag.
@@ -97,7 +99,7 @@ ORDER BY last_viewed_date;
 -- :doc Deletes the support issue with the given support_issue_id
 UPDATE support_issues
 SET delete_date = now()
-WHERE support_issue_id = :support_issue_id;
+WHERE support_issue_id = :support-issue-id;
 
 -- :name search-issues :? :*
 -- :doc Search all support issues and returns, in order of relevance, any matching issue.
