@@ -2,22 +2,26 @@
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
             [schema.core :as s]
+            [compojure.api.meta :refer [restructure-param]]
             [yuggoth.routes.services.issues :as issues]
-            [yuggoth.routes.services.auth :as auth]))
+            [yuggoth.routes.services.auth :as auth]
+            [buddy.auth.accessrules :refer [restrict]]
+            [buddy.auth :refer [authenticated?]]))
 
-(defapi public-service-routes
-  {:swagger {:ui   "/swagger-ui-public"
-             :spec "/swagger-public.json"
-             :data {:info {:version     "1.0.0"
-                           :title       "Public services"
-                           :description "Public service operations"}}}}
-  (context "/api" []
-    :tags ["public"]
-    (POST "/login" req
-      :return auth/LoginResponse
-      :body-params [userid :- String, pass :- String]
-      :summary "User login handler"
-      (auth/login userid pass req))))
+(defn access-error [_ _]
+  (unauthorized {:error "unauthorized"}))
+
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler  rule
+                     :on-error access-error}))
+
+(defmethod restructure-param :auth-rules
+  [_ rule acc]
+  (update-in acc [:middleware] conj [wrap-restricted rule]))
+
+(defmethod restructure-param :current-user
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `(:identity ~'+compojure-api-request+)]))
 
 (defapi service-routes
   {:swagger {:ui   "/swagger-ui"
@@ -25,10 +29,26 @@
              :data {:info {:version     "1.0.0"
                            :title       "Sample API"
                            :description "Sample Services"}}}}
+
+  (POST "/api/login" req
+    :return auth/LoginResponse
+    :body-params [userid :- String
+                  pass :- String]
+    :summary "User login handler"
+    (auth/login userid pass req))
   (context "/api" []
+    :auth-rules authenticated?
     :tags ["private"]
 
+    (POST "/login" req
+      :return auth/LoginResponse
+      :body-params [userid :- String
+                    pass :- String]
+      :summary "User login handler"
+      (auth/login userid pass req))
+
     (POST "/logout" []
+
       :return auth/LogoutResponse
       :summary "remove the user from the session"
       (auth/logout))
@@ -51,17 +71,17 @@
       (issues/issues-by-tag {:tag tag}))
 
     (DELETE "/issue/:id" []
-      :path-params  [id :- s/Int]
+      :path-params [id :- s/Int]
       :return s/Int
       :summary "delete the issue with the given id"
       (issues/delete-issue! {:support-issue-id id}))
 
     (POST "/search-issues" []
-      :body-params  [query :- s/Str limit :- s/Int offset :- s/Int]
+      :body-params [query :- s/Str limit :- s/Int offset :- s/Int]
       :return issues/IssueSummaryResults
       :summary "search for issues matching the query"
-      (issues/search-issues {:query query
-                             :limit limit
+      (issues/search-issues {:query  query
+                             :limit  limit
                              :offset offset}))
 
     (GET "/issue/:id" []
