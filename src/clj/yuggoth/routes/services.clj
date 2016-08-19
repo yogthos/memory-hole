@@ -84,7 +84,8 @@
       :summary "list 10 most recent issues"
       (issues/issue {:support-issue-id id}))
 
-    (POST "/issue" {:keys [session]}
+    (POST "/issue" []
+      :current-user user
       :body-params [title :- String
                     summary :- String
                     detail :- String]
@@ -94,9 +95,10 @@
         {:title   title
          :summary summary
          :detail  detail
-         :user-id (-> session :identity :id)}))
+         :user-id (:id user)}))
 
-    (PUT "/issue" {:keys [session]}
+    (PUT "/issue" []
+      :current-user user
       :body-params [support-issue-id :- s/Num
                     title :- String
                     summary :- String
@@ -108,6 +110,6 @@
          :title            title
          :summary          summary
          :detail           detail
-         :user-id          (-> session :identity :id)}))
+         :user-id          (:id user)}))
 
     ))
