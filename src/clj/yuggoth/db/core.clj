@@ -3,6 +3,7 @@
     [cheshire.core :refer [generate-string parse-string]]
     [clojure.java.jdbc :as jdbc]
     [conman.core :as conman]
+    [clojure.walk :refer [postwalk]]
     [yuggoth.config :refer [env]]
     [mount.core :refer [defstate]])
   (:import org.postgresql.util.PGobject
@@ -22,6 +23,46 @@
                         "sql/issues.sql"
                         "sql/tags.sql"
                         "sql/users.sql")
+
+(defn ->kebab-case-keyword [k]
+  (-> (reduce
+        (fn [s c]
+          (if (and
+                (not-empty s)
+                (Character/isLowerCase (last s))
+                (Character/isUpperCase c))
+            (str s "-" c)
+            (str s c)))
+        "" (name k))
+      (clojure.string/replace #"[\s]+" "-")
+      (.replaceAll "_" "-")
+      (.toLowerCase)
+      (keyword)))
+
+
+(defn transform-keys [t coll]
+  "Recursively transforms all map keys in coll with t."
+  (letfn [(transform [[k v]] [(t k) v])]
+    (postwalk (fn [x] (if (map? x) (into {} (map transform x)) x)) coll)))
+
+(defn result-one-snake->kebab
+  [this result options]
+  (->> (hugsql.adapter/result-one this result options)
+       (transform-keys ->kebab-case-keyword)))
+
+(defn result-many-snake->kebab
+  [this result options]
+  (->> (hugsql.adapter/result-many this result options)
+       (map #(transform-keys ->kebab-case-keyword %))))
+
+(defmethod hugsql.core/hugsql-result-fn :1 [sym]
+  'yuggoth.db.core/result-one-snake->kebab)
+
+(defmethod hugsql.core/hugsql-result-fn :* [sym]
+  'yuggoth.db.core/result-many-snake->kebab)
+
+
+(->kebab-case-keyword :Foo_bar)
 
 (defn to-date [^java.sql.Date sql-date]
   (-> sql-date (.getTime) (java.util.Date.)))
