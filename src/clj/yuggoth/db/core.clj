@@ -61,8 +61,15 @@
 (defmethod hugsql.core/hugsql-result-fn :* [sym]
   'yuggoth.db.core/result-many-snake->kebab)
 
-
-(->kebab-case-keyword :Foo_bar)
+(defn deserialize [pgobj]
+  (let [type  (.getType pgobj)
+        value (.getValue pgobj)]
+    (case type
+      "record" (some-> value (subs 1 (dec (count value))) (.split ",") vec)
+      "json" (parse-string value true)
+      "jsonb" (parse-string value true)
+      "citext" (str value)
+      value)))
 
 (defn to-date [^java.sql.Date sql-date]
   (-> sql-date (.getTime) (java.util.Date.)))
@@ -75,17 +82,14 @@
   (result-set-read-column [v _ _] (to-date v))
 
   Array
-  (result-set-read-column [v _ _] (vec (.getArray v)))
+  (result-set-read-column [v _ _]
+    (mapv #(if (instance? PGobject %)
+            (deserialize %) %)
+          (.getArray v)))
 
   PGobject
   (result-set-read-column [pgobj _metadata _index]
-    (let [type  (.getType pgobj)
-          value (.getValue pgobj)]
-      (case type
-        "json" (parse-string value true)
-        "jsonb" (parse-string value true)
-        "citext" (str value)
-        value))))
+    (deserialize pgobj)))
 
 (extend-type java.util.Date
   jdbc/ISQLParameter
@@ -112,3 +116,11 @@
   (sql-value [value] (to-pg-json value))
   IPersistentVector
   (sql-value [value] (to-pg-json value)))
+
+(defn support-issue [m]
+  (update (support-issue* m)
+          :tags
+          #(map (fn [[tag-id tag]]
+                  {:tag-id (Integer/parseInt tag-id)
+                   :tag tag})
+                %)))
