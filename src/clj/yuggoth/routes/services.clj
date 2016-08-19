@@ -36,16 +36,10 @@
                   pass :- String]
     :summary "User login handler"
     (auth/login userid pass req))
+
   (context "/api" []
     :auth-rules authenticated?
     :tags ["private"]
-
-    (POST "/login" req
-      :return auth/LoginResponse
-      :body-params [userid :- String
-                    pass :- String]
-      :summary "User login handler"
-      (auth/login userid pass req))
 
     (POST "/logout" []
 
