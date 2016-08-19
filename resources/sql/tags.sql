@@ -33,7 +33,7 @@ select t.*
   from tags t
   where t.tag in (:v*:tags);
 
--- :name tags-for-issues
+-- :name tags-for-issues :? :*
 -- :doc Gets all the tags for a list of issues.
 select sit.support_issue_id, t.tag_id, t.tag
   from tags t

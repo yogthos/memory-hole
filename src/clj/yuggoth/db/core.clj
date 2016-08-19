@@ -16,8 +16,8 @@
             PreparedStatement]))
 
 (defstate ^:dynamic *db*
-           :start (conman/connect! {:jdbc-url (env :database-url)})
-           :stop (conman/disconnect! *db*))
+  :start (conman/connect! {:jdbc-url (env :database-url)})
+  :stop (conman/disconnect! *db*))
 
 (conman/bind-connection *db*
                         "sql/issues.sql"
@@ -97,9 +97,9 @@
     (.setTimestamp stmt idx (Timestamp. (.getTime v)))))
 
 (defn to-pg-json [value]
-      (doto (PGobject.)
-            (.setType "jsonb")
-            (.setValue (generate-string value))))
+  (doto (PGobject.)
+    (.setType "jsonb")
+    (.setValue (generate-string value))))
 
 (extend-type clojure.lang.IPersistentVector
   jdbc/ISQLParameter
@@ -118,9 +118,10 @@
   (sql-value [value] (to-pg-json value)))
 
 (defn support-issue [m]
-  (update (support-issue* m)
-          :tags
-          #(map (fn [[tag-id tag]]
-                  {:tag-id (Integer/parseInt tag-id)
-                   :tag tag})
-                %)))
+  (some-> (not-empty (support-issue* m))
+          (update
+            :tags
+            #(map (fn [[tag-id tag]]
+                    {:tag-id (Integer/parseInt tag-id)
+                     :tag    tag})
+                  %))))
