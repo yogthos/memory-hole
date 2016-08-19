@@ -17,7 +17,7 @@ SET title            = :title,
 WHERE
   support_issue_id = :support_issue_id;
 
--- :name support-issue :? :1
+-- :name support-issue* :? :1
 -- :doc Gets the issue with the given support_issue_id
 SELECT
   si.support_issue_id,
@@ -29,17 +29,18 @@ SELECT
   si.delete_date,
   si.last_viewed_date,
   si.views,
-  created.first_name AS created_by_first_name,
-  created.last_name AS created_by_last_name,
+  created.screenname as created_by_screenname,
   si.created_by,
   si.last_updated_by,
-  updated.first_name AS updated_by_first_name,
-  updated.last_name AS updated_by_last_name
+  updated.screenname as updated_by_screenname,
+  array_agg((t.tag_id, t.tag)) as tags
 FROM support_issues si
   INNER JOIN users created on si.created_by = created.user_id
+  INNER JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+  INNER JOIN tags t ON sit.tag_id = t.tag_id
   LEFT OUTER JOIN users updated on si.last_updated_by = updated.user_id
 WHERE
-  si.support_issue_id = :support_issue_id
+  si.support_issue_id = :support-issue-id
 GROUP BY si.support_issue_id, created.user_id , updated.user_id;
 
 -- :name recently-viewed-issues :? :*
@@ -48,7 +49,6 @@ SELECT
   support_issue_id,
   title,
   summary,
-  detail,
   create_date,
   update_date,
   last_viewed_date,

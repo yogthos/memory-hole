@@ -1,7 +1,7 @@
--- :name sql-create-tag<! :<! :1
+-- :name create-tag<! :<! :1
 -- :doc Insers a new tag.
 insert into tags(tag)
-    values(:tag)
+    values (:tag)
     returning tag_id;
 
 -- :name tags :? :*
@@ -25,13 +25,13 @@ select sit.support_issue_id, t.tag_id, t.tag
 from tags t
   inner join support_issues_tags sit on t.tag_id = sit.tag_id
 where
-  sit.support_issue_id = :support_issue_id;
+  sit.support_issue_id = :support-issue-id;
 
 -- :name tags-with-name :? :*
 -- :doc Gets all the tags with the given names.
 select t.*
   from tags t
-  where t.tag in (:tags);
+  where t.tag in (:v*:tags);
 
 -- :name tags-for-issues
 -- :doc Gets all the tags for a list of issues.
@@ -39,12 +39,12 @@ select sit.support_issue_id, t.tag_id, t.tag
   from tags t
   inner join support_issues_tags sit on t.tag_id = sit.tag_id
   where
-    sit.support_issue_id in (:issue_ids);
+    sit.support_issue_id in (:v*:issue-ids);
 
 -- :name dissoc-tags-from-issue! :! :n
 -- :doc Deletes all the tags associated to the provided issue.
 delete from support_issues_tags
-where support_issue_id = :issue_id;
+where support_issue_id = :issue-id;
 
 -- :name assoc-tag-with-issue! :! :n
 -- :doc assigns all the tags to a given support issue.
@@ -52,5 +52,5 @@ where support_issue_id = :issue_id;
 -- names, eg. 'whiteboard', 'pro', etc.
 insert into support_issues_tags (support_issue_id, tag_id)
     select :issue_id, t.tag_id
-      from tags t where t.tag in (:tags);
+      from tags t where t.tag in (:v*:tags);
 
