@@ -1,5 +1,5 @@
 (ns yuggoth.routes
-  (:require [re-frame.core :refer [dispatch]]
+  (:require [re-frame.core :refer [dispatch subscribe]]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
             [secretary.core :as secretary :include-macros true])
@@ -11,6 +11,13 @@
 
 (secretary/defroute "/" []
   (dispatch [:set-active-page :home]))
+
+(secretary/defroute "/issue/:id" [id]
+  (if (subscribe [:issue])
+    (dispatch [:set-active-page :view-issue])
+    (dispatch [:load-and-view-issue (js/ParseInt id)])))
+
+
 
 ;; -------------------------
 ;; History

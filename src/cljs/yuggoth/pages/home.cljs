@@ -26,29 +26,12 @@
    "Add Issue"])
 
 (defn issue-panel [{:keys [support-issue-id title summary]}]
-  (r/with-let [issue         (subscribe [:issue])
-               collapsed?    (r/atom true)
-               toggle-detail (fn []
-                               (if @collapsed?
-                                 (dispatch [:load-issue-detail support-issue-id])
-                                 (dispatch [:close-issue]))
-                               (swap! collapsed? not))]
-    [bs/Panel
-     {:header (r/as-component [:h2 title])
-      :footer (r/as-component
-                (if @collapsed?
-                  [:a {:on-click toggle-detail} "more..."]
-                  (r/as-component
-                    [:div
-                     [:a {:on-click toggle-detail} "less"]
-                     [:a.pull-right
-                      {:on-click #(dispatch [:set-active-page :edit-issue])}
-                      "edit"]])))}
-     summary
-     (when-not @collapsed?
-       (when-let [{:keys [detail]} @issue]
-         [:div
-          [markdown-component detail]]))]))
+  [bs/Panel
+   {:header (r/as-component [:h2 title])
+    :footer (r/as-component
+              [:a {:href (str "#/issue/" support-issue-id)}
+               "more..."])}
+   summary])
 
 (defn tag-control [title selected on-click]
   [bs/ListGroupItem
