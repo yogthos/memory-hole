@@ -112,6 +112,16 @@
     db))
 
 (reg-event-db
+  :load-and-view-issue
+  (fn [db [_ support-issue-id]]
+    (GET (str "/api/issue/" support-issue-id)
+         {:handler       #(do
+                           (dispatch [:set-issue (:issue %)])
+                           (dispatch [:set-active-page :view-issue]))
+          :error-handler #(dispatch [:set-error (str %)])})
+    db))
+
+(reg-event-db
   :process-issue-save
   (fn [db issue]
     (assoc db :active-page :view-issue

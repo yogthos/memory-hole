@@ -29,16 +29,15 @@
     [:a#logo {:href "#/"}
      [:span "Issues"]]]
    [bs/Navbar.Collapse
-    [bs/Nav
-     [nav-link "#/" "Home" :home]]
-    (when @user
-      [bs/Nav {:pull-right true}
-       [bs/MenuItem {:on-click logout} "Logout"]])]])
+    [bs/Nav {:pull-right true}
+     [bs/MenuItem {:on-click logout}
+      (r/as-component [:span "Logout " (:display-name user)])]]]])
 
 (defmulti pages identity)
 (defmethod pages :home [] [home-page])
 (defmethod pages :login [] [login-page])
 (defmethod pages :edit-issue [] (.scrollTo js/window 0 0) [edit-issue-page])
+(defmethod pages :view-issue [] (.scrollTo js/window 0 0) [view-issue-page])
 (defmethod pages :default [] [:div])
 
 (defn main-page []
@@ -46,7 +45,7 @@
                user        (subscribe [:user])]
     (if @user
       [:div
-       [navbar user]
+       [navbar @user]
        [loading-throbber]
        [:div.container
         (pages @active-page)]]

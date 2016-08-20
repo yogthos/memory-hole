@@ -1,7 +1,7 @@
 (ns yuggoth.db)
 
 (def default-db
-  {:user        (js->clj js/user)
+  {:user        (js->clj js/user :keywordize-keys true)
    :active-page (if js/user :home :login)
 
 

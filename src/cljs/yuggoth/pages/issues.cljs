@@ -50,7 +50,10 @@
      [:div.col-sm-12 [:h2 (:title @issue)]]
      [:div.col-sm-12 [:h4 (str (:tags @issue))]]
      [:div.col-sm-12 [:p (:summary @issue)]]
-     [:div.col-sm-12 [markdown-component (:detail @issue)]]]))
+     [:div.col-sm-12 [markdown-component (:detail @issue)]]
+     [:button.btn.btn-primary.pull-right
+      {:on-click #(dispatch [:set-active-page :edit-issue])}
+      "edit"]]))
 
 (defn control-buttons [issue]
   [:div.row>div.col-sm-12
