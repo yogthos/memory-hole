@@ -10,8 +10,13 @@
   []
   (let [loading? (subscribe [:loading?])]
     (when @loading?
-      [:div.loading
-       [:div.three-quarters-loader "Loading..."]])))
+      [bs/Modal
+       {:show true}
+       [bs/Modal.Body
+        [:div.spinner
+         [:div.bounce1]
+         [:div.bounce2]
+         [:div.bounce3]]]])))
 
 (defn nav-link [uri title page]
   (let [active-page (subscribe [:active-page])]
