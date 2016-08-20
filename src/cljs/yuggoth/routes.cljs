@@ -1,9 +1,17 @@
 (ns yuggoth.routes
-  (:require [re-frame.core :refer [dispatch subscribe]]
+  (:require [re-frame.core :refer [dispatch dispatch-sync subscribe]]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
-            [secretary.core :as secretary :include-macros true])
+            [secretary.core :as secretary])
   (:import goog.History))
+
+(defn url [parts]
+  (if-let [context (not-empty js/context)]
+    (apply (partial str context "/") parts)
+    (apply str parts)))
+
+(defn set-location! [& url-parts]
+  (set! (.-href js/location) (url url-parts)))
 
 ;; -------------------------
 ;; Routes
@@ -12,12 +20,21 @@
 (secretary/defroute "/" []
   (dispatch [:set-active-page :home]))
 
+(secretary/defroute "/create-issue" []
+  (dispatch-sync [:close-issue])
+  (dispatch [:set-active-page :edit-issue]))
+
+(secretary/defroute "/edit-issue" []
+  (dispatch [:set-active-page :edit-issue]))
+
 (secretary/defroute "/issue/:id" [id]
-  (if (subscribe [:issue])
+  (cond
+    (not @(subscribe [:user]))
+    (dispatch [:add-login-event [:load-and-view-issue (js/parseInt id)]])
+    @(subscribe [:issue])
     (dispatch [:set-active-page :view-issue])
-    (dispatch [:load-and-view-issue (js/ParseInt id)])))
-
-
+    :else
+    (dispatch [:load-and-view-issue (js/parseInt id)])))
 
 ;; -------------------------
 ;; History

@@ -12,10 +12,17 @@ SET title            = :title,
     detail           = :detail,
     last_updated_by  = :user-id,
     update_date      = now(),
-    last_viewed_date = now(),
-    views            = views + 1
+    last_viewed_date = now()
 WHERE
   support_issue_id = :support-issue-id;
+
+-- :name inc-issue-views<! :<! :1
+-- :doc Updates the issue view count
+UPDATE support_issues
+SET views = views + 1
+WHERE
+  support_issue_id = :support-issue-id
+RETURNING views;
 
 -- :name support-issue* :? :1
 -- :doc Gets the issue with the given support_issue_id

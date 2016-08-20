@@ -118,10 +118,14 @@
   (sql-value [value] (to-pg-json value)))
 
 (defn support-issue [m]
-  (some-> (not-empty (support-issue* m))
+  (conman/with-transaction [*db*]
+    (when-let [issue (not-empty (support-issue* m))]
+      (-> issue
+          (merge (inc-issue-views<! m))
           (update
             :tags
             #(map (fn [[tag-id tag]]
                     {:tag-id (Integer/parseInt tag-id)
                      :tag    tag})
-                  %))))
+                  %))))))
+

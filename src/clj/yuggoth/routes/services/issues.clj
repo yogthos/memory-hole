@@ -60,7 +60,7 @@
   (ok (:support-issue-id (db/add-issue<! issue))))
 
 (handler update-issue! [issue]
-  (ok (db/update-issue! issue)))
+  (ok (db/update-issue! (dissoc issue :views))))
 
 (handler issue [m]
   (if-let [issue (db/support-issue m)]

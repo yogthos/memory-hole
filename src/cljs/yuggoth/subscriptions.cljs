@@ -37,6 +37,11 @@
     (:error db)))
 
 (reg-sub
+  :login-events
+  (fn [db _]
+    (:login-events db)))
+
+(reg-sub
   :db-state
   (fn [db _]
     (:issue db)))
