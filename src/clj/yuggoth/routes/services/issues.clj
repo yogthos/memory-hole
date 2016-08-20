@@ -46,12 +46,19 @@
   {(s/optional-key :issues) [IssueSummary]
    (s/optional-key :error)  s/Str})
 
+(def TagResult
+  {(s/optional-key :tags)  Tag
+   (s/optional-key :error) s/Str})
+
 (def TagsResult
   {(s/optional-key :tags)  [Tag]
    (s/optional-key :error) s/Str})
 
 (handler tags []
   (ok {:tags (db/tags)}))
+
+(handler add-tag! [m]
+  (ok (merge m (db/create-tag<! m))))
 
 (handler recent-issues [limit]
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))

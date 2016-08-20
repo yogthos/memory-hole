@@ -1,8 +1,9 @@
 (ns yuggoth.pages.issues
   (:require [reagent.core :as r]
+            [clojure.set :refer [difference rename-keys]]
             [re-frame.core :refer [dispatch subscribe]]
             [re-com.core
-             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]
+             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea single-dropdown]]
             [re-com.splits
              :refer [hv-split-args-desc]]
             [yuggoth.routes :refer [set-location!]]))
@@ -67,15 +68,63 @@
                  (dispatch [:create-issue @issue]))}
     "Save"]])
 
+(defn tag-selector [tags]
+  (r/with-let [avilable-tags (->> @(subscribe [:tags])
+                                  (map #(rename-keys % {:tag-id :id :tag :label}))
+                                  (set))
+               tags-by-id    (group-by :id avilable-tags)
+               selected      (r/atom nil)]
+    [:div
+     [single-dropdown
+      :choices (vec (difference avilable-tags @tags))
+      :model selected
+      :width "300px"
+      :max-height "400px"
+      :filter-box? true
+      :on-change #(reset! selected %)]
+     [:span "selected: " (str @selected)]
+     [:button.btn.btn-primary
+      {:on-click #(swap! tags conj (-> @selected
+                                       tags-by-id
+                                       first
+                                       (rename-keys {:id :tag-id :label :tag})))}
+      "add tag"]]))
+
+(defn remove-tag [tags tag-id]
+  (remove #(= tag-id (:tag-id %)) tags))
+
+(defn selected-tags [tags]
+  [:ul
+   (for [{:keys [tag-id tag]} @tags]
+     ^{:key tag-id}
+     [:li tag " "
+      [:a
+       {:on-click #(swap! tags remove-tag tag-id)}
+       [:span.glyphicon.glyphicon-remove]]])])
+
+(defn create-tag []
+  (r/with-let [tag (r/atom nil)]
+    [:div
+     [:input
+      {:type      :text
+       :on-change #(reset! tag (-> % .-target .-value))}]
+     [:button.btn.btn-primary "create tag"]]))
+
 (defn tag-editor [tags]
-  [:div.row>div.col-md-12>p "tags" (str tags)])
+  [:div
+   [:div.row>div.col-md-12
+    [tag-selector tags]]
+   [:div.row>div.col-md-12
+    [selected-tags tags]]
+   [:div.row>div.col-md-12
+    [create-tag]]])
 
 (defn edit-issue-page []
   (r/with-let [issue   (r/atom (-> @(subscribe [:issue])
                                    (update :title #(or % ""))
                                    (update :summary #(or % ""))
                                    (update :detail #(or % ""))
-                                   (update :tags #(or % []))))
+                                   (update :tags #(set (or % [])))))
                title   (r/cursor issue [:title])
                summary (r/cursor issue [:summary])
                detail  (r/cursor issue [:detail])
