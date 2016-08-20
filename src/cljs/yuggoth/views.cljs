@@ -18,7 +18,7 @@
          [:div.bounce2]
          [:div.bounce3]]]])))
 
-(defn nav-link [uri title page]
+#_(defn nav-link [uri title page]
   (let [active-page (subscribe [:active-page])]
     [bs/NavItem {:href uri :active (= page @active-page)} title]))
 
@@ -29,6 +29,8 @@
     [:a#logo {:href "#/"}
      [:span "Issues"]]]
    [bs/Navbar.Collapse
+    #_[bs/Nav
+     [nav-link "#/" "Home" :home]]
     [bs/Nav {:pull-right true}
      [bs/MenuItem {:on-click logout}
       (r/as-component [:span "Logout " (:display-name user)])]]]])

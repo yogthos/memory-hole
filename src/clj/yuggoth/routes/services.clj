@@ -52,6 +52,7 @@
       :return issues/TagsResult
       :summary "list available tags"
       (issues/tags))
+
     ;;issues
     (GET "/recent-issues" []
       :return issues/IssueSummaryResults
@@ -119,5 +120,4 @@
          :summary          summary
          :detail           detail
          :user-id          (:id user)}))
-
     ))

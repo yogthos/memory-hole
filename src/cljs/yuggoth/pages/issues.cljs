@@ -4,7 +4,8 @@
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]
             [re-com.splits
-             :refer [hv-split-args-desc]]))
+             :refer [hv-split-args-desc]]
+            [yuggoth.routes :refer [set-location!]]))
 
 (def rounded-panel (flex-child-style "1"))
 
@@ -52,7 +53,7 @@
      [:div.col-sm-12 [:p (:summary @issue)]]
      [:div.col-sm-12 [markdown-component (:detail @issue)]]
      [:button.btn.btn-primary.pull-right
-      {:on-click #(dispatch [:set-active-page :edit-issue])}
+      {:on-click #(set-location! "#/edit-issue")}
       "edit"]]))
 
 (defn control-buttons [issue]
@@ -61,17 +62,24 @@
     {:on-click #(dispatch [:cancel-issue-edit])}
     "Cancel"]
    [:button.btn.btn-primary.pull-right
-    {:on-click #(dispatch [:save-issue @issue])}
+    {:on-click #(if (:support-issue-id issue)
+                 (dispatch [:save-issue @issue])
+                 (dispatch [:create-issue @issue]))}
     "Save"]])
+
+(defn tag-editor [tags]
+  [:div.row>div.col-md-12>p "tags" (str tags)])
 
 (defn edit-issue-page []
   (r/with-let [issue   (r/atom (-> @(subscribe [:issue])
                                    (update :title #(or % ""))
                                    (update :summary #(or % ""))
-                                   (update :detail #(or % ""))))
+                                   (update :detail #(or % ""))
+                                   (update :tags #(or % []))))
                title   (r/cursor issue [:title])
                summary (r/cursor issue [:summary])
-               detail  (r/cursor issue [:detail])]
+               detail  (r/cursor issue [:detail])
+               tags    (r/cursor issue [:tags])]
     [v-box
      :size "auto"
      :gap "10px"
@@ -81,16 +89,14 @@
       [input-text
        :model title
        :class "edit-issue-title"
-       :validation-regex #"^(?!\s*$).+"
        :placeholder "title of the issue"
        :on-change #(reset! title %)]
       [input-text
        :model summary
        :width "100%"
-       :validation-regex #"^(?!\s*$).+"
        :placeholder "issue summary"
        :on-change #(reset! summary %)]
-      [:div.row>div.col-md-12>p "tags" (:tags @issue)]
+      [tag-editor tags]
       [h-split
        :panel-1 [edit-panel detail]
        :panel-2 [preview-panel @detail]

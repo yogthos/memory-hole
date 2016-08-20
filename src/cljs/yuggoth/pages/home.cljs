@@ -1,7 +1,7 @@
 (ns yuggoth.pages.home
   (:require [reagent.core :as r]
-            [re-frame.core :refer [dispatch subscribe]]
-            [clojure.string :as s]
+            [re-frame.core :refer [dispatch dispatch-sync subscribe]]
+            [yuggoth.routes :refer [set-location!]]
             [yuggoth.pages.issues :refer [markdown-component]]
             [yuggoth.bootstrap :as bs]
             [re-com.core
@@ -22,7 +22,7 @@
 
 (defn new-issue []
   [:button.btn.btn-primary.pull-right
-   {:on-click #(dispatch [:set-active-page :edit-issue])}
+   {:on-click #(set-location! "#/create-issue")}
    "Add Issue"])
 
 (defn issue-panel [{:keys [support-issue-id title summary]}]

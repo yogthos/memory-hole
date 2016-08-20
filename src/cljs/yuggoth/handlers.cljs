@@ -1,13 +1,12 @@
 (ns yuggoth.handlers
-  (:require [re-frame.core :refer [dispatch reg-event-db]]
-            [ajax.core :refer [GET POST]]
+  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
+            [secretary.core :as secretary]
+            [ajax.core :refer [GET POST PUT]]
             [yuggoth.db :as db]))
 
 (reg-event-db
   :initialize-db
   (fn [_ _]
-    (dispatch [:load-tags])
-    (dispatch [:load-recent-issues])
     db/default-db))
 
 (reg-event-db
@@ -16,8 +15,21 @@
     (assoc db :active-page page)))
 
 (reg-event-db
+  :run-login-events
+  (fn [db _]
+    (doseq [event (:login-events db)]
+      (dispatch event))
+    db))
+
+(reg-event-db
+  :add-login-event
+  (fn [db [_ event]]
+    (update db :login-events conj event)))
+
+(reg-event-db
   :login
   (fn [db [_ user]]
+    (dispatch [:run-login-events])
     (assoc db :user user)))
 
 (reg-event-db
@@ -116,7 +128,7 @@
   (fn [db [_ support-issue-id]]
     (GET (str "/api/issue/" support-issue-id)
          {:handler       #(do
-                           (dispatch [:set-issue (:issue %)])
+                           (dispatch-sync [:set-issue (:issue %)])
                            (dispatch [:set-active-page :view-issue]))
           :error-handler #(dispatch [:set-error (str %)])})
     db))
@@ -128,18 +140,33 @@
               :issue issue)))
 
 (reg-event-db
+  :create-issue
+  (fn [db [_ {:keys [title summary detail] :as issue}]]
+    (POST "/api/issue"
+          {:params        {:title title
+                           :summary summary
+                           :detail detail}
+           :handler       #(do
+                            (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
+                            (secretary/dispatch! (str "/issue/" %)))
+           :error-handler #(dispatch [:set-error (str %)])})
+    db))
+
+(reg-event-db
   :save-issue
-  (fn [db [_ issue]]
-    (assoc db :active-page :home
-              :issue issue))
-  #_(fn [db [_ issue]]
-      (POST "/api/save"
-            {:params        {:issue issue}
-             :handler       #()
-             :error-handler #(dispatch [:set-error (str %)])})
-      db))
+  (fn [db [_ {:keys [support-issue-id title summary detail] :as issue}]]
+    (PUT "/api/issue"
+         {:params        {:support-issue-id support-issue-id
+                          :title title
+                          :summary summary
+                          :detail detail}
+          :handler       #(do
+                           (dispatch-sync [:set-issue issue])
+                           (secretary/dispatch! (str "/issue/" support-issue-id)))
+          :error-handler #(dispatch [:set-error (str %)])})
+    db))
 
 (reg-event-db
   :cancel-issue-edit
   (fn [db _]
-    (assoc db :active-page :home)))
+    (assoc db :active-page :view-issue)))
