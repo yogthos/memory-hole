@@ -39,19 +39,23 @@
   :set-active-issue
   (fn [db [_ issue]]
     (assoc db :active-page :edit
-              :loading? false
               :issue issue)))
 
-(defn loading [db]
-  (assoc db :loading? true
-            :error false))
+(reg-event-db
+  :unset-loading
+  (fn [db _]
+    (dissoc db :loading? :error)))
 
+(reg-event-db
+  :set-loading
+  (fn [db _]
+    (assoc db :loading? true
+              :error false)))
 
 (reg-event-db
   :set-tags
   (fn [db [_ tags]]
-    (assoc db :loading? false
-              :tags tags)))
+    (assoc db :tags tags)))
 
 (reg-event-db
   :load-tags
@@ -59,13 +63,12 @@
     (GET "/api/tags"
          {:handler       #(dispatch [:set-tags (:tags %)])
           :error-handler #(dispatch [:set-error (str %)])})
-    (loading db)))
+    db))
 
 (reg-event-db
   :set-issues
   (fn [db [_ issues]]
-    (assoc db :loading? false
-              :issues issues)))
+    (assoc db :issues issues)))
 
 (reg-event-db
   :load-recent-issues
@@ -73,7 +76,7 @@
     (GET "/api/recent-issues"
          {:handler       #(dispatch [:set-issues (:issues %)])
           :error-handler #(dispatch [:set-error (str %)])})
-    (loading db)))
+    db))
 
 (reg-event-db
   :load-issues-for-tag
@@ -81,7 +84,7 @@
     (GET (str "/api/issues-by-tag/" tag)
          {:handler       #(dispatch [:set-issues (:issues %)])
           :error-handler #(dispatch [:set-error (str %)])})
-    (loading db)))
+    db))
 
 (reg-event-db
   :search-for-issues
@@ -92,7 +95,7 @@
                            :offset 0}
            :handler       #(dispatch [:set-issues (:issues %)])
            :error-handler #(dispatch [:set-error (str %)])})
-    (loading db)))
+    db))
 
 (reg-event-db
   :edit-issue
@@ -100,13 +103,12 @@
     (GET (str "/api/issue/" issue-id)
          {:handler       #(dispatch [:set-active-issue (:issue %)])
           :error-handler #(dispatch [:set-error (str %)])})
-    (loading db)))
+    db))
 
 (reg-event-db
   :process-issue-save
   (fn [db issue]
     (assoc db :active-page :view-issue
-              :loading? false
               :issue issue)))
 
 (reg-event-db
@@ -119,7 +121,7 @@
             {:params        {:issue issue}
              :handler       #()
              :error-handler #(dispatch [:set-error (str %)])})
-      (loading db)))
+      db))
 
 (reg-event-db
   :cancel-issue-edit

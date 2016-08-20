@@ -1,7 +1,9 @@
 (ns yuggoth.ajax
-  (:require [ajax.core :as ajax]))
+  (:require [re-frame.core :refer [dispatch]]
+            [ajax.core :as ajax]))
 
-(defn default-headers [request]
+(defn request-defaults [request]
+  (dispatch [:set-loading])
   (-> request
       (update :uri #(str js/context %))
       (update
@@ -11,10 +13,15 @@
           {"Accept" "application/transit+json"
            "x-csrf-token" js/csrfToken}))))
 
+(defn response-defaults [response]
+  (dispatch [:unset-loading])
+  response)
+
 (defn load-interceptors! []
   (swap! ajax/default-interceptors
          conj
-         (ajax/to-interceptor {:name "default headers"
-                               :request default-headers})))
+         (ajax/to-interceptor {:name     "default headers"
+                               :request  request-defaults
+                               :response response-defaults})))
 
 
