@@ -19,6 +19,11 @@
                      (dispatch [:search-for-issues value]))}
         "search"]]]]))
 
+(defn new-issue []
+  [:button.btn.btn-primary.pull-right
+   {:on-click #(dispatch [:set-active-page :edit-issue])}
+   "Add Issue"])
+
 (defn home-page []
   (r/with-let [tags         (subscribe [:tags])
                issues       (subscribe [:issues])]
@@ -35,7 +40,7 @@
           {:on-click #(dispatch [:load-issues-for-tag tag])}
           tag])]]
       [:div.col-md-10
-       [:h2 "Issues"]
+       [:h2 "Issues " [new-issue]]
        [issue-search]
        (for [{:keys [support-issue-id title summary]} @issues]
          ^{:key support-issue-id}
