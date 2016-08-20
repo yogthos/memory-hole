@@ -2,11 +2,12 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [clojure.string :as s]
+            [yuggoth.pages.issues :refer [markdown-component]]
             [yuggoth.bootstrap :as bs]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
-(defn issue-search []
+(defn issue-search [select]
   (r/with-let [search (r/atom nil)]
     [bs/FormGroup
      [bs/InputGroup
@@ -16,7 +17,7 @@
       [bs/InputGroup.Button
        [bs/Button
         {:on-click #(when-let [value (not-empty @search)]
-                     (dispatch [:search-for-issues value]))}
+                     (select [:search-for-issues value] nil))}
         "search"]]]]))
 
 (defn new-issue []
@@ -24,26 +25,64 @@
    {:on-click #(dispatch [:set-active-page :edit-issue])}
    "Add Issue"])
 
+(defn issue-panel [{:keys [support-issue-id title summary]}]
+  (r/with-let [issue         (subscribe [:issue])
+               collapsed?    (r/atom true)
+               toggle-detail (fn []
+                               (if @collapsed?
+                                 (dispatch [:load-issue-detail support-issue-id])
+                                 (dispatch [:close-issue]))
+                               (swap! collapsed? not))]
+    [bs/Panel
+     {:header (r/as-component [:h2 title])
+      :footer (r/as-component
+                (if @collapsed?
+                  [:a {:on-click toggle-detail} "more..."]
+                  (r/as-component
+                    [:div
+                     [:a {:on-click toggle-detail} "less"]
+                     [:a.pull-right
+                      {:on-click #(dispatch [:set-active-page :edit-issue])}
+                      "edit"]])))}
+     summary
+     (when-not @collapsed?
+       (when-let [{:keys [detail]} @issue]
+         [:div
+          [markdown-component detail]]))]))
+
+(defn tag-control [title selected on-click]
+  [bs/ListGroupItem
+   {:on-click on-click}
+   title
+   (when (= title @selected)
+     [:span.glyphicon.glyphicon-triangle-right])])
+
 (defn home-page []
-  (r/with-let [tags         (subscribe [:tags])
-               issues       (subscribe [:issues])]
+  (r/with-let [tags     (subscribe [:tags])
+               issues   (subscribe [:issues])
+               selected (r/atom nil)
+               select   (fn [action selection]
+                          (dispatch action)
+                          (reset! selected selection))]
     [:div.container
      [:div.row
       [:div.col-md-2
        [:h2 "Tags"]
        [bs/ListGroup
-        [bs/ListGroupItem {:on-click #(dispatch [:load-recent-issues])}
-         "Recent"]
-        (for [{:keys [tag-id tag]} @tags]
-         ^{:key tag-id}
-         [bs/ListGroupItem
-          {:on-click #(dispatch [:load-issues-for-tag tag])}
-          tag])]]
+        [tag-control
+         "Recent"
+         selected
+         #(select [:load-recent-issues] "Recent")]
+        (doall
+          (for [{:keys [tag-id tag]} @tags]
+            ^{:key tag-id}
+            [tag-control
+             tag
+             selected
+             #(select [:load-issues-for-tag tag] tag)]))]]
       [:div.col-md-10
        [:h2 "Issues " [new-issue]]
-       [issue-search]
-       (for [{:keys [support-issue-id title summary]} @issues]
-         ^{:key support-issue-id}
-         [bs/Panel
-          {:header (r/as-component [:h2 title])}
-          summary])]]]))
+       [issue-search select]
+       (for [issue-summary @issues]
+         ^{:key (:support-issue-id issue-summary)}
+         [issue-panel issue-summary])]]]))

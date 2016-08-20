@@ -16,7 +16,7 @@
           (.highlightBlock js/hljs item))
         (recur (dec i))))))
 
-(defn markdown-component [_]
+(defn markdown-component []
   (r/create-class
     {:component-did-mount
      #(highlight-code (r/dom-node %))

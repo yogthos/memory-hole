@@ -36,12 +36,6 @@
     (dissoc db :error)))
 
 (reg-event-db
-  :set-active-issue
-  (fn [db [_ issue]]
-    (assoc db :active-page :edit
-              :issue issue)))
-
-(reg-event-db
   :unset-loading
   (fn [db _]
     (dissoc db :loading? :error)))
@@ -52,6 +46,7 @@
     (assoc db :loading? true
               :error false)))
 
+;;tag event handlers
 (reg-event-db
   :set-tags
   (fn [db [_ tags]]
@@ -64,6 +59,17 @@
          {:handler       #(dispatch [:set-tags (:tags %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
+
+;;issue event handlers
+(reg-event-db
+  :set-issue
+  (fn [db [_ issue]]
+    (assoc db :issue issue)))
+
+(reg-event-db
+  :close-issue
+  (fn [db _]
+    (dissoc db :issue)))
 
 (reg-event-db
   :set-issues
@@ -98,10 +104,10 @@
     db))
 
 (reg-event-db
-  :edit-issue
-  (fn [db [_ issue-id]]
-    (GET (str "/api/issue/" issue-id)
-         {:handler       #(dispatch [:set-active-issue (:issue %)])
+  :load-issue-detail
+  (fn [db [_ support-issue-id]]
+    (GET (str "/api/issue/" support-issue-id)
+         {:handler       #(dispatch [:set-issue (:issue %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
