@@ -53,6 +53,12 @@
       :summary "list available tags"
       (issues/tags))
 
+    (POST "/tag" []
+      :body-params [tag :- s/Str]
+      :return issues/TagResult
+      :summary "add a new tag"
+      (issues/add-tag! {:tag tag}))
+
     ;;issues
     (GET "/recent-issues" []
       :return issues/IssueSummaryResults

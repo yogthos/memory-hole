@@ -72,6 +72,20 @@
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
+(reg-event-db
+  :add-tag
+  (fn [db [_ tag]]
+    (update db :tags conj tag)))
+
+(reg-event-db
+  :create-tag
+  (fn [db [_ tag]]
+    (POST "/api/tag"
+          {:params        {:tag tag}
+           :handler       #(dispatch [:add-tag %])
+           :error-handler #(dispatch [:set-error (str %)])})
+    db))
+
 ;;issue event handlers
 (reg-event-db
   :set-issue
@@ -143,9 +157,9 @@
   :create-issue
   (fn [db [_ {:keys [title summary detail] :as issue}]]
     (POST "/api/issue"
-          {:params        {:title title
+          {:params        {:title   title
                            :summary summary
-                           :detail detail}
+                           :detail  detail}
            :handler       #(do
                             (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
                             (secretary/dispatch! (str "/issue/" %)))
@@ -157,9 +171,9 @@
   (fn [db [_ {:keys [support-issue-id title summary detail] :as issue}]]
     (PUT "/api/issue"
          {:params        {:support-issue-id support-issue-id
-                          :title title
-                          :summary summary
-                          :detail detail}
+                          :title            title
+                          :summary          summary
+                          :detail           detail}
           :handler       #(do
                            (dispatch-sync [:set-issue issue])
                            (secretary/dispatch! (str "/issue/" support-issue-id)))
