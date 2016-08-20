@@ -57,7 +57,7 @@
   :load-tags
   (fn [db _]
     (GET "/api/tags"
-         {:handler #(dispatch [:set-tags (:tags %)])
+         {:handler       #(dispatch [:set-tags (:tags %)])
           :error-handler #(dispatch [:set-error (str %)])})
     (loading db)))
 
@@ -71,8 +71,27 @@
   :load-recent-issues
   (fn [db _]
     (GET "/api/recent-issues"
-         {:handler #(dispatch [:set-issues (:issues %)])
+         {:handler       #(dispatch [:set-issues (:issues %)])
           :error-handler #(dispatch [:set-error (str %)])})
+    (loading db)))
+
+(reg-event-db
+  :load-issues-for-tag
+  (fn [db [_ tag]]
+    (GET (str "/api/issues-by-tag/" tag)
+         {:handler       #(dispatch [:set-issues (:issues %)])
+          :error-handler #(dispatch [:set-error (str %)])})
+    (loading db)))
+
+(reg-event-db
+  :search-for-issues
+  (fn [db [_ query]]
+    (POST "/api/search-issues"
+          {:params        {:query  query
+                           :limit  10
+                           :offset 0}
+           :handler       #(dispatch [:set-issues (:issues %)])
+           :error-handler #(dispatch [:set-error (str %)])})
     (loading db)))
 
 (reg-event-db

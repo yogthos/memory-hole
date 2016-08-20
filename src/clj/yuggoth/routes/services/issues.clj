@@ -78,19 +78,3 @@
 
 (handler delete-issue! [m]
   (ok (db/delete-issue! m)))
-
-#_(s/validate IssueResult (:body (issue {:support-issue-id 1})))
-
-#_(s/validate Issue (db/support-issue {:support-issue-id 1}))
-
-#_(s/validate [IssueSummary] (db/recently-viewed-issues {:limit 2}))
-
-#_(s/validate [IssueSummary] (db/issues-by-tag {:tag "supper"}))
-
-#_(s/validate
-    [IssueSummary]
-    (db/search-issues {:query "supper" :limit 10 :offset 0}))
-
-#_(s/validate
-    [Tag]
-    (db/tags-for-issues {:issue-ids [1]}))

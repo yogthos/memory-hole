@@ -77,7 +77,9 @@
       (issues/delete-issue! {:support-issue-id id}))
 
     (POST "/search-issues" []
-      :body-params [query :- s/Str limit :- s/Int offset :- s/Int]
+      :body-params [query :- s/Str
+                    limit :- s/Int
+                    offset :- s/Int]
       :return issues/IssueSummaryResults
       :summary "search for issues matching the query"
       (issues/search-issues {:query  query
