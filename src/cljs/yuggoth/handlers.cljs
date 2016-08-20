@@ -6,6 +6,8 @@
 (reg-event-db
   :initialize-db
   (fn [_ _]
+    (dispatch [:load-tags])
+    (dispatch [:load-recent-issues])
     db/default-db))
 
 (reg-event-db
@@ -43,6 +45,35 @@
 (defn loading [db]
   (assoc db :loading? true
             :error false))
+
+
+(reg-event-db
+  :set-tags
+  (fn [db [_ tags]]
+    (assoc db :loading? false
+              :tags tags)))
+
+(reg-event-db
+  :load-tags
+  (fn [db _]
+    (GET "/api/tags"
+         {:handler #(dispatch [:set-tags (:tags %)])
+          :error-handler #(dispatch [:set-error (str %)])})
+    (loading db)))
+
+(reg-event-db
+  :set-issues
+  (fn [db [_ issues]]
+    (assoc db :loading? false
+              :issues issues)))
+
+(reg-event-db
+  :load-recent-issues
+  (fn [db _]
+    (GET "/api/recent-issues"
+         {:handler #(dispatch [:set-issues (:issues %)])
+          :error-handler #(dispatch [:set-error (str %)])})
+    (loading db)))
 
 (reg-event-db
   :edit-issue

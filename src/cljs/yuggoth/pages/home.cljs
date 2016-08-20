@@ -15,8 +15,8 @@
        [:h2 "Tags"]
        [:p "todo list tags"]
        [:ul
-        (for [tag @tags]
-          ^{:key tag}
+        (for [{:keys [tag-id tag]} @tags]
+          ^{:key tag-id}
           [:ul tag])]]
       [:div.col-md-10
        [:h2 "Recent Issues"]
