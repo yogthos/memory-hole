@@ -50,6 +50,9 @@
   {(s/optional-key :tags)  [Tag]
    (s/optional-key :error) s/Str})
 
+(handler tags []
+  (ok {:tags (db/tags)}))
+
 (handler recent-issues [limit]
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))
 

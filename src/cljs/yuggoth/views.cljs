@@ -31,7 +31,7 @@
        [bs/MenuItem {:on-click logout} "Logout"]])]])
 
 (defmulti pages identity)
-(defmethod pages :home []  #_[view-issue-page] [edit-issue-page] #_[home-page])
+(defmethod pages :home []  #_[view-issue-page] #_[edit-issue-page] [home-page])
 (defmethod pages :login [] [login-page])
 (defmethod pages :edit-issue [] [edit-issue-page])
 (defmethod pages :view-issue [] [view-issue-page])

@@ -47,6 +47,12 @@
       :summary "remove the user from the session"
       (auth/logout))
 
+    ;;tags
+    (GET "/tags" []
+      :return issues/TagsResult
+      :summary "list available tags"
+      (issues/tags))
+    ;;issues
     (GET "/recent-issues" []
       :return issues/IssueSummaryResults
       :summary "list 10 most recent issues"
