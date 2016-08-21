@@ -7,7 +7,8 @@
             [re-com.splits
              :refer [hv-split-args-desc]]
             [yuggoth.bootstrap :as bs]
-            [yuggoth.routes :refer [set-location!]]))
+            [yuggoth.routes :refer [set-location!]]
+            [clojure.string :as s]))
 
 (def rounded-panel (flex-child-style "1"))
 
@@ -169,11 +170,16 @@
      [confirm-delete-modal confirm-open? support-issue-id]
      [bs/Button {:bs-style "danger" :on-click #(reset! confirm-open? true)} "delete"]]))
 
+(defn format-tags [tags]
+  (->> tags
+       (map :tag)
+       (s/join ", ")))
+
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div.row
      [:div.col-sm-12 [:h2 (:title @issue)]]
-     [:div.col-sm-12 [:h4 (str (:tags @issue))]]
+     [:div.col-sm-12 [:h4 "tags: " (format-tags (:tags @issue))]]
      [:div.col-sm-12 [:p (:summary @issue)]]
      [:div.col-sm-12 [markdown-component (:detail @issue)]]
      [delete-issue @issue]
