@@ -39,7 +39,7 @@
        [bs/Modal.Header [bs/Modal.Title "Login"]]
        [bs/Modal.Body
         (if @error
-          [bs/Alert {:bsStyle "danger"} @error])
+          [bs/Alert {:bs-style "danger"} @error])
         [bs/Form {:horizontal true}
          [bs/FormGroup
           [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Username"]]
@@ -58,5 +58,5 @@
              :on-change #(swap! params assoc :pass (-> % .-target .-value))
              :on-key-up on-key-up}]]]]]
        [bs/Modal.Footer
-        [bs/Button {:bsStyle "primary" :on-click #(login params error on-close)} "Login"]
+        [bs/Button {:bs-style "primary" :on-click #(login params error on-close)} "Login"]
         [bs/Button {:on-click on-close} "Cancel"]]])))

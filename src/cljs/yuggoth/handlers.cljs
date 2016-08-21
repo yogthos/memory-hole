@@ -1,6 +1,6 @@
 (ns yuggoth.handlers
   (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
-            [ajax.core :refer [GET POST PUT]]
+            [ajax.core :refer [DELETE GET POST PUT]]
             [yuggoth.routes :refer [set-location!]]
             [yuggoth.db :as db]))
 
@@ -177,6 +177,14 @@
           :handler       #(do
                            (dispatch-sync [:set-issue issue])
                            (set-location! "#/issue/" support-issue-id))
+          :error-handler #(dispatch [:set-error (str %)])})
+    db))
+
+(reg-event-db
+  :delete-issue
+  (fn [db [_ {:keys [support-issue-id]}]]
+    (DELETE (str "/api/issue/" support-issue-id)
+         {:handler       #(set-location! "#/")
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
