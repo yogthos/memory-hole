@@ -58,37 +58,38 @@
       "edit"]]))
 
 (defn control-buttons [issue]
-  [:div.row>div.col-sm-12
-   [:button.btn.btn-danger
-    {:on-click #(dispatch [:cancel-issue-edit])}
-    "Cancel"]
-   [:button.btn.btn-primary.pull-right
-    {:on-click #(if (:support-issue-id issue)
-                 (dispatch [:save-issue @issue])
-                 (dispatch [:create-issue @issue]))}
-    "Save"]])
+  (let [new-issue? (:support-issue-id issue)]
+    [:div.row>div.col-sm-12
+     [:button.btn.btn-danger
+      {:on-click #(set-location! (if new-issue? "#/" "#/view-issue"))}
+      "Cancel"]
+     [:button.btn.btn-primary.pull-right
+      {:on-click #(if new-issue?
+                   (dispatch [:create-issue @issue])
+                   (dispatch [:save-issue @issue]))}
+      "Save"]]))
 
 (defn tag-selector [tags]
   (r/with-let [avilable-tags (->> @(subscribe [:tags])
                                   (map #(rename-keys % {:tag-id :id :tag :label}))
                                   (set))
-               tags-by-id    (group-by :id avilable-tags)
-               selected      (r/atom nil)]
-    [:div
-     [single-dropdown
-      :choices (vec (difference avilable-tags @tags))
-      :model selected
-      :width "300px"
-      :max-height "400px"
-      :filter-box? true
-      :on-change #(reset! selected %)]
-     [:span "selected: " (str @selected)]
-     [:button.btn.btn-primary
-      {:on-click #(swap! tags conj (-> @selected
-                                       tags-by-id
-                                       first
-                                       (rename-keys {:id :tag-id :label :tag})))}
-      "add tag"]]))
+               tags-by-id (group-by :id avilable-tags)
+               selected (r/atom nil)]
+              [:div
+               [single-dropdown
+                :choices (vec (difference avilable-tags @tags))
+                :model selected
+                :width "300px"
+                :max-height "400px"
+                :filter-box? true
+                :on-change #(reset! selected %)]
+               [:span "selected: " (str @selected)]
+               [:button.btn.btn-primary
+                {:on-click #(swap! tags conj (-> @selected
+                                                 tags-by-id
+                                                 first
+                                                 (rename-keys {:id :tag-id :label :tag})))}
+                "add tag"]]))
 
 (defn remove-tag [tags tag-id]
   (remove #(= tag-id (:tag-id %)) tags))
@@ -104,11 +105,11 @@
 
 (defn create-tag []
   (r/with-let [tag (r/atom nil)]
-    [:div
-     [:input
-      {:type      :text
-       :on-change #(reset! tag (-> % .-target .-value))}]
-     [:button.btn.btn-primary "create tag"]]))
+              [:div
+               [:input
+                {:type      :text
+                 :on-change #(reset! tag (-> % .-target .-value))}]
+               [:button.btn.btn-primary "create tag"]]))
 
 (defn tag-editor [tags]
   [:div
@@ -120,34 +121,34 @@
     [create-tag]]])
 
 (defn edit-issue-page []
-  (r/with-let [issue   (r/atom (-> @(subscribe [:issue])
-                                   (update :title #(or % ""))
-                                   (update :summary #(or % ""))
-                                   (update :detail #(or % ""))
-                                   (update :tags #(set (or % [])))))
-               title   (r/cursor issue [:title])
+  (r/with-let [issue (r/atom (-> @(subscribe [:issue])
+                                 (update :title #(or % ""))
+                                 (update :summary #(or % ""))
+                                 (update :detail #(or % ""))
+                                 (update :tags #(set (or % [])))))
+               title (r/cursor issue [:title])
                summary (r/cursor issue [:summary])
-               detail  (r/cursor issue [:detail])
-               tags    (r/cursor issue [:tags])]
-    [v-box
-     :size "auto"
-     :gap "10px"
-     :height "auto"
-     :children
-     [[control-buttons issue]
-      [input-text
-       :model title
-       :class "edit-issue-title"
-       :placeholder "title of the issue"
-       :on-change #(reset! title %)]
-      [input-text
-       :model summary
-       :width "100%"
-       :placeholder "issue summary"
-       :on-change #(reset! summary %)]
-      [tag-editor tags]
-      [h-split
-       :panel-1 [edit-panel detail]
-       :panel-2 [preview-panel @detail]
-       :size "auto"]
-      [control-buttons issue]]]))
+               detail (r/cursor issue [:detail])
+               tags (r/cursor issue [:tags])]
+              [v-box
+               :size "auto"
+               :gap "10px"
+               :height "auto"
+               :children
+               [[control-buttons issue]
+                [input-text
+                 :model title
+                 :class "edit-issue-title"
+                 :placeholder "title of the issue"
+                 :on-change #(reset! title %)]
+                [input-text
+                 :model summary
+                 :width "100%"
+                 :placeholder "issue summary"
+                 :on-change #(reset! summary %)]
+                [tag-editor tags]
+                [h-split
+                 :panel-1 [edit-panel detail]
+                 :panel-2 [preview-panel @detail]
+                 :size "auto"]
+                [control-buttons issue]]]))
