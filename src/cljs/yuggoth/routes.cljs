@@ -27,6 +27,9 @@
 (secretary/defroute "/edit-issue" []
   (dispatch [:set-active-page :edit-issue]))
 
+(secretary/defroute "/view-issue" []
+  (dispatch [:set-active-page :view-issue]))
+
 (secretary/defroute "/issue/:id" [id]
   (cond
     (not @(subscribe [:user]))

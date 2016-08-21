@@ -1,7 +1,7 @@
 (ns yuggoth.handlers
   (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
-            [secretary.core :as secretary]
             [ajax.core :refer [GET POST PUT]]
+            [yuggoth.routes :refer [set-location!]]
             [yuggoth.db :as db]))
 
 (reg-event-db
@@ -162,7 +162,7 @@
                            :detail  detail}
            :handler       #(do
                             (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
-                            (secretary/dispatch! (str "/issue/" %)))
+                            (set-location! "#/issue/" %))
            :error-handler #(dispatch [:set-error (str %)])})
     db))
 
@@ -176,11 +176,7 @@
                           :detail           detail}
           :handler       #(do
                            (dispatch-sync [:set-issue issue])
-                           (secretary/dispatch! (str "/issue/" support-issue-id)))
+                           (set-location! "#/issue/" support-issue-id))
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
-(reg-event-db
-  :cancel-issue-edit
-  (fn [db _]
-    (assoc db :active-page :view-issue)))
