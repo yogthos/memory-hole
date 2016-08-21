@@ -13,6 +13,9 @@
 (defn set-location! [& url-parts]
   (set! (.-href js/location) (url url-parts)))
 
+(defn logged-in? []
+  @(subscribe [:user]))
+
 ;; -------------------------
 ;; Routes
 (secretary/set-config! :prefix "#")
@@ -21,18 +24,23 @@
   (dispatch [:set-active-page :home]))
 
 (secretary/defroute "/create-issue" []
-  (dispatch-sync [:close-issue])
-  (dispatch [:set-active-page :edit-issue]))
+  (if-not (logged-in?)
+    (set-location! "#/")
+    (do
+      (dispatch-sync [:close-issue])
+      (dispatch [:set-active-page :edit-issue]))))
 
 (secretary/defroute "/edit-issue" []
-  (dispatch [:set-active-page :edit-issue]))
+  (if-not (logged-in?)
+    (set-location! "#/")
+    (dispatch [:set-active-page :edit-issue])))
 
 (secretary/defroute "/view-issue" []
   (dispatch [:set-active-page :view-issue]))
 
 (secretary/defroute "/issue/:id" [id]
   (cond
-    (not @(subscribe [:user]))
+    (not (logged-in?))
     (dispatch [:add-login-event [:load-and-view-issue (js/parseInt id)]])
     @(subscribe [:issue])
     (dispatch [:set-active-page :view-issue])
