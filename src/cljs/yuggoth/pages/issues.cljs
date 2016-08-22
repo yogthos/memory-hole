@@ -166,7 +166,7 @@
 
 (defn delete-issue [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]
-    [:div
+    [:div.pull-left
      [confirm-delete-modal confirm-open? support-issue-id]
      [bs/Button {:bs-style "danger" :on-click #(reset! confirm-open? true)} "delete"]]))
 
@@ -177,13 +177,16 @@
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
-    [:div.row
-     [:div.col-sm-12 [:h2 (:title @issue)]]
-     [:div.col-sm-12 [:h4 "tags: " (format-tags (:tags @issue))]]
-     [:div.col-sm-12 [:p (:summary @issue)]]
-     [:div.col-sm-12 [markdown-component (:detail @issue)]]
-     [delete-issue @issue]
-     [bs/Button
-      {:bs-style "primary pull-right"
-       :on-click #(set-location! "#/edit-issue")}
-      "edit"]]))
+    [:div
+     [:div.row
+      [:div.col-sm-12 [:h2 (:title @issue)]]
+      [:div.col-sm-12 [:h4 "tags: " (format-tags (:tags @issue))]]
+      [:div.col-sm-12 [:p (:summary @issue)]]
+      [:div.col-sm-12 [markdown-component (:detail @issue)]]]
+     [:div.row>div.col-sm-12
+      [delete-issue @issue]
+      [bs/Button
+       {:bs-style "primary"
+        :class    "pull-right"
+        :on-click #(set-location! "#/edit-issue")}
+       "edit"]]]))
