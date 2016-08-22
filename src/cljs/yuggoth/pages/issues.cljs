@@ -35,6 +35,7 @@
 (defn preview-panel [text]
   [box
    :size "atuo"
+   :class "edit-issue-detail"
    :child
    [:div.rounded-panel {:style rounded-panel}
     [markdown-component text]]])
@@ -43,10 +44,12 @@
   [box
    :size "atuo"
    :child
-   [:textarea.form-control.edit-issue-detail
-    {:on-change   #(reset! text (-> % .-target .-value))
+   [bs/FormControl
+    {:component-class "textarea"
+     :class "edit-issue-detail"
+     :placeholder "issue detail"
      :value       @text
-     :placeholder "describe the issue"}]])
+     :on-change   #(reset! text (-> % .-target .-value))}]])
 
 (defn control-buttons [issue]
   (let [new-issue? (:support-issue-id issue)]
@@ -171,16 +174,14 @@
      [bs/Button {:bs-style "danger" :on-click #(reset! confirm-open? true)} "delete"]]))
 
 (defn format-tags [tags]
-  (->> tags
-       (map :tag)
-       (s/join ", ")))
+  [:div (map (fn [{:keys [tag]}] [bs/Badge tag]) tags)])
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div
      [:div.row
       [:div.col-sm-12 [:h2 (:title @issue)]]
-      [:div.col-sm-12 [:h4 "tags: " (format-tags (:tags @issue))]]
+      [:div.col-sm-12 (format-tags (:tags @issue))]
       [:div.col-sm-12 [:p (:summary @issue)]]
       [:div.col-sm-12 [markdown-component (:detail @issue)]]]
      [:div.row>div.col-sm-12
