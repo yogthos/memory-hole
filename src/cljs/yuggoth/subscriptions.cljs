@@ -44,4 +44,4 @@
 (reg-sub
   :db-state
   (fn [db _]
-    (:issue db)))
+    db))

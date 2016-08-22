@@ -5,6 +5,9 @@
             [yuggoth.bootstrap :as bs]
             [re-frame.core :refer [dispatch subscribe]]))
 
+(defn logged-in? []
+  (boolean js/user))
+
 (defn logout []
   (POST "/api/logout"
         {:handler (dispatch [:logout])}))

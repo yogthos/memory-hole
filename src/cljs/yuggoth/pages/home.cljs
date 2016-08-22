@@ -33,10 +33,11 @@
                "more..."])}
    summary])
 
-(defn tag-control [title selected on-click]
+(defn tag-control [title count selected on-click]
   [bs/ListGroupItem
    {:on-click on-click}
-   title
+   title " "
+   (when count [bs/Badge count])
    (when (= title @selected)
      [:span.glyphicon.glyphicon-triangle-right])])
 
@@ -54,15 +55,16 @@
        [bs/ListGroup
         [tag-control
          "Recent"
+         nil
          selected
          #(select [:load-recent-issues] "Recent")]
-        (doall
-          (for [{:keys [tag-id tag]} @tags]
-            ^{:key tag-id}
-            [tag-control
-             tag
-             selected
-             #(select [:load-issues-for-tag tag] tag)]))]]
+        (for [{:keys [tag-count tag-id tag]} @tags]
+          ^{:key tag-id}
+          [tag-control
+           tag
+           tag-count
+           selected
+           #(select [:load-issues-for-tag tag] tag)])]]
       [:div.col-md-10
        [:h2 "Issues " [new-issue]]
        [issue-search select]
