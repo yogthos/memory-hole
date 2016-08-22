@@ -64,9 +64,13 @@
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))
 
 (handler add-issue! [issue]
+         ;; TODO add missing tags
+         ;;TODO associate issue with tags
   (ok (:support-issue-id (db/add-issue<! issue))))
 
 (handler update-issue! [issue]
+         ;; TODO add missing tags
+         ;;TODO associate issue with tags
   (ok (db/update-issue! (dissoc issue :views))))
 
 (handler issue [m]

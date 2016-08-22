@@ -32,8 +32,8 @@
 
   (POST "/api/login" req
     :return auth/LoginResponse
-    :body-params [userid :- String
-                  pass :- String]
+    :body-params [userid :- s/Str
+                  pass :- s/Str]
     :summary "User login handler"
     (auth/login userid pass req))
 
@@ -101,9 +101,12 @@
 
     (POST "/issue" []
       :current-user user
-      :body-params [title :- String
-                    summary :- String
-                    detail :- String]
+      :body-params [title :- s/Str
+                    summary :- s/Str
+                    detail :- s/Str
+                    ;;TODO add tags
+                    ;;tags :- [s/Str]
+                    ]
       :return s/Num
       :summary "adds a new issue"
       (issues/add-issue!
@@ -115,9 +118,12 @@
     (PUT "/issue" []
       :current-user user
       :body-params [support-issue-id :- s/Num
-                    title :- String
-                    summary :- String
-                    detail :- String]
+                    title :- s/Str
+                    summary :- s/Str
+                    detail :- s/Str
+                    ;;TODO add tags
+                    ;;tags :- [s/Str]
+                    ]
       :return s/Num
       :summary "update an new issue"
       (issues/update-issue!
