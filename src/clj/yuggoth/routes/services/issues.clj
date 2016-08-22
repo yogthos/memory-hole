@@ -8,6 +8,7 @@
 (def Tag
   {:tag-id                            s/Num
    :tag                               s/Str
+   (s/optional-key :tag-count)        s/Num
    (s/optional-key :support-issue-id) s/Num
    (s/optional-key :create-date)      Date})
 
@@ -47,7 +48,7 @@
    (s/optional-key :error)  s/Str})
 
 (def TagResult
-  {(s/optional-key :tags)  Tag
+  {(s/optional-key :tag)  Tag
    (s/optional-key :error) s/Str})
 
 (def TagsResult
@@ -55,10 +56,12 @@
    (s/optional-key :error) s/Str})
 
 (handler tags []
-  (ok {:tags (db/tags)}))
+  (ok {:tags (db/ranked-tags)}))
 
 (handler add-tag! [m]
-  (ok (merge m (db/create-tag<! m))))
+  (ok {:tag (merge m (db/create-tag<! m))}))
+
+(defn select-tags [tags])
 
 (handler recent-issues [limit]
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))

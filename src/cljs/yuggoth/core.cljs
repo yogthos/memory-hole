@@ -3,7 +3,8 @@
             [yuggoth.routes :refer [hook-browser-navigation!]]
             [yuggoth.ajax :refer [load-interceptors!]]
             [yuggoth.views :refer [main-page]]
-            [re-frame.core :refer [dispatch-sync]]
+            [yuggoth.pages.auth :refer [logged-in?]]
+            [re-frame.core :refer [dispatch dispatch-sync]]
     ;;initialize handlers and subscriptions
             yuggoth.handlers
             yuggoth.subscriptions))
@@ -13,6 +14,7 @@
 
 (defn init! []
   (dispatch-sync [:initialize-db])
+  (if (logged-in?) (dispatch [:run-login-events]))
   (load-interceptors!)
   (hook-browser-navigation!)
   (mount-components))

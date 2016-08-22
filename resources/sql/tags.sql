@@ -6,17 +6,15 @@ insert into tags(tag)
 
 -- :name tags :? :*
 -- Gets all the tags in the DB, in alphabetical order.
-select *
-from tags
-order by tag asc;
+select * from tags order by tag asc;
 
 -- :name ranked-tags :? :*
 -- :doc Gets all tags in the DB, ordered by tag name asc.
-select count(si.*) as tag_count, t.tag
+select count(si.*) as tag_count, t.tag_id, t.tag
 from support_issues si
   inner join support_issues_tags sit on si.support_issue_id = sit.support_issue_id
   inner join tags t on sit.tag_id = t.tag_id
-group by t.tag
+group by t.tag, t.tag_id
 order by t.tag asc;
 
 -- :name tags-for-issue :? :*
@@ -27,7 +25,7 @@ from tags t
 where
   sit.support_issue_id = :support-issue-id;
 
--- :name tags-with-name :? :*
+-- :name tags-with-names :? :*
 -- :doc Gets all the tags with the given names.
 select t.*
   from tags t
