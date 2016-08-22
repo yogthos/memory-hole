@@ -129,3 +129,9 @@
                      :tag    tag})
                   %))))))
 
+
+#_(map
+  :support-issue-id
+  (map  (fn [{:keys [support_issue_id]}] (support-issue* {:support-issue-id support_issue_id}))
+      (jdbc/query *db* ["select support_issue_id from support_issues"])))
+

@@ -93,8 +93,8 @@ SELECT
   si.last_viewed_date,
   si.views
 FROM support_issues si
-  INNER JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
-  INNER JOIN tags t ON sit.tag_id = t.tag_id
+  LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+  LEFT JOIN tags t ON sit.tag_id = t.tag_id
 WHERE
   t.tag = :tag AND
   delete_date IS NULL
