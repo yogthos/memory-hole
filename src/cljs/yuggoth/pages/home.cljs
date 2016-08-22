@@ -21,7 +21,8 @@
         "search"]]]]))
 
 (defn new-issue []
-  [bs/Button {:bs-style "primary pull-right"
+  [bs/Button {:bs-style "primary"
+              :pull-right true
               :on-click #(set-location! "#/create-issue")}
    "Add Issue"])
 

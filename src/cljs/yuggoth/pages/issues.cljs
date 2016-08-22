@@ -56,7 +56,8 @@
        :on-click #(set-location! (if new-issue? "#/" "#/view-issue"))}
       "Cancel"]
      [bs/Button
-      {:bs-style "primary pull-right"
+      {:bs-style "primary"
+       :pull-right true
        :on-click #(if new-issue?
                    (dispatch [:create-issue @issue])
                    (dispatch [:save-issue @issue]))}
@@ -158,7 +159,8 @@
     [bs/Button {:bs-style "danger"
                 :on-click #(reset! confirm-open? false)}
      "Cancel"]
-    [bs/Button {:bs-style "primary pull-right"
+    [bs/Button {:bs-style "primary"
+                :pull-right true
                 :on-click #(do
                             (reset! confirm-open? false)
                             (dispatch [:delete-issue support-issue-id]))}
@@ -184,6 +186,7 @@
      [:div.col-sm-12 [markdown-component (:detail @issue)]]
      [delete-issue @issue]
      [bs/Button
-      {:bs-style "primary pull-right"
+      {:bs-style "primary"
+       :pull-right true
        :on-click #(set-location! "#/edit-issue")}
       "edit"]]))
