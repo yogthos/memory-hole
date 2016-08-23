@@ -1,6 +1,6 @@
-(ns yuggoth.doo-runner
+(ns memory-hole.doo-runner
   (:require [doo.runner :refer-macros [doo-tests]]
-            [yuggoth.core-test]))
+            [memory-hole.core-test]))
 
-(doo-tests 'yuggoth.core-test)
+(doo-tests 'memory-hole.core-test)
 
