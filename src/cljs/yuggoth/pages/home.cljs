@@ -3,21 +3,24 @@
             [re-frame.core :refer [dispatch dispatch-sync subscribe]]
             [yuggoth.routes :refer [set-location!]]
             [yuggoth.pages.issues :refer [markdown-component]]
+            [yuggoth.key-events :refer [on-enter]]
             [yuggoth.bootstrap :as bs]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
 (defn issue-search [select]
-  (r/with-let [search (r/atom nil)]
+  (r/with-let [search (r/atom nil)
+               do-search #(when-let [value (not-empty @search)]
+                            (select [:search-for-issues value] nil))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl
        {:type      "text"
-        :on-change #(reset! search (-> % .-target .-value))}]
+        :on-change #(reset! search (-> % .-target .-value))
+        :on-key-down #(on-enter % do-search)}]
       [bs/InputGroup.Button
        [bs/Button
-        {:on-click #(when-let [value (not-empty @search)]
-                     (select [:search-for-issues value] nil))}
+        {:on-click do-search}
         "search"]]]]))
 
 (defn new-issue []
