@@ -145,7 +145,7 @@
                            (dispatch-sync [:set-issue (:issue %)])
                            (dispatch [:set-active-page :view-issue]))
           :error-handler #(dispatch [:set-error (str %)])})
-    db))
+    (dissoc db :issue)))
 
 (reg-event-db
   :process-issue-save

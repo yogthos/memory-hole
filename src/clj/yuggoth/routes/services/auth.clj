@@ -45,11 +45,11 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
-  (if-let [user {:id           1
+  (if-let [user #_{:id           1
                  :display-name "Bob Bobberton"
                  :account-name nil
                  :member-of    nil}
-           #_(authenticate userid pass)]
+           (authenticate userid pass)]
     (do
       (log/info "user:" userid "successfully logged in from" remote-addr server-name)
       (->

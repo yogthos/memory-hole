@@ -109,10 +109,15 @@
                                         (map s/trim)
                                         (remove empty?)
                                         (set))))}]
-     (when-let [matching-tags (filter #(= % (last @tags)) (map :tag @(subscribe [:tags])))]
-       [:div
-        (for [tag matching-tags]
-          [bs/Label {:bs-style "success"} tag])])]))
+     (when-let [new-tags (-> (set @tags)
+                             (difference (set (map :tag @(subscribe [:tags]))))
+                             (not-empty))]
+       [:div "creating tags: "
+        (for [tag new-tags]
+          ^{:key tag}
+          [bs/Label {:bs-style "danger"
+                     :style    {:margin-right "5px"}}
+           tag])])]))
 
 (defn tag-editor [tags]
   [:div.row

@@ -36,16 +36,9 @@
     (set-location! "#/")
     (dispatch [:set-active-page :edit-issue])))
 
-(secretary/defroute "/view-issue" []
-  (dispatch [:set-active-page :view-issue]))
-
 (secretary/defroute "/issue/:id" [id]
-  (cond
-    (not (logged-in?))
+  (if (not (logged-in?))
     (dispatch [:add-login-event [:load-and-view-issue (js/parseInt id)]])
-    @(subscribe [:issue])
-    (dispatch [:set-active-page :view-issue])
-    :else
     (dispatch [:load-and-view-issue (js/parseInt id)])))
 
 ;; -------------------------
