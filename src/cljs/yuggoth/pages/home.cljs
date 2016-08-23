@@ -21,9 +21,9 @@
         "search"]]]]))
 
 (defn new-issue []
-  [bs/Button {:bs-style "primary"
+  [bs/Button {:bs-style   "primary"
               :pull-right true
-              :on-click #(set-location! "#/create-issue")}
+              :on-click   #(set-location! "#/create-issue")}
    "Add Issue"])
 
 (defn issue-panel [{:keys [support-issue-id title summary]}]
