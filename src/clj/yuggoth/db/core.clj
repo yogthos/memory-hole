@@ -40,7 +40,6 @@
       (.toLowerCase)
       (keyword)))
 
-
 (defn transform-keys [t coll]
   "Recursively transforms all map keys in coll with t."
   (letfn [(transform [[k v]] [(t k) v])]
@@ -84,9 +83,11 @@
 
   Array
   (result-set-read-column [v _ _]
-    (mapv #(if (instance? PGobject %)
-            (deserialize %) %)
-          (.getArray v)))
+    (->> (.getArray v)
+         (map #(if (instance? PGobject %)
+                (deserialize %) %))
+         (remove nil?)
+         (vec)))
 
   PGobject
   (result-set-read-column [pgobj _metadata _index]

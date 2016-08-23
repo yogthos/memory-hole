@@ -50,35 +50,65 @@ WHERE
   si.support_issue_id = :support-issue-id
 GROUP BY si.support_issue_id, created.user_id , updated.user_id;
 
+-- :name issues :? :*
+-- :doc Gets all the issues, in order of popularity.
+SELECT
+  si.support_issue_id,
+  si.title,
+  si.summary,
+  si.create_date,
+  si.update_date,
+  si.last_viewed_date,
+  array_agg(t.tag) as tags,
+  si.views
+FROM support_issues si
+  LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+  LEFT JOIN tags t ON sit.tag_id = t.tag_id
+WHERE
+  si.delete_date IS NULL
+GROUP BY
+  si.support_issue_id
+ORDER BY last_viewed_date;
+
 -- :name recently-viewed-issues :? :*
 -- :doc Gets the top x number of issues, based on last views
 SELECT
-  support_issue_id,
-  title,
-  summary,
-  create_date,
-  update_date,
-  last_viewed_date,
-  views
-FROM support_issues
-WHERE delete_date IS NULL
-ORDER BY last_viewed_date ASC
+  si.support_issue_id,
+  si.title,
+  si.summary,
+  si.create_date,
+  si.update_date,
+  si.last_viewed_date,
+  array_agg(t.tag) as tags,
+  si.views
+FROM support_issues si
+  LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+  LEFT JOIN tags t ON sit.tag_id = t.tag_id
+WHERE
+  si.delete_date IS NULL
+GROUP BY
+  si.support_issue_id
+ORDER BY si.last_viewed_date ASC
 LIMIT :limit;
 
 -- :name issues-by-views :? :*
 -- :doc Gets all the issues, ordered by views
 SELECT
-  support_issue_id,
-  title,
-  summary,
-  create_date,
-  update_date,
-  last_viewed_date,
-  views
-FROM support_issues
-WHERE delete_date IS NULL
-GROUP BY support_issue_id
-ORDER BY last_viewed_date ASC
+  si.support_issue_id,
+  si.title,
+  si.summary,
+  si.create_date,
+  si.update_date,
+  si.last_viewed_date,
+  array_agg(t.tag) as tags,
+  si.views
+FROM support_issues si
+  LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+  LEFT JOIN tags t ON sit.tag_id = t.tag_id
+WHERE
+  si.delete_date IS NULL
+GROUP BY si.support_issue_id
+ORDER BY si.last_viewed_date ASC
 OFFSET :offset
 LIMIT :limit;
 
@@ -91,6 +121,7 @@ SELECT
   si.create_date,
   si.update_date,
   si.last_viewed_date,
+  array_agg(t.tag) as tags,
   si.views
 FROM support_issues si
   LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
@@ -117,6 +148,7 @@ SELECT
   si.create_date,
   si.update_date,
   si.last_viewed_date,
+  array_agg(t.tag) as tags,
   si.views
 FROM support_issues si
   INNER JOIN (SELECT DISTINCT
@@ -127,4 +159,7 @@ FROM support_issues si
               ORDER BY rank DESC
               OFFSET :offset
               LIMIT :limit) x ON x.support_issue_id = si.support_issue_id
-GROUP BY si.support_issue_id;
+    LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+    LEFT JOIN tags t ON sit.tag_id = t.tag_id
+GROUP BY si.support_issue_id
+ORDER BY last_viewed_date;
