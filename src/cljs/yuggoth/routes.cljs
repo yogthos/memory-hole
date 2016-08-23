@@ -31,7 +31,8 @@
       (dispatch [:set-active-page :edit-issue]))))
 
 (secretary/defroute "/edit-issue" []
-  (if-not (logged-in?)
+  (if-not (or (logged-in?)
+              (nil? @(subscribe [:issue])))
     (set-location! "#/")
     (dispatch [:set-active-page :edit-issue])))
 

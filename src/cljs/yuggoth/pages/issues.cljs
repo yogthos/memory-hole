@@ -6,6 +6,7 @@
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea single-dropdown]]
             [re-com.splits
              :refer [hv-split-args-desc]]
+            [yuggoth.validation :as v]
             [yuggoth.bootstrap :as bs]
             [yuggoth.routes :refer [set-location!]]
             [clojure.string :as s]))
@@ -53,9 +54,24 @@
      :value           @text
      :on-change       #(reset! text (-> % .-target .-value))}]])
 
+(defn validation-modal [errors]
+  [bs/Modal {:show (boolean @errors)}
+   [bs/Modal.Header
+    [bs/Modal.Title "The issue is missing required fields"]]
+   [bs/Modal.Body
+    [:ul
+     (for [[_ error] @errors]
+       ^{:key error}
+       [:li error])]
+    [bs/Button {:bs-style "danger"
+                :on-click #(reset! errors nil)}
+     "Close"]]])
+
 (defn control-buttons [issue]
-  (let [issue-id (:support-issue-id @issue)]
+  (r/with-let [issue-id (:support-issue-id @issue)
+               errors   (r/atom nil)]
     [:div.row>div.col-sm-12
+     [validation-modal errors]
      [:div.pull-right
       [bs/Button
        {:bs-style "danger"
@@ -66,9 +82,10 @@
       [bs/Button
        {:bs-style   "primary"
         :pull-right true
-        :on-click   #(if issue-id
-                      (dispatch [:save-issue @issue])
-                      (dispatch [:create-issue @issue]))}
+        :on-click   #(when-not (reset! errors (v/validate-issue @issue))
+                      #_(if issue-id
+                        (dispatch [:save-issue @issue])
+                        (dispatch [:create-issue @issue])))}
        "Save"]]]))
 
 (defn render-tags [tags]
