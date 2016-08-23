@@ -24,7 +24,7 @@
    :last-viewed-date             Date
    :views                        s/Num
    :created-by                   s/Num
-   (s/optional-key :tags)        [Tag]
+   (s/optional-key :tags)        [s/Str]
    (s/optional-key :updated-by)  (s/maybe s/Num)
    :created-by-screenname        s/Str
    :updated-by-screenname        (s/maybe s/Str)})
