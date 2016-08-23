@@ -85,4 +85,4 @@
   (ok {:issues (db/search-issues m)}))
 
 (handler delete-issue! [m]
-  (ok (db/delete-issue! m)))
+  (ok (db/dissoc-from-tags-and-delete-issue! m)))
