@@ -17,6 +17,7 @@
 (reg-event-db
   :run-login-events
   (fn [db _]
+    (println "running login events:" (:login-events db))
     (doseq [event (:login-events db)]
       (dispatch event))
     db))
