@@ -81,7 +81,7 @@
 
 
              :aot :all
-             :uberjar-name "memory_hole.jar"
+             :uberjar-name "memory-hole.jar"
              :source-paths ["env/prod/clj"]
              :resource-paths ["env/prod/resources"]}
 
