@@ -12,6 +12,8 @@
 
 (def rounded-panel (flex-child-style "1"))
 
+(def spacer [:span {:style {:margin-right "5px"}}])
+
 (defn highlight-code [node]
   (let [nodes (.querySelectorAll (r/dom-node node) "pre code")]
     (loop [i (.-length nodes)]
@@ -46,80 +48,56 @@
    :child
    [bs/FormControl
     {:component-class "textarea"
-     :class "edit-issue-detail"
-     :placeholder "issue detail"
-     :value       @text
-     :on-change   #(reset! text (-> % .-target .-value))}]])
+     :class           "edit-issue-detail"
+     :placeholder     "issue detail"
+     :value           @text
+     :on-change       #(reset! text (-> % .-target .-value))}]])
 
 (defn control-buttons [issue]
-  (let [new-issue? (:support-issue-id issue)]
+  (let [issue-id (:support-issue-id @issue)]
     [:div.row>div.col-sm-12
-     [bs/Button
-      {:bs-style "danger"
-       :on-click #(set-location! (if new-issue? "#/" "#/view-issue"))}
-      "Cancel"]
-     [bs/Button
-      {:bs-style "primary"
-       :pull-right true
-       :on-click #(if new-issue?
-                   (dispatch [:create-issue @issue])
-                   (dispatch [:save-issue @issue]))}
-      "Save"]]))
+     [:div.pull-right
+      [bs/Button
+       {:bs-style "danger"
+        :on-click #(set-location!
+                    (if issue-id (str "#/issue/" issue-id) "#/"))}
+       "Cancel"]
+      spacer
+      [bs/Button
+       {:bs-style   "primary"
+        :pull-right true
+        :on-click   #(if issue-id
+                      (dispatch [:save-issue @issue])
+                      (dispatch [:create-issue @issue]))}
+       "Save"]]]))
 
-(defn tag-selector [tags]
-  (r/with-let [avilable-tags (->> @(subscribe [:tags])
-                                  (map #(rename-keys % {:tag-id :id :tag :label}))
-                                  (set))
-               tags-by-id    (group-by :id avilable-tags)
-               selected      (r/atom nil)]
-    [:div
-     [single-dropdown
-      :choices (vec (difference avilable-tags @tags))
-      :model selected
-      :width "300px"
-      :max-height "400px"
-      :filter-box? true
-      :on-change #(reset! selected %)]
-     [:span "selected: " (str @selected)]
-     [bs/Button
-      {:bs-style "primary"
-       :on-click #(swap! tags conj (-> @selected
-                                       tags-by-id
-                                       first
-                                       (rename-keys {:id :tag-id :label :tag})))}
-      "add tag"]]))
+(defn render-tags [tags]
+  [:span
+   (for [tag tags]
+     ^{:key tag}
+     [bs/Label
+      {:style {:margin-right "5px"}}
+      tag])])
 
-(defn remove-tag [tags tag-id]
-  (remove #(= tag-id (:tag-id %)) tags))
-
-(defn selected-tags [tags]
-  [:ul
-   (for [{:keys [tag-id tag]} @tags]
-     ^{:key tag-id}
-     [:li tag " "
-      [:a
-       {:on-click #(swap! tags remove-tag tag-id)}
-       [:span.glyphicon.glyphicon-remove]]])])
-
-(defn create-tag []
-  (r/with-let [tag (r/atom nil)]
-    [:div
-     [:input
-      {:type      :text
-       :on-change #(reset! tag (-> % .-target .-value))}]
-     [bs/Button
-      {:bs-style "primary"
-       :on-click #(dispatch [:create-tag @tag])}
-      "create tag"]]))
+(defn tag-input [tags]
+  (r/with-let [tags-text (r/atom (if-let [tags (not-empty @tags)]
+                                   (s/join " " tags)
+                                   ""))]
+    [bs/FormControl
+     {:type      "text"
+      :value     @tags-text
+      :on-change #(let [value (-> % .-target .-value)]
+                   (reset! tags-text value)
+                   (reset! tags (->> (s/split value #" ")
+                                     (map s/trim)
+                                     (set))))}]))
 
 (defn tag-editor [tags]
-  [:div
-   [:div.row>div.col-md-12
-    [tag-selector tags]]
-   [:div.row>div.col-md-12
-    [selected-tags tags]]
-   [:div.row>div.col-md-12
-    [create-tag]]])
+  [:div.row
+   [:div.col-sm-6
+    [tag-input tags]]
+   [:div.col-sm-6
+    [:h4 [render-tags @tags]]]])
 
 (defn edit-issue-page []
   (r/with-let [issue   (r/atom (-> @(subscribe [:issue])
@@ -162,33 +140,38 @@
     [bs/Button {:bs-style "danger"
                 :on-click #(reset! confirm-open? false)}
      "Cancel"]
-    [bs/Button {:bs-style "primary"
+    spacer
+    [bs/Button {:bs-style   "primary"
                 :pull-right true
-                :on-click #(do
-                            (reset! confirm-open? false)
-                            (dispatch [:delete-issue support-issue-id]))}
+                :on-click   #(do
+                              (reset! confirm-open? false)
+                              (dispatch [:delete-issue support-issue-id]))}
      "Delete"]]])
 
 (defn delete-issue [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]
     [:div.pull-left
      [confirm-delete-modal confirm-open? support-issue-id]
-     [bs/Button {:bs-style "danger" :on-click #(reset! confirm-open? true)} "delete"]]))
-
-(defn format-tags [tags]
-  [:div (map (fn [{:keys [tag]}] [bs/Badge tag]) tags)])
+     [bs/Button {:bs-style "danger"
+                 :on-click #(reset! confirm-open? true)}
+      "delete"]]))
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div.row
      [:div.col-sm-12 [:h2 (:title @issue)]]
-     [:div.col-sm-12 [:h4 "tags: " (format-tags (:tags @issue))]]
      [:div.col-sm-12 [:p (:summary @issue)]]
+     [:div.col-sm-12 [:h4 "tags " (render-tags (:tags @issue))]]
+     [:div.col-sm-12>hr]
      [:div.col-sm-12 [markdown-component (:detail @issue)]]
-     [delete-issue @issue]
-     [bs/Button
-      {:bs-style "primary"
-       :pull-right true
-       :on-click #(set-location! "#/edit-issue")}
-      "edit"]]))
+     [:div.col-sm-12
+      [:div.pull-right
+       [bs/FormGroup
+        [delete-issue @issue]
+        spacer
+        [bs/Button
+         {:bs-style   "primary"
+          :pull-right true
+          :on-click   #(set-location! "#/edit-issue")}
+         "edit"]]]]]))
 

@@ -120,18 +120,6 @@
 (defn support-issue [m]
   (conman/with-transaction [*db*]
     (when-let [issue (not-empty (support-issue* m))]
-      (-> issue
-          (merge (inc-issue-views<! m))
-          (update
-            :tags
-            #(map (fn [[tag-id tag]]
-                    {:tag-id (Integer/parseInt tag-id)
-                     :tag    tag})
-                  %))))))
+      (merge issue (inc-issue-views<! m)))))
 
-
-#_(map
-  :support-issue-id
-  (map  (fn [{:keys [support_issue_id]}] (support-issue* {:support-issue-id support_issue_id}))
-      (jdbc/query *db* ["select support_issue_id from support_issues"])))
 

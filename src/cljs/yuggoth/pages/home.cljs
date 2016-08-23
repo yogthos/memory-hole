@@ -42,6 +42,9 @@
    (when (= title @selected)
      [:span.glyphicon.glyphicon-triangle-right])])
 
+(defn tags-with-issues [tags]
+  (filter #(pos? (:tag-count %)) tags))
+
 (defn home-page []
   (r/with-let [tags     (subscribe [:tags])
                issues   (subscribe [:issues])
@@ -59,7 +62,7 @@
          nil
          selected
          #(select [:load-recent-issues] "Recent")]
-        (for [{:keys [tag-count tag-id tag]} @tags]
+        (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags)]
           ^{:key tag-id}
           [tag-control
            tag

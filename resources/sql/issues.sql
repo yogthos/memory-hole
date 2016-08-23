@@ -40,7 +40,7 @@ SELECT
   si.created_by,
   si.last_updated_by,
   updated.screenname as updated_by_screenname,
-  array_agg((t.tag_id, t.tag)) as tags
+  array_agg(t.tag) as tags
 FROM support_issues si
   INNER JOIN users created on si.created_by = created.user_id
   LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
