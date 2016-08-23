@@ -37,18 +37,18 @@ select sit.support_issue_id, t.tag_id, t.tag
   from tags t
   inner join support_issues_tags sit on t.tag_id = sit.tag_id
   where
-    sit.support_issue_id in (:v*:issue-ids);
+    sit.support_issue_id in (:v*:support-issue-ids);
 
 -- :name dissoc-tags-from-issue! :! :n
 -- :doc Deletes all the tags associated to the provided issue.
 delete from support_issues_tags
-where support_issue_id = :issue-id;
+where support_issue_id = :support-issue-id;
 
--- :name assoc-tag-with-issue! :! :n
+-- :name assoc-tags-with-issue! :! :n
 -- :doc assigns all the tags to a given support issue.
 -- Assumes the list of tags given to the function are the actual tag
 -- names, eg. 'whiteboard', 'pro', etc.
 insert into support_issues_tags (support_issue_id, tag_id)
-    select :issue_id, t.tag_id
+    select :support-issue-id, t.tag_id
       from tags t where t.tag in (:v*:tags);
 
