@@ -83,7 +83,7 @@
        {:bs-style   "primary"
         :pull-right true
         :on-click   #(when-not (reset! errors (v/validate-issue @issue))
-                      #_(if issue-id
+                      (if issue-id
                         (dispatch [:save-issue @issue])
                         (dispatch [:create-issue @issue])))}
        "Save"]]]))
@@ -102,11 +102,13 @@
                                    ""))]
     [bs/FormControl
      {:type      "text"
+      :placeholder "space separated tags fro the issue"
       :value     @tags-text
       :on-change #(let [value (-> % .-target .-value)]
                    (reset! tags-text value)
                    (reset! tags (->> (s/split value #" ")
                                      (map s/trim)
+                                     (remove empty?)
                                      (set))))}]))
 
 (defn tag-editor [tags]

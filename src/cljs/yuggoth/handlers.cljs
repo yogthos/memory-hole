@@ -160,8 +160,9 @@
           {:params        {:title   title
                            :summary summary
                            :detail  detail
-                           :tags    tags}
+                           :tags    (vec tags)}
            :handler       #(do
+                            (dispatch [:load-tags] tags)
                             (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
                             (set-location! "#/issue/" %))
            :error-handler #(dispatch [:set-error (str %)])})
@@ -175,8 +176,9 @@
                           :title            title
                           :summary          summary
                           :detail           detail
-                          :tags             tags}
+                          :tags             (vec tags)}
           :handler       #(do
+                           (dispatch [:load-tags] tags)
                            (dispatch-sync [:set-issue issue])
                            (set-location! "#/issue/" support-issue-id))
           :error-handler #(dispatch [:set-error (str %)])})

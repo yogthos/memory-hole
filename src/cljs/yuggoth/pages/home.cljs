@@ -21,9 +21,9 @@
         "search"]]]]))
 
 (defn new-issue []
-  [bs/Button {:bs-style "primary"
+  [bs/Button {:bs-style   "primary"
               :pull-right true
-              :on-click #(set-location! "#/create-issue")}
+              :on-click   #(set-location! "#/create-issue")}
    "Add Issue"])
 
 (defn issue-panel [{:keys [support-issue-id title summary]}]
@@ -43,7 +43,10 @@
      [:span.glyphicon.glyphicon-triangle-right])])
 
 (defn tags-with-issues [tags]
-  (filter #(pos? (:tag-count %)) tags))
+  (->> tags
+       (filter #(pos? (:tag-count %)))
+       (sort-by :tag-count)
+       (reverse)))
 
 (defn home-page []
   (r/with-let [tags     (subscribe [:tags])
