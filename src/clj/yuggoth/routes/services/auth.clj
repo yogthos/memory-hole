@@ -45,7 +45,6 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
-  (println "LOGIN!!!!")
   (if-let [user {:id           1
                  :display-name "Bob Bobberton"
                  :account-name nil
