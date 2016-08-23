@@ -9,14 +9,14 @@
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
 (defn issue-search [select]
-  (r/with-let [search (r/atom nil)
+  (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
-                            (select [:search-for-issues value] nil))]
+                           (select [:search-for-issues value] nil))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl
-       {:type      "text"
-        :on-change #(reset! search (-> % .-target .-value))
+       {:type        "text"
+        :on-change   #(reset! search (-> % .-target .-value))
         :on-key-down #(on-enter % do-search)}]
       [bs/InputGroup.Button
        [bs/Button
@@ -24,26 +24,24 @@
         "search"]]]]))
 
 (defn new-issue []
-  [bs/Button {:bs-style   "primary"
-              :pull-right true
-              :on-click   #(set-location! "#/create-issue")}
-   "Add Issue"])
+  [:span.pull-right
+   [bs/Button {:bs-style "primary"
+               :on-click #(set-location! "#/create-issue")}
+    "Add Issue"]])
 
-(defn issue-panel [{:keys [support-issue-id title summary]}]
-  [bs/Panel
-   {:header (r/as-component [:h2 title])
-    :footer (r/as-component
-              [:a {:href (str "#/issue/" support-issue-id)}
-               "more..."])}
-   summary])
+(defn issue-panel [{:keys [support-issue-id title summary views]}]
+  [:div.panel.panel-default
+   [:div.panel-heading.issue-title
+    {:on-click #(set-location! "#/issue/" support-issue-id)}
+    [:h3>a title [:span.pull-right  [bs/Badge views]]]]
+   [:div.panel-body summary]])
 
 (defn tag-control [title count selected on-click]
   [bs/ListGroupItem
-   {:on-click on-click}
-   title " "
-   (when count [bs/Badge count])
-   (when (= title @selected)
-     [:span.glyphicon.glyphicon-triangle-right])])
+   {:on-click on-click
+    :active   (= title @selected)}
+   [:b title] " "
+   (when count [bs/Badge count])])
 
 (defn tags-with-issues [tags]
   (->> tags
@@ -52,13 +50,19 @@
        (reverse)))
 
 (defn home-page []
-  (r/with-let [tags     (subscribe [:tags])
-               issues   (subscribe [:issues])
-               selected (r/atom nil)
-               select   (fn [action selection]
-                          (.scrollTo js/window 0 0)
-                          (dispatch action)
-                          (reset! selected selection))]
+  (r/with-let [tags       (subscribe [:tags])
+               issues     (subscribe [:issues])
+               selected   (subscribe [:selected-tag])
+               select     (fn [action selection]
+                            (set-location! "#/")
+                            (.scrollTo js/window 0 0)
+                            (dispatch action)
+                            (dispatch [:select-tag selection]))
+               select-tag (fn [selection]
+                            (.scrollTo js/window 0 0)
+                            (set-location! "#/issues/" selection)
+                            #_(dispatch action)
+                            #_(dispatch [:select-tag selection]))]
     [:div.container
      [:div.row
       [:div.col-md-2
@@ -69,16 +73,24 @@
          nil
          selected
          #(select [:load-recent-issues] "Recent")]
+        [tag-control
+         "All"
+         nil
+         selected
+         #(select [:load-all-issues] "All")]
         (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags)]
           ^{:key tag-id}
           [tag-control
            tag
            tag-count
            selected
-           #(select [:load-issues-for-tag tag] tag)])]]
+           #(select-tag tag)])]]
       [:div.col-md-10
-       [:h2 "Issues " [new-issue]]
-       [issue-search select]
+       [:h2 "Issues "
+        (when-let [tag @selected]
+          [bs/Badge tag])
+        [new-issue]]
+       [issue-search select-tag]
        (for [issue-summary @issues]
          ^{:key (:support-issue-id issue-summary)}
          [issue-panel issue-summary])]]]))

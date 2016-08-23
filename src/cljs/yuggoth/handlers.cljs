@@ -65,6 +65,11 @@
     (assoc db :tags tags)))
 
 (reg-event-db
+  :select-tag
+  (fn [db [_ tag]]
+    (assoc db :selected-tag tag)))
+
+(reg-event-db
   :load-tags
   (fn [db _]
     (GET "/api/tags"
@@ -101,6 +106,14 @@
   :set-issues
   (fn [db [_ issues]]
     (assoc db :issues issues)))
+
+(reg-event-db
+  :load-all-issues
+  (fn [db _]
+    (GET "/api/issues"
+         {:handler       #(dispatch [:set-issues (:issues %)])
+          :error-handler #(dispatch [:set-error (str %)])})
+    db))
 
 (reg-event-db
   :load-recent-issues

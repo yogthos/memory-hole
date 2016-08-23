@@ -62,6 +62,9 @@
 (handler add-tag! [m]
   (ok {:tag (merge m (db/create-tag<! m))}))
 
+(handler all-issues []
+  (ok {:issues (db/issues {})}))
+
 (handler recent-issues [limit]
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))
 

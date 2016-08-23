@@ -60,6 +60,11 @@
       (issues/add-tag! {:tag tag}))
 
     ;;issues
+    (GET "/issues" []
+      :return issues/IssueSummaryResults
+      :summary "list all issues"
+      (issues/all-issues))
+
     (GET "/recent-issues" []
       :return issues/IssueSummaryResults
       :summary "list 10 most recent issues"

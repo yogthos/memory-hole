@@ -127,4 +127,15 @@ code.hljs {
     border: none;
     background: none;
 }
-
+.issue-title {
+    cursor: pointer;
+}
+.view-issue-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.issue-title>h3 {
+    margin: 0px;
+}

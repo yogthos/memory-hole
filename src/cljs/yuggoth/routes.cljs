@@ -23,6 +23,15 @@
 (secretary/defroute "/" []
   (dispatch [:set-active-page :home]))
 
+(secretary/defroute "/issues/:tag" [tag]
+  (if (logged-in?)
+    (do
+      (dispatch [:select-tag tag])
+      (dispatch [:load-issues-for-tag tag]))
+    (do
+      (dispatch [:add-login-event [:select-tag tag]])
+      (dispatch [:add-login-event [:load-issues-for-tag tag]]))))
+
 (secretary/defroute "/create-issue" []
   (if-not (logged-in?)
     (set-location! "#/")

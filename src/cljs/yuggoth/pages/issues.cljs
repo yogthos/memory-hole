@@ -146,6 +146,7 @@
        [bs/ControlLabel "Issue Title"]
        [input-text
         :model title
+        :width "100%"
         :class "edit-issue-title"
         :placeholder "title of the issue"
         :on-change #(reset! title %)]]
@@ -192,20 +193,25 @@
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
-    [:div.row
-     [:div.col-sm-12 [:h2 (:title @issue)]]
-     [:div.col-sm-12 [:p (:summary @issue)]]
-     [:div.col-sm-12 [:h4 "tags " (render-tags (:tags @issue))]]
-     [:div.col-sm-12>hr]
-     [:div.col-sm-12 [markdown-component (:detail @issue)]]
-     [:div.col-sm-12
-      [:div.pull-right
-       [bs/FormGroup
-        [delete-issue @issue]
-        spacer
-        [bs/Button
-         {:bs-style   "primary"
-          :pull-right true
-          :on-click   #(set-location! "#/edit-issue")}
-         "edit"]]]]]))
+    [:div.row>div.col-sm-12
+     [bs/Panel
+      {:class "view-issue-panel"}
+      [:div.row
+       [:div.col-sm-12 [:h2 (:title @issue) [:span.pull-right  [bs/Badge (:views @issue)]]]]
+       [:div.col-sm-12 [:p (:summary @issue)]]
+       [:div.col-sm-12 [:h4 (render-tags (:tags @issue))]]
+       [:div.col-sm-12 [:h4 "last updated by: "
+                        (:updated-by-screenname @issue)
+                        " at " (str (:update-date @issue))]]
+       [:div.col-sm-12>hr]
+       [:div.col-sm-12 [markdown-component (:detail @issue)]]
+       [:div.col-sm-12>hr]
+       [:div.col-sm-12>div.pull-right
+        [bs/FormGroup
+         [delete-issue @issue]
+         spacer
+         [bs/Button
+          {:bs-style "primary"
+           :on-click #(set-location! "#/edit-issue")}
+          "edit"]]]]]]))
 
