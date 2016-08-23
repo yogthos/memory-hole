@@ -35,6 +35,7 @@
                 :title
                 :summary
                 (s/optional-key :create-date)
+                (s/optional-key :tags)
                 :update-date
                 :last-viewed-date
                 :views]))
