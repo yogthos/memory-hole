@@ -1,7 +1,7 @@
-(defproject yuggoth "0.1.0-SNAPSHOT"
+(defproject memory-hole "0.1.0"
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Support Issue Tracker"
+  :url "https://github.com/yogthos/memory-hole"
 
   :dependencies [[metosin/compojure-api "1.1.6"]
                  [cljs-ajax "0.5.8"]
@@ -47,7 +47,7 @@
   :source-paths ["src/clj" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
-  :main yuggoth.core
+  :main memory-hole.core
   :migratus {:store :database :db ~(get (System/getenv) "DATABASE_URL")}
 
   :plugins [[lein-cprop "1.0.1"]
@@ -80,7 +80,7 @@
 
 
              :aot :all
-             :uberjar-name "yuggoth.jar"
+             :uberjar-name "memory_hole.jar"
              :source-paths ["env/prod/clj"]
              :resource-paths ["env/prod/resources"]}
 
@@ -104,7 +104,7 @@
                    {:app
                     {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
                      :compiler
-                     {:main "yuggoth.app"
+                     {:main "memory_hole.app"
                       :asset-path "/js/out"
                       :output-to "target/cljsbuild/public/js/app.js"
                       :output-dir "target/cljsbuild/public/js/out"
@@ -127,7 +127,7 @@
                     {:source-paths ["src/cljc" "src/cljs" "test/cljs"]
                      :compiler
                      {:output-to "target/test.js"
-                      :main "yuggoth.doo-runner"
+                      :main "memory_hole.doo-runner"
                       :optimizations :whitespace
                       :pretty-print true}}}}
 

@@ -1,13 +1,13 @@
 (ns user
   (:require [mount.core :as mount]
-            [yuggoth.figwheel :refer [start-fw stop-fw cljs]]
-            yuggoth.core))
+            [memory-hole.figwheel :refer [start-fw stop-fw cljs]]
+            memory-hole.core))
 
 (defn start []
-  (mount/start-without #'yuggoth.core/repl-server))
+  (mount/start-without #'memory-hole.core/repl-server))
 
 (defn stop []
-  (mount/stop-except #'yuggoth.core/repl-server))
+  (mount/stop-except #'memory-hole.core/repl-server))
 
 (defn restart []
   (stop)

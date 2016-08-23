@@ -1,1 +1,1 @@
-web: java $JVM_OPTS -cp target/uberjar/yuggoth.jar clojure.main -m yuggoth.core
+web: java $JVM_OPTS -cp target/uberjar/memory_hole.jar clojure.main -m memory_hole.core
