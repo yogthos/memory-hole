@@ -43,7 +43,10 @@
      [:span.glyphicon.glyphicon-triangle-right])])
 
 (defn tags-with-issues [tags]
-  (filter #(pos? (:tag-count %)) tags))
+  (->> tags
+       (filter #(pos? (:tag-count %)))
+       (sort-by :tag-count)
+       (reverse)))
 
 (defn home-page []
   (r/with-let [tags     (subscribe [:tags])
