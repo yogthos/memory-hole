@@ -117,7 +117,7 @@
          :summary summary
          :detail  detail
          :tags    tags
-         :user-id (:id user)}))
+         :user-id (:user-id user)}))
 
     (PUT "/issue" []
       :current-user user
@@ -134,5 +134,5 @@
          :summary          summary
          :detail           detail
          :tags             tags
-         :user-id          (:id user)}))
+         :user-id          (:user-id user)}))
     ))

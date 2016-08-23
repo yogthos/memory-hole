@@ -21,6 +21,8 @@
 (secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
+  (dispatch [:load-tags])
+  (dispatch [:load-recent-issues])
   (dispatch [:set-active-page :home]))
 
 (secretary/defroute "/issues/:tag" [tag]
@@ -34,7 +36,7 @@
 
 (secretary/defroute "/create-issue" []
   (if-not (logged-in?)
-    (set-location! "#/")
+    (dispatch [:add-login-event [:set-active-page :edit-issue]])
     (do
       (dispatch-sync [:close-issue])
       (dispatch [:set-active-page :edit-issue]))))

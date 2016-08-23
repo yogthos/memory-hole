@@ -199,7 +199,7 @@
 
 (reg-event-db
   :delete-issue
-  (fn [db [_ {:keys [support-issue-id]}]]
+  (fn [db [_ support-issue-id]]
     (DELETE (str "/api/issue/" support-issue-id)
             {:handler       #(set-location! "#/")
              :error-handler #(dispatch [:set-error (str %)])})

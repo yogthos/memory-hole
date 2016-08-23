@@ -4,6 +4,8 @@
             [re-frame.core :refer [dispatch subscribe]]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea single-dropdown]]
+            [cljs-time.format :as f]
+            [cljs-time.coerce :as c]
             [re-com.splits
              :refer [hv-split-args-desc]]
             [memory-hole.validation :as v]
@@ -191,18 +193,25 @@
                  :on-click #(reset! confirm-open? true)}
       "delete"]]))
 
+(defn format-date [date]
+  (f/unparse (f/formatter "dd-MM-yyyy")
+             (c/from-date date)))
+
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div.row>div.col-sm-12
      [bs/Panel
       {:class "view-issue-panel"}
       [:div.row
-       [:div.col-sm-12 [:h2 (:title @issue) [:span.pull-right  [bs/Badge (:views @issue)]]]]
-       [:div.col-sm-12 [:p (:summary @issue)]]
-       [:div.col-sm-12 [:h4 (render-tags (:tags @issue))]]
-       [:div.col-sm-12 [:h4 "last updated by: "
-                        (:updated-by-screenname @issue)
-                        " at " (str (:update-date @issue))]]
+       [:div.col-sm-12>h2
+        (:title @issue)
+        [:span.pull-right [bs/Badge (str (:views @issue))]]]
+       [:div.col-sm-12>p (:summary @issue)]
+       [:div.col-sm-12>h4 (render-tags (:tags @issue))]
+       [:div.col-sm-12>p
+        "last updated by: "
+        (:updated-by-screenname @issue)
+        " on " (format-date (:update-date @issue))]
        [:div.col-sm-12>hr]
        [:div.col-sm-12 [markdown-component (:detail @issue)]]
        [:div.col-sm-12>hr]

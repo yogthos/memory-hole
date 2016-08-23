@@ -33,7 +33,7 @@
      [nav-link "#/" "Home" :home]]
     [bs/Nav {:pull-right true}
      [bs/MenuItem {:on-click logout}
-      (r/as-component [:span "Logout " (:display-name user)])]]]])
+      (r/as-component [:span "Logout " (:screenname user)])]]]])
 
 (defmulti pages identity)
 (defmethod pages :home [] [home-page])

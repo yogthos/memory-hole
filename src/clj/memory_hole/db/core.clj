@@ -155,4 +155,10 @@
     (dissoc-tags-from-issue! m)
     (delete-issue! m)))
 
-
+(defn update-user-info! [{:keys [screenname] :as user}]
+  (conman/with-transaction [*db*]
+    (merge
+      user
+      (if-let [{:keys [user-id]} (user-by-screenname {:screenname screenname})]
+        (update-user<! {:user-id user-id :screenname screenname})
+        (insert-user<! {:screenname screenname :admin false :is-active true})))))

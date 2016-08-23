@@ -1,16 +1,19 @@
--- :name user-by-id :? :1
--- :doc get a user based on the id.
-select id, display_name, admin, last_login, active
-from users
-  where id = :id;
-
--- :name sql-insert-user< :! :n
+-- :name insert-user<! :<! :1
 -- :doc add a user.
-insert into users (id, display_name, pass, admin, last_login, active)
-    values (:id, :display_name, :pass, :admin, :active);
+insert into users (screenname, admin, last_login, is_active)
+     values (:screenname, :admin, (select now() at time zone 'utc'), :is-active)
+returning user_id;
 
--- :name update-last-login! :! :n
--- :doc Updates the last login date for a user.
+-- :name user-by-screenname :? :1
+-- :doc get a user based on the id.
+select user_id, screenname, admin, last_login, is_active
+from users
+where screenname = :screenname;
+
+-- :name update-user<! :<! :1
+-- :doc Updates the last login date and screenname for a user.
 update users
-set last_login=(select now() at time zone 'utc')
-where d=:id;
+set screenname =:screenname,
+    last_login=(select now() at time zone 'utc')
+where user_id=:user-id
+returning user_id;

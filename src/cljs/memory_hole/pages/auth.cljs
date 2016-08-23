@@ -61,5 +61,4 @@
              :on-change #(swap! params assoc :pass (-> % .-target .-value))
              :on-key-up on-key-up}]]]]]
        [bs/Modal.Footer
-        [bs/Button {:bs-style "primary" :on-click #(login params error on-close)} "Login"]
-        [bs/Button {:on-click on-close} "Cancel"]]])))
+        [bs/Button {:bs-style "primary" :on-click #(login params error on-close)} "Login"]]])))
