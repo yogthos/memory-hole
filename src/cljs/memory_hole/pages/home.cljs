@@ -65,7 +65,7 @@
                             #_(dispatch [:select-tag selection]))]
     [:div.container
      [:div.row
-      [:div.col-md-2
+      [:div.col-md-3
        [:h2 "Tags"]
        [bs/ListGroup
         [tag-control
@@ -85,7 +85,7 @@
            tag-count
            selected
            #(select-tag tag)])]]
-      [:div.col-md-10
+      [:div.col-md-9
        [:h2 "Issues "
         (when-let [tag @selected]
           [bs/Badge tag])
