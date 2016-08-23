@@ -97,19 +97,22 @@
       tag])])
 
 (defn tag-input [tags]
-  (r/with-let [tags-text (r/atom (if-let [tags (not-empty @tags)]
-                                   (s/join " " tags)
-                                   ""))]
-    [bs/FormControl
-     {:type      "text"
-      :placeholder "space separated tags fro the issue"
-      :value     @tags-text
-      :on-change #(let [value (-> % .-target .-value)]
-                   (reset! tags-text value)
-                   (reset! tags (->> (s/split value #" ")
-                                     (map s/trim)
-                                     (remove empty?)
-                                     (set))))}]))
+  (r/with-let [tags-text (r/atom (if-let [tags (not-empty @tags)] (s/join " " tags) ""))]
+    [:div
+     [bs/FormControl
+      {:type        "text"
+       :placeholder "space separated tags fro the issue"
+       :value       @tags-text
+       :on-change   #(let [value (-> % .-target .-value)]
+                      (reset! tags-text value)
+                      (reset! tags (->> (s/split value #" ")
+                                        (map s/trim)
+                                        (remove empty?)
+                                        (set))))}]
+     (when-let [matching-tags (filter #(= % (last @tags)) (map :tag @(subscribe [:tags])))]
+       [:div
+        (for [tag matching-tags]
+          [bs/Label {:bs-style "success"} tag])])]))
 
 (defn tag-editor [tags]
   [:div.row
@@ -134,18 +137,25 @@
      :height "auto"
      :children
      [[control-buttons issue]
-      [input-text
-       :model title
-       :class "edit-issue-title"
-       :placeholder "title of the issue"
-       :on-change #(reset! title %)]
-      [input-text
-       :model summary
-       :width "100%"
-       :placeholder "issue summary"
-       :on-change #(reset! summary %)]
-      [tag-editor tags]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Title"]
+       [input-text
+        :model title
+        :class "edit-issue-title"
+        :placeholder "title of the issue"
+        :on-change #(reset! title %)]]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Summary"]
+       [input-text
+        :model summary
+        :width "100%"
+        :placeholder "issue summary"
+        :on-change #(reset! summary %)]]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Tags"]
+       [tag-editor tags]]
       [h-split
+       :class "issue-editor"
        :panel-1 [edit-panel detail]
        :panel-2 [preview-panel @detail]
        :size "auto"]
