@@ -22,6 +22,11 @@
     (:tags db)))
 
 (reg-sub
+  :selected-tag
+  (fn [db _]
+    (:selected-tag db)))
+
+(reg-sub
   :issue
   (fn [db _]
     (:issue db)))
