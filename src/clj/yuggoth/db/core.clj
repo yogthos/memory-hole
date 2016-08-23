@@ -3,6 +3,7 @@
     [cheshire.core :refer [generate-string parse-string]]
     [clojure.java.jdbc :as jdbc]
     [conman.core :as conman]
+    [clojure.set :refer [difference]]
     [clojure.walk :refer [postwalk]]
     [yuggoth.config :refer [env]]
     [mount.core :refer [defstate]])
@@ -121,5 +122,31 @@
   (conman/with-transaction [*db*]
     (when-let [issue (not-empty (support-issue* m))]
       (merge issue (inc-issue-views<! m)))))
+
+(defn create-missing-tags [issue-tags]
+  (let [current-tags (map :tag (tags))]
+    (doseq [tag (difference (set issue-tags)
+                            (set current-tags))]
+      (create-tag<! {:tag tag}))))
+
+(defn reset-issue-tags! [support-issue-id tags]
+  (create-missing-tags tags)
+  (dissoc-tags-from-issue!
+    {:support-issue-id support-issue-id})
+  (assoc-tags-with-issue!
+    {:support-issue-id support-issue-id
+     :tags             tags}))
+
+(defn create-issue-with-tags! [{:keys [tags] :as issue}]
+  (conman/with-transaction [*db*]
+    (let [support-issue-id (:support-issue-id
+                             (add-issue<! (dissoc issue :tags)))]
+      (reset-issue-tags! support-issue-id tags)
+      support-issue-id)))
+
+(defn update-issue-with-tags! [{:keys [support-issue-id tags] :as issue}]
+  (conman/with-transaction [*db*]
+    (reset-issue-tags! support-issue-id tags)
+    (update-issue! (dissoc issue :tags))))
 
 

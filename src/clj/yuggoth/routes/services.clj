@@ -104,15 +104,14 @@
       :body-params [title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
-                    ;;TODO add tags
-                    ;;tags :- [s/Str]
-                    ]
+                    tags :- [s/Str]]
       :return s/Num
       :summary "adds a new issue"
       (issues/add-issue!
         {:title   title
          :summary summary
          :detail  detail
+         :tags    tags
          :user-id (:id user)}))
 
     (PUT "/issue" []
@@ -121,9 +120,7 @@
                     title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
-                    ;;TODO add tags
-                    ;;tags :- [s/Str]
-                    ]
+                    tags :- [s/Str]]
       :return s/Num
       :summary "update an new issue"
       (issues/update-issue!
@@ -131,5 +128,6 @@
          :title            title
          :summary          summary
          :detail           detail
+         :tags             tags
          :user-id          (:id user)}))
     ))

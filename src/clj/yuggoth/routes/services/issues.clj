@@ -61,20 +61,14 @@
 (handler add-tag! [m]
   (ok {:tag (merge m (db/create-tag<! m))}))
 
-(defn select-tags [tags])
-
 (handler recent-issues [limit]
   (ok {:issues (db/recently-viewed-issues {:limit limit})}))
 
 (handler add-issue! [issue]
-         ;; TODO add missing tags
-         ;;TODO associate issue with tags
-  (ok (:support-issue-id (db/add-issue<! issue))))
+  (ok (db/create-issue-with-tags! issue)))
 
 (handler update-issue! [issue]
-         ;; TODO add missing tags
-         ;;TODO associate issue with tags
-  (ok (db/update-issue! (dissoc issue :views))))
+  (ok (db/update-issue-with-tags! issue)))
 
 (handler issue [m]
   (if-let [issue (db/support-issue m)]

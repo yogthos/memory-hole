@@ -155,11 +155,12 @@
 
 (reg-event-db
   :create-issue
-  (fn [db [_ {:keys [title summary detail] :as issue}]]
+  (fn [db [_ {:keys [title summary detail tags] :as issue}]]
     (POST "/api/issue"
           {:params        {:title   title
                            :summary summary
-                           :detail  detail}
+                           :detail  detail
+                           :tags    tags}
            :handler       #(do
                             (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
                             (set-location! "#/issue/" %))
@@ -168,12 +169,13 @@
 
 (reg-event-db
   :save-issue
-  (fn [db [_ {:keys [support-issue-id title summary detail] :as issue}]]
+  (fn [db [_ {:keys [support-issue-id title summary detail tags] :as issue}]]
     (PUT "/api/issue"
          {:params        {:support-issue-id support-issue-id
                           :title            title
                           :summary          summary
-                          :detail           detail}
+                          :detail           detail
+                          :tags             tags}
           :handler       #(do
                            (dispatch-sync [:set-issue issue])
                            (set-location! "#/issue/" support-issue-id))
@@ -184,7 +186,7 @@
   :delete-issue
   (fn [db [_ {:keys [support-issue-id]}]]
     (DELETE (str "/api/issue/" support-issue-id)
-         {:handler       #(set-location! "#/")
-          :error-handler #(dispatch [:set-error (str %)])})
+            {:handler       #(set-location! "#/")
+             :error-handler #(dispatch [:set-error (str %)])})
     db))
 
