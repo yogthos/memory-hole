@@ -73,7 +73,9 @@
                {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
                 :compiler
                 {:output-to "target/cljsbuild/public/js/app.js"
-                 :externs ["react/externs/react.js"]
+                 :externs ["react/externs/react.js"
+                           "public/js/hljs.js"
+                           "public/js/marked.js"]
                  :optimizations :advanced
                  :pretty-print false
                  :closure-warnings
