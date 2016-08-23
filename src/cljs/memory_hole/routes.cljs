@@ -16,28 +16,30 @@
 (defn logged-in? []
   @(subscribe [:user]))
 
+(defn run-events [events]
+  (doseq [event events]
+    (if (logged-in?)
+      (dispatch event)
+      (dispatch [:add-login-event event]))))
+
 ;; -------------------------
 ;; Routes
 (secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
-  (dispatch [:set-active-page :home]))
+  (run-events [[:load-tags]
+                [:load-recent-issues]
+                [:set-active-page :home]]))
 
 (secretary/defroute "/issues/:tag" [tag]
-  (if (logged-in?)
-    (do
-      (dispatch [:select-tag tag])
-      (dispatch [:load-issues-for-tag tag]))
-    (do
-      (dispatch [:add-login-event [:select-tag tag]])
-      (dispatch [:add-login-event [:load-issues-for-tag tag]]))))
+  (run-events
+    [[:select-tag tag]
+     [:load-issues-for-tag tag]]))
 
 (secretary/defroute "/create-issue" []
-  (if-not (logged-in?)
-    (set-location! "#/")
-    (do
-      (dispatch-sync [:close-issue])
-      (dispatch [:set-active-page :edit-issue]))))
+  (dispatch-sync [:close-issue])
+  (run-events
+    [:set-active-page :edit-issue]))
 
 (secretary/defroute "/edit-issue" []
   (if-not (or (logged-in?)
@@ -46,9 +48,7 @@
     (dispatch [:set-active-page :edit-issue])))
 
 (secretary/defroute "/issue/:id" [id]
-  (if (not (logged-in?))
-    (dispatch [:add-login-event [:load-and-view-issue (js/parseInt id)]])
-    (dispatch [:load-and-view-issue (js/parseInt id)])))
+  (run-events [[:load-and-view-issue (js/parseInt id)]]))
 
 ;; -------------------------
 ;; History

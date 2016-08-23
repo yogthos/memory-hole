@@ -41,7 +41,7 @@
    {:on-click on-click
     :active   (= title @selected)}
    [:b title] " "
-   (when count [bs/Badge count])])
+   [bs/Badge count]])
 
 (defn tags-with-issues [tags]
   (->> tags
@@ -90,7 +90,7 @@
         (when-let [tag @selected]
           [bs/Badge tag])
         [new-issue]]
-       [issue-search select-tag]
+       [issue-search select]
        (for [issue-summary @issues]
          ^{:key (:support-issue-id issue-summary)}
          [issue-panel issue-summary])]]]))

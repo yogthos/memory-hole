@@ -14,6 +14,7 @@ select count(si.*) as tag_count, t.tag_id, t.tag
 from support_issues si
   inner join support_issues_tags sit on si.support_issue_id = sit.support_issue_id
   inner join tags t on sit.tag_id = t.tag_id
+  where si.delete_date is null
 group by t.tag, t.tag_id
 order by t.tag asc;
 
