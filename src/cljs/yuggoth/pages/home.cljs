@@ -56,6 +56,7 @@
                issues   (subscribe [:issues])
                selected (r/atom nil)
                select   (fn [action selection]
+                          (.scrollTo js/window 0 0)
                           (dispatch action)
                           (reset! selected selection))]
     [:div.container
