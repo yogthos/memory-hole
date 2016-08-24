@@ -32,8 +32,8 @@
 (defn issue-panel [{:keys [support-issue-id title summary views]}]
   [:div.panel.panel-default
    [:div.panel-heading.issue-title
-    {:on-click #(set-location! "#/issue/" support-issue-id)}
-    [:h3>a title [:span.pull-right  [bs/Badge views]]]]
+    [:h3>a {:href (str "#/issue/" support-issue-id)}
+     title [:span.pull-right [bs/Badge views]]]]
    [:div.panel-body summary]])
 
 (defn tag-control [title count selected on-click]
@@ -64,8 +64,13 @@
     [:div.container
      [:div.row
       [:div.col-md-3
-       [:h2 "Tags"]
+       [:h3 "Tags"]
        [bs/ListGroup
+        [tag-control
+         "All"
+         nil
+         selected
+         #(select [:load-all-issues] "All")]
         [tag-control
          "Recent"
          nil
@@ -76,11 +81,6 @@
          nil
          selected
          #(select [:load-most-viewed-issues] "Most Viewed")]
-        [tag-control
-         "All"
-         nil
-         selected
-         #(select [:load-all-issues] "All")]
         (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags)]
           ^{:key tag-id}
           [tag-control
@@ -89,7 +89,7 @@
            selected
            #(select-tag tag)])]]
       [:div.col-md-9
-       [:h2 "Issues "
+       [:h3 "Issues "
         (when-let [tag @selected]
           [bs/Badge tag])
         [new-issue]]

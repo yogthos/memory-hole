@@ -107,11 +107,17 @@
   (fn [db [_ issues]]
     (assoc db :issues issues)))
 
+(defn sort-by-views [result]
+  (reverse (sort-by :views (:issues result))))
+
+(defn sort-by-date [result]
+  (reverse (sort-by :update-date (:issues result))))
+
 (reg-event-db
   :load-all-issues
   (fn [db _]
     (GET "/api/issues"
-         {:handler       #(dispatch [:set-issues (:issues %)])
+         {:handler       #(dispatch [:set-issues (sort-by-date %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
@@ -119,7 +125,7 @@
   :load-most-viewed-issues
   (fn [db _]
     (GET "/api/recent-issues"
-         {:handler       #(dispatch [:set-issues (:issues %)])
+         {:handler       #(dispatch [:set-issues (sort-by-views %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
@@ -127,7 +133,7 @@
   :load-recent-issues
   (fn [db _]
     (GET "/api/issues-by-views/0/20"
-         {:handler       #(dispatch [:set-issues (:issues %)])
+         {:handler       #(dispatch [:set-issues (sort-by-date %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
@@ -135,7 +141,7 @@
   :load-issues-for-tag
   (fn [db [_ tag]]
     (GET (str "/api/issues-by-tag/" tag)
-         {:handler       #(dispatch [:set-issues (:issues %)])
+         {:handler       #(dispatch [:set-issues (sort-by-views %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))
 
@@ -146,7 +152,7 @@
           {:params        {:query  query
                            :limit  10
                            :offset 0}
-           :handler       #(dispatch [:set-issues (:issues %)])
+           :handler       #(dispatch [:set-issues (sort-by-views %)])
            :error-handler #(dispatch [:set-error (str %)])})
     db))
 

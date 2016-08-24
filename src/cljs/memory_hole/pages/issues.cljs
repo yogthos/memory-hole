@@ -4,8 +4,7 @@
             [re-frame.core :refer [dispatch subscribe]]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea single-dropdown]]
-            [cljs-time.format :as f]
-            [cljs-time.coerce :as c]
+            [memory-hole.datetime :as dt]
             [re-com.splits
              :refer [hv-split-args-desc]]
             [memory-hole.validation :as v]
@@ -193,10 +192,6 @@
                  :on-click #(reset! confirm-open? true)}
       "delete"]]))
 
-(defn format-date [date]
-  (f/unparse (f/formatter "dd-MM-yyyy")
-             (c/from-date date)))
-
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div.row>div.col-sm-12
@@ -211,7 +206,7 @@
        [:div.col-sm-12>p
         "last updated by: "
         (:updated-by-screenname @issue)
-        " on " (format-date (:update-date @issue))]
+        " on " (dt/format-date (:update-date @issue))]
        [:div.col-sm-12>hr]
        [:div.col-sm-12 [markdown-component (:detail @issue)]]
        [:div.col-sm-12>hr]
