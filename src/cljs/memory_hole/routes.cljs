@@ -28,8 +28,8 @@
 
 (secretary/defroute "/" []
   (run-events [[:load-tags]
-                [:load-recent-issues]
-                [:set-active-page :home]]))
+               [:load-recent-issues]
+               [:set-active-page :home]]))
 
 (secretary/defroute "/issues/:tag" [tag]
   (run-events
@@ -39,7 +39,7 @@
 (secretary/defroute "/create-issue" []
   (dispatch-sync [:close-issue])
   (run-events
-    [:set-active-page :edit-issue]))
+    [[:set-active-page :edit-issue]]))
 
 (secretary/defroute "/edit-issue" []
   (if-not (or (logged-in?)
