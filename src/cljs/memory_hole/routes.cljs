@@ -31,6 +31,9 @@
                [:load-recent-issues]
                [:set-active-page :home]]))
 
+(secretary/defroute "/users" []
+  (run-events [[:set-active-page :users]]))
+
 (secretary/defroute "/issues/:tag" [tag]
   (run-events
     [[:select-tag tag]

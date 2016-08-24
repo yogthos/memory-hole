@@ -139,3 +139,7 @@ code.hljs {
 .issue-title>h3 {
     margin: 0px;
 }
+.edit-user {
+    font-size: 12pt;
+    cursor: pointer;
+}

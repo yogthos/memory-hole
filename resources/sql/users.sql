@@ -16,4 +16,4 @@ update users
 set screenname =:screenname,
     last_login=(select now() at time zone 'utc')
 where user_id=:user-id
-returning user_id;
+returning user_id, is_active, admin;

@@ -1,6 +1,6 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
-            [re-frame.core :refer [dispatch dispatch-sync subscribe]]
+            [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.issues :refer [markdown-component]]
             [memory-hole.key-events :refer [on-enter]]
@@ -16,6 +16,7 @@
      [bs/InputGroup
       [bs/FormControl
        {:type        "text"
+        :placeholder "type in issue details to find matching issues"
         :on-change   #(reset! search (-> % .-target .-value))
         :on-key-down #(on-enter % do-search)}]
       [bs/InputGroup.Button

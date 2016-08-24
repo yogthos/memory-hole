@@ -9,12 +9,11 @@
              :refer [hv-split-args-desc]]
             [memory-hole.validation :as v]
             [memory-hole.bootstrap :as bs]
+            [memory-hole.pages.common :refer [spacer validation-modal]]
             [memory-hole.routes :refer [set-location!]]
             [clojure.string :as s]))
 
 (def rounded-panel (flex-child-style "1"))
-
-(def spacer [:span {:style {:margin-right "5px"}}])
 
 (defn highlight-code [node]
   (let [nodes (.querySelectorAll (r/dom-node node) "pre code")]
@@ -54,19 +53,6 @@
      :placeholder     "issue detail"
      :value           @text
      :on-change       #(reset! text (-> % .-target .-value))}]])
-
-(defn validation-modal [errors]
-  [bs/Modal {:show (boolean @errors)}
-   [bs/Modal.Header
-    [bs/Modal.Title "The issue is missing required fields"]]
-   [bs/Modal.Body
-    [:ul
-     (for [[_ error] @errors]
-       ^{:key error}
-       [:li error])]
-    [bs/Button {:bs-style "danger"
-                :on-click #(reset! errors nil)}
-     "Close"]]])
 
 (defn control-buttons [issue]
   (r/with-let [issue-id (:support-issue-id @issue)
@@ -128,11 +114,12 @@
     [:h4 [render-tags @tags]]]])
 
 (defn edit-issue-page []
-  (r/with-let [issue   (r/atom (-> @(subscribe [:issue])
-                                   (update :title #(or % ""))
-                                   (update :summary #(or % ""))
-                                   (update :detail #(or % ""))
-                                   (update :tags #(set (or % [])))))
+  (r/with-let [issue (-> @(subscribe [:issue])
+                         (update :title #(or % ""))
+                         (update :summary #(or % ""))
+                         (update :detail #(or % ""))
+                         (update :tags #(set (or % [])))
+                         r/atom)
                title   (r/cursor issue [:title])
                summary (r/cursor issue [:summary])
                detail  (r/cursor issue [:detail])

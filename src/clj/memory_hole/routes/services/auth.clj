@@ -35,6 +35,8 @@
    :member-of      [(s/maybe s/Str)]
    :screenname     (s/maybe s/Str)
    :account-name   (s/maybe s/Str)
+   :admin          s/Bool
+   :is-active      s/Bool
    :client-ip      s/Str
    :source-address s/Str})
 
@@ -46,10 +48,10 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
-  (if-let [user #_{:screenname   "Bob Bobberton"
-                   :account-name nil
-                   :member-of    nil}
-           (authenticate userid pass)]
+  (if-let [user {:screenname   "Bob Bobberton"
+                 :account-name nil
+                 :member-of    nil}
+           #_(authenticate userid pass)]
     (let [user (-> user
                    ;; user :screenname as preferred name
                    ;; fall back to userid if not supplied

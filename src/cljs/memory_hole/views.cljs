@@ -2,6 +2,8 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
+            [memory-hole.routes :refer [set-location!]]
+            [memory-hole.pages.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
             [memory-hole.pages.auth :refer [login-page logout]]))
@@ -18,7 +20,7 @@
          [:div.bounce2]
          [:div.bounce3]]]])))
 
-#_(defn nav-link [uri title page]
+(defn nav-link [uri title page]
   (let [active-page (subscribe [:active-page])]
     [bs/NavItem {:href uri :active (= page @active-page)} title]))
 
@@ -29,18 +31,29 @@
     [:a#logo {:href "#/"}
      [:span "Issues"]]]
    [bs/Navbar.Collapse
-    #_[bs/Nav
-     [nav-link "#/" "Home" :home]]
+    (when (:admin user)
+      [bs/Nav
+       [nav-link "#/users" "Manage Users" :users]])
     [bs/Nav {:pull-right true}
      [bs/MenuItem {:on-click logout}
       (r/as-component [:span "Logout " (:screenname user)])]]]])
 
-(defmulti pages identity)
-(defmethod pages :home [] [home-page])
-(defmethod pages :login [] [login-page])
-(defmethod pages :edit-issue [] (.scrollTo js/window 0 0) [edit-issue-page])
-(defmethod pages :view-issue [] (.scrollTo js/window 0 0) [view-issue-page])
-(defmethod pages :default [] [:div])
+(defmulti pages (fn [page _] page))
+(defmethod pages :home [_ _] [home-page])
+(defmethod pages :login [_ _] [login-page])
+(defmethod pages :users [_ user]
+  (if (:admin user)
+    [users-page]
+    (do
+      (set-location! "/#")
+      [home-page])))
+(defmethod pages :edit-issue [_ _]
+  (.scrollTo js/window 0 0)
+  [edit-issue-page])
+(defmethod pages :view-issue [_ _]
+  (.scrollTo js/window 0 0)
+  [view-issue-page])
+(defmethod pages :default [_ _] [:div])
 
 (defn main-page []
   (r/with-let [active-page (subscribe [:active-page])
@@ -50,5 +63,5 @@
        [navbar @user]
        [loading-throbber]
        [:div.container
-        (pages @active-page)]]
-      (pages :login))))
+        (pages @active-page @user)]]
+      (pages :login nil))))

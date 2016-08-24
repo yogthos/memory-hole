@@ -1,0 +1,127 @@
+(ns memory-hole.pages.users
+  (:require [memory-hole.bootstrap :as bs]
+            [re-frame.core :refer [dispatch subscribe]]
+            [memory-hole.key-events :refer [on-enter]]
+            [memory-hole.routes :refer [set-location!]]
+            [memory-hole.pages.common :refer [spacer validation-modal]]
+            [memory-hole.validation :refer [validate-user]]
+            [reagent.core :as r]))
+
+(defn issue-search []
+  (r/with-let [search    (r/atom nil)
+               do-search #(when-let [value (not-empty @search)]
+                           (dispatch [:admin/search-for-users value]))]
+    [bs/FormGroup
+     [bs/InputGroup
+      [bs/FormControl
+       {:type        "text"
+        :placeholder "type in a user name to see user details"
+        :on-change   #(reset! search (-> % .-target .-value))
+        :on-key-down #(on-enter % do-search)}]
+      [bs/InputGroup.Button
+       [bs/Button
+        {:on-click do-search}
+        "search"]]]]))
+
+(defn control-buttons [user cancel-action]
+  (r/with-let [errors  (r/atom nil)
+               user-id (:user-id @user)]
+    [:div.row>div.col-sm-12
+     [validation-modal errors]
+     [:div.pull-right
+      [bs/Button
+       {:bs-style "danger"
+        :on-click cancel-action}
+       "Cancel"]
+      [:span {:style {:margin-right "5px"}}]
+      [bs/Button
+       {:bs-style   "primary"
+        :pull-right true
+        :on-click   #(when-not (reset! errors (validate-user @user))
+                      (if user-id
+                        (dispatch [:save-user @user])
+                        (dispatch [:create-user @user])))}
+       "Save"]]]))
+
+(defn field-group [label cursor type placeholder]
+  [bs/FormGroup
+   {:class "form-horizontal"}
+   [bs/ControlLabel label]
+   [bs/FormControl
+    {:type        type
+     :value       (or @cursor "")
+     :on-change   #(reset! cursor (-> % .-target .-value))
+     :placeholder placeholder}]])
+
+(defn edit-user [user-map cancel-action]
+  (r/with-let [user (-> user-map
+                        (update :is-admin boolean)
+                        (update :active boolean)
+                        r/atom)]
+    [:div
+     [field-group
+      "screen name"
+      (r/cursor user [:screenname])
+      :text "enter screen name for the user"]
+     [field-group
+      "password"
+      (r/cursor user [:pass])
+      :password
+      "enter the password for the user"]
+     [field-group
+      "confirm password"
+      (r/cursor user [:pass-confirm])
+      :password "confirm the password for the user"]
+     [bs/Checkbox
+      {:checked  (boolean (:admin @user))
+       :on-click #(swap! user update :admin not)}
+      "Admin"]
+     [bs/Checkbox
+      {:checked  (boolean (:is-active @user))
+       :on-click #(swap! user update :is-active not)}
+      "Active"]
+     [control-buttons user cancel-action]]))
+
+(defn user-info [user-map]
+  (r/with-let [expanded? (r/atom false)]
+    [bs/ListGroupItem
+     (if @expanded?
+       [edit-user user-map #(reset! expanded? false)]
+       [:div
+        [:span (:screenname user-map)]
+        [bs/Label
+         {:bs-style   "primary"
+          :class "pull-right edit-user"
+          :on-click   #(swap! expanded? not)}
+         "edit"]])]))
+
+(defn user-list []
+  (let [users (subscribe [:user]) #_(subscribe [:admin/users])]
+    (when-not (empty? @users)
+      [bs/ListGroup
+       (for [user [@users]]
+         ^{:key (:user-id user)}
+         [user-info user])])))
+
+(defn add-user-form []
+  (r/with-let [show-add-user-menu? (r/atom false)]
+    [:div
+     (when-not @show-add-user-menu?
+       [:div.row
+        [:div.col-sm-10 [issue-search]]
+        [:div.col-sm-2>div.pull-right
+         [bs/Button
+          {:bs-style "primary"
+           :on-click #(reset! show-add-user-menu? true)}
+          "Add new user"]]])
+     (when @show-add-user-menu?
+       [:div.row
+        [:div.col-sm-12 [:h3 "Add User"]]
+        [:div.col-sm-12
+         [edit-user {} #(reset! show-add-user-menu? false)]]])]))
+
+(defn users-page []
+  [:div
+   [add-user-form]
+   [user-list]])
+
