@@ -116,9 +116,17 @@
     db))
 
 (reg-event-db
-  :load-recent-issues
+  :load-most-viewed-issues
   (fn [db _]
     (GET "/api/recent-issues"
+         {:handler       #(dispatch [:set-issues (:issues %)])
+          :error-handler #(dispatch [:set-error (str %)])})
+    db))
+
+(reg-event-db
+  :load-recent-issues
+  (fn [db _]
+    (GET "/api/issues-by-views/0/20"
          {:handler       #(dispatch [:set-issues (:issues %)])
           :error-handler #(dispatch [:set-error (str %)])})
     db))

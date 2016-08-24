@@ -41,7 +41,7 @@
    {:on-click on-click
     :active   (= title @selected)}
    [:b title] " "
-   [bs/Badge count]])
+   (when count [bs/Badge count])])
 
 (defn tags-with-issues [tags]
   (->> tags
@@ -60,9 +60,7 @@
                             (dispatch [:select-tag selection]))
                select-tag (fn [selection]
                             (.scrollTo js/window 0 0)
-                            (set-location! "#/issues/" selection)
-                            #_(dispatch action)
-                            #_(dispatch [:select-tag selection]))]
+                            (set-location! "#/issues/" selection))]
     [:div.container
      [:div.row
       [:div.col-md-3
@@ -73,6 +71,11 @@
          nil
          selected
          #(select [:load-recent-issues] "Recent")]
+        [tag-control
+         "Most Viewed"
+         nil
+         selected
+         #(select [:load-most-viewed-issues] "Most Viewed")]
         [tag-control
          "All"
          nil
