@@ -44,9 +44,7 @@
 (defmethod pages :users [_ user]
   (if (:admin user)
     [users-page]
-    (do
-      (set-location! "/#")
-      [home-page])))
+    (set-location! "/#")))
 (defmethod pages :edit-issue [_ _]
   (.scrollTo js/window 0 0)
   [edit-issue-page])
