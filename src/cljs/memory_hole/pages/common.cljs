@@ -15,3 +15,19 @@
     [bs/Button {:bs-style "danger"
                 :on-click #(reset! errors nil)}
      "Close"]]])
+
+(defn confirm-delete-modal [title confirm-open? action]
+  [bs/Modal {:show @confirm-open?}
+   [bs/Modal.Header
+    [bs/Modal.Title title]]
+   [bs/Modal.Body
+    [bs/Button {:bs-style "danger"
+                :on-click #(reset! confirm-open? false)}
+     "Cancel"]
+    spacer
+    [bs/Button {:bs-style   "primary"
+                :pull-right true
+                :on-click   #(do
+                              (reset! confirm-open? false)
+                              (action))}
+     "Delete"]]])
