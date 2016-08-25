@@ -11,6 +11,7 @@
             [memory-hole.bootstrap :as bs]
             [memory-hole.pages.common :refer [spacer validation-modal]]
             [memory-hole.routes :refer [set-location!]]
+            [memory-hole.attachments :refer [upload-form]]
             [clojure.string :as s]))
 
 (def rounded-panel (flex-child-style "1"))
@@ -114,12 +115,12 @@
     [:h4 [render-tags @tags]]]])
 
 (defn edit-issue-page []
-  (r/with-let [issue (-> @(subscribe [:issue])
-                         (update :title #(or % ""))
-                         (update :summary #(or % ""))
-                         (update :detail #(or % ""))
-                         (update :tags #(set (or % [])))
-                         r/atom)
+  (r/with-let [issue   (-> @(subscribe [:issue])
+                           (update :title #(or % ""))
+                           (update :summary #(or % ""))
+                           (update :detail #(or % ""))
+                           (update :tags #(set (or % [])))
+                           r/atom)
                title   (r/cursor issue [:title])
                summary (r/cursor issue [:summary])
                detail  (r/cursor issue [:detail])
@@ -179,6 +180,30 @@
                  :on-click #(reset! confirm-open? true)}
       "delete"]]))
 
+(defn attachment-list [files]
+  (when-not (empty? files)
+    [:div
+     [:h4 "Attachments"]
+     [:hr]
+     [:ul
+      (for [[idx file] (map-indexed vector files)]
+        ^{:key idx}
+        [:li>a {:href (str "/api/file/" file)} file])]]))
+
+(defn attachment-component [support-issue-id files]
+  (r/with-let [open? (r/atom false)]
+    [:div
+     [attachment-list @files]
+     [bs/Button
+      {:on-click #(reset! open? true)}
+      "attach file"]
+     [upload-form
+      support-issue-id
+      open?
+      (fn [filename]
+        (reset! open? false)
+        (dispatch [:attach-file filename]))]]))
+
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
     [:div.row>div.col-sm-12
@@ -196,6 +221,10 @@
         " on " (dt/format-date (:update-date @issue))]
        [:div.col-sm-12>hr]
        [:div.col-sm-12 [markdown-component (:detail @issue)]]
+       [:div.col-sm-12
+        [attachment-component
+         (:support-issue-id @issue)
+         (r/cursor issue [:files])]]
        [:div.col-sm-12>hr]
        [:div.col-sm-12>div.pull-right
         [bs/FormGroup

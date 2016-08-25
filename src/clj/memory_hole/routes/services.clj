@@ -1,8 +1,10 @@
 (ns memory-hole.routes.services
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
+            [compojure.api.upload :refer [TempFileUpload wrap-multipart-params]]
             [schema.core :as s]
             [compojure.api.meta :refer [restructure-param]]
+            [memory-hole.routes.services.attachments :as attachments]
             [memory-hole.routes.services.issues :as issues]
             [memory-hole.routes.services.auth :as auth]
             [buddy.auth.accessrules :refer [restrict]]
@@ -110,7 +112,7 @@
                     summary :- s/Str
                     detail :- s/Str
                     tags :- [s/Str]]
-      :return s/Num
+      :return s/Int
       :summary "adds a new issue"
       (issues/add-issue!
         {:title   title
@@ -121,12 +123,12 @@
 
     (PUT "/issue" []
       :current-user user
-      :body-params [support-issue-id :- s/Num
+      :body-params [support-issue-id :- s/Int
                     title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
                     tags :- [s/Str]]
-      :return s/Num
+      :return s/Int
       :summary "update an new issue"
       (issues/update-issue!
         {:support-issue-id support-issue-id
@@ -135,4 +137,23 @@
          :detail           detail
          :tags             tags
          :user-id          (:user-id user)}))
-    ))
+
+    ;;attachments
+    (POST "/attach-file" []
+      :multipart-params [support-issue-id :- s/Int
+                         file             :- TempFileUpload]
+      :middleware [wrap-multipart-params]
+      :summary "handles file upload"
+      :return s/Str
+      (attachments/attach-file-to-issue! support-issue-id file))
+
+    (GET "/file/:name" []
+      :summary "load a file from the database"
+      :path-params [name :- String]
+      (attachments/load-file-data name))
+
+    (DELETE "/file/:name" []
+      :summary "delete a file from the database"
+      :path-params [name :- String]
+      :return attachments/AttachmentResult
+      (attachments/delete-file! name))))

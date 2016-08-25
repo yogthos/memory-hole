@@ -6,6 +6,7 @@ Memory Hole is a support issue organizer. It's designed to provide a way to orga
 
 - The app uses LDAP to handle authentication
 - Issues are ranked based on the number of views and last time of access
+- File attachments for issues
 - Issues are organized by user generated tags
 - Markdown with live preview for issues
 - Weighted full text search using PostgreSQL citext extension

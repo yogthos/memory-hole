@@ -24,6 +24,7 @@
    :last-viewed-date             Date
    :views                        s/Num
    :created-by                   s/Num
+   (s/optional-key :files)       [s/Str]
    (s/optional-key :tags)        [s/Str]
    (s/optional-key :updated-by)  (s/maybe s/Num)
    :created-by-screenname        s/Str
@@ -49,7 +50,7 @@
    (s/optional-key :error)  s/Str})
 
 (def TagResult
-  {(s/optional-key :tag)  Tag
+  {(s/optional-key :tag)   Tag
    (s/optional-key :error) s/Str})
 
 (def TagsResult

@@ -23,7 +23,8 @@
 (conman/bind-connection *db*
                         "sql/issues.sql"
                         "sql/tags.sql"
-                        "sql/users.sql")
+                        "sql/users.sql"
+                        "sql/attachments.sql")
 
 (defn ->kebab-case-keyword [k]
   (-> (reduce
@@ -122,7 +123,10 @@
 (defn support-issue [m]
   (conman/with-transaction [*db*]
     (when-let [issue (not-empty (support-issue* m))]
-      (merge issue (inc-issue-views<! m)))))
+      (-> issue
+          (update :tags distinct)
+          (update :files distinct)
+          (merge (inc-issue-views<! m))))))
 
 (defn create-missing-tags [issue-tags]
   (let [current-tags (map :tag (tags))]
@@ -162,3 +166,12 @@
       (if-let [{:keys [user-id]} (user-by-screenname {:screenname screenname})]
         (update-user<! {:user-id user-id :screenname screenname})
         (insert-user<! {:screenname screenname :admin false :is-active true})))))
+
+(defn attach-file-to-issue! [support-issue-id filename content-type data]
+  (conman/with-transaction [*db*]
+    (save-file! {:type content-type
+                 :name filename
+                 :data data})
+    (assoc-file-with-issue! {:support-issue-id support-issue-id
+                             :name             filename})
+    filename))

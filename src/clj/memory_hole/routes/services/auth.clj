@@ -48,10 +48,10 @@
   {:result s/Str})
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
-  (if-let [user #_{:screenname   "Bob Bobberton"
+  (if-let [user {:screenname   "Bob Bobberton"
                  :account-name nil
                  :member-of    nil}
-           (authenticate userid pass)]
+           #_(authenticate userid pass)]
     (let [user (-> user
                    ;; user :screenname as preferred name
                    ;; fall back to userid if not supplied
