@@ -9,7 +9,7 @@
              :refer [hv-split-args-desc]]
             [memory-hole.validation :as v]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.pages.common :refer [spacer validation-modal]]
+            [memory-hole.pages.common :refer [spacer validation-modal confirm-delete-modal]]
             [memory-hole.routes :refer [set-location!]]
             [memory-hole.attachments :refer [upload-form]]
             [clojure.string :as s]))
@@ -155,22 +155,6 @@
        :panel-2 [preview-panel @detail]
        :size "auto"]
       [control-buttons issue]]]))
-
-(defn confirm-delete-modal [title confirm-open? action]
-  [bs/Modal {:show @confirm-open?}
-   [bs/Modal.Header
-    [bs/Modal.Title title]]
-   [bs/Modal.Body
-    [bs/Button {:bs-style "danger"
-                :on-click #(reset! confirm-open? false)}
-     "Cancel"]
-    spacer
-    [bs/Button {:bs-style   "primary"
-                :pull-right true
-                :on-click   #(do
-                              (reset! confirm-open? false)
-                              (action))}
-     "Delete"]]])
 
 (defn delete-issue [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]

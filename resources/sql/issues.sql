@@ -164,5 +164,6 @@ FROM support_issues si
               LIMIT :limit) x ON x.support_issue_id = si.support_issue_id
     LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
     LEFT JOIN tags t ON sit.tag_id = t.tag_id
+    WHERE si.delete_date IS NULL
 GROUP BY si.support_issue_id
 ORDER BY last_viewed_date;
