@@ -182,3 +182,10 @@
     (assoc-file-with-issue! {:support-issue-id support-issue-id
                              :name             filename})
     filename))
+
+(defn remove-file-from-issue! [{:keys [support-issue-id name]}]
+  (conman/with-transaction [*db*]
+    (dissoc-file-from-issue!
+      {:support-issue-id support-issue-id
+       :name name})
+    (delete-file<! {:name name})))

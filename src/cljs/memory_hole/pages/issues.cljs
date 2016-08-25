@@ -156,10 +156,10 @@
        :size "auto"]
       [control-buttons issue]]]))
 
-(defn confirm-delete-modal [confirm-open? support-issue-id]
+(defn confirm-delete-modal [title confirm-open? action]
   [bs/Modal {:show @confirm-open?}
    [bs/Modal.Header
-    [bs/Modal.Title "Are you sue you wish to delete the issue?"]]
+    [bs/Modal.Title title]]
    [bs/Modal.Body
     [bs/Button {:bs-style "danger"
                 :on-click #(reset! confirm-open? false)}
@@ -169,31 +169,47 @@
                 :pull-right true
                 :on-click   #(do
                               (reset! confirm-open? false)
-                              (dispatch [:delete-issue support-issue-id]))}
+                              (action))}
      "Delete"]]])
 
 (defn delete-issue [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]
     [:div.pull-left
-     [confirm-delete-modal confirm-open? support-issue-id]
+     [confirm-delete-modal
+      "Are you sue you wish to delete the issue?"
+      confirm-open?
+      #(dispatch [:delete-issue support-issue-id])]
      [bs/Button {:bs-style "danger"
                  :on-click #(reset! confirm-open? true)}
       "delete"]]))
 
-(defn attachment-list [files]
-  (when-not (empty? files)
-    [:div
-     [:h4 "Attachments"]
-     [:hr]
-     [:ul
-      (for [[idx file] (map-indexed vector files)]
-        ^{:key idx}
-        [:li>a {:href (str "/api/file/" file)} file])]]))
+(defn attachment-list [support-issue-id files]
+  (r/with-let [confirm-open? (r/atom false)
+               action        (r/atom nil)]
+    (when-not (empty? files)
+      [:div
+       [confirm-delete-modal
+        "Are you sue you wish to delete this file?"
+        confirm-open?
+        @action]
+       [:h4 "Attachments"]
+       [:hr]
+       [:ul
+        (for [[idx file] (map-indexed vector files)]
+          ^{:key idx}
+          [:li
+           [:a {:href (str "/api/file/" file)} file]
+           " "
+           [:span.glyphicon.glyphicon-remove
+            {:style {:color "red"}
+             :on-click (fn []
+                         (reset! action #(dispatch [:delete-file support-issue-id file]))
+                         (reset! confirm-open? true))}]])]])))
 
 (defn attachment-component [support-issue-id files]
   (r/with-let [open? (r/atom false)]
     [:div
-     [attachment-list @files]
+     [attachment-list support-issue-id @files]
      [bs/Button
       {:on-click #(reset! open? true)}
       "attach file"]
