@@ -30,11 +30,11 @@
         content-type
         (file->byte-array tempfile)))))
 
-(handler delete-file! [name]
-  (ok (db/delete-file<! {:name name})))
+(handler remove-file-from-issue! [opts]
+  (ok (db/remove-file-from-issue! opts)))
 
-(defn load-file-data [name]
-  (if-let [{:keys [type data]} (db/load-file-data {:name name})]
+(defn load-file-data [file]
+  (if-let [{:keys [type data]} (db/load-file-data file)]
     (-> (ByteArrayInputStream. data)
         (ok)
         (content-type type))

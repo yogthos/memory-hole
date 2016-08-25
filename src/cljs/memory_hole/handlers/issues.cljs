@@ -136,3 +136,15 @@
   (fn [db [_ filename]]
     (update-in db [:issue :files] conj filename)))
 
+(reg-event-db
+  :remove-file-from-issue
+  (fn [db [_ filename]]
+    (update-in db [:issue :files] #(remove #{filename} %))))
+
+(reg-event-db
+  :delete-file
+  (fn [db [_ support-issue-id filename]]
+    (DELETE (str "/api/file/" support-issue-id "/" filename)
+            {:handler #(dispatch [:remove-file-from-issue filename])})
+    db))
+

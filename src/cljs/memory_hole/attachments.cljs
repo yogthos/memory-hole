@@ -19,7 +19,7 @@
     (.sendFromForm
       io
       (.getElementById js/document upload-form-id)
-      "/api/attach-file")))
+      (str js/context "/api/attach-file"))))
 
 (defn upload-form [support-issue-id modal-open? success-action]
   (r/with-let [form-id    "upload-form"

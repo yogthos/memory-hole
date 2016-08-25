@@ -15,6 +15,8 @@ where screenname = :screenname;
 update users
 set screenname = :screenname,
     pass = :pass,
+    admin = :admin,
+    is_active = :is-active,
     last_login=(select now() at time zone 'utc')
 where user_id=:user-id
-returning user_id, is_active, admin;
+returning user_id, last_login, is_active, admin;

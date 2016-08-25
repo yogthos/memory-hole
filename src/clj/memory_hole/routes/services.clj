@@ -150,10 +150,12 @@
     (GET "/file/:name" []
       :summary "load a file from the database"
       :path-params [name :- String]
-      (attachments/load-file-data name))
+      (attachments/load-file-data {:name name}))
 
-    (DELETE "/file/:name" []
+    (DELETE "/file/:support-issue-id/:name" []
       :summary "delete a file from the database"
-      :path-params [name :- String]
+      :path-params [support-issue-id :- s/Int
+                    name :- String]
       :return attachments/AttachmentResult
-      (attachments/delete-file! name))))
+      (attachments/remove-file-from-issue! {:support-issue-id support-issue-id
+                                            :name name}))))

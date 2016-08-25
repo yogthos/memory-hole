@@ -19,7 +19,8 @@ returning name;
 -- :name dissoc-file-from-issue! :! :n
 -- :doc removes the file from the issue
 delete from support_issues_files
-where support_issue_id = :support-issue-id;
+where support_issue_id = :support-issue-id
+and   file_id in (select file_id from files where name = :name)
 
 -- :name assoc-file-with-issue! :! :n
 -- :doc assigns the file to a given support issue.

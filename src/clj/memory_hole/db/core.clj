@@ -159,17 +159,19 @@
     (dissoc-tags-from-issue! m)
     (delete-issue! m)))
 
-(defn update-user-info! [{:keys [screenname pass] :as user}]
+(defn update-user-info! [{:keys [screenname pass admin is-active] :as user}]
   (conman/with-transaction [*db*]
     (merge
       user
       (if-let [{:keys [user-id]} (user-by-screenname {:screenname screenname})]
         (update-user<! {:user-id    user-id
+                        :admin      admin
+                        :is-active  is-active
                         :screenname screenname
                         :pass       pass})
         (insert-user<! {:screenname screenname
-                        :admin      false
-                        :is-active  true
+                        :admin      admin
+                        :is-active  is-active
                         :pass       pass})))))
 
 (defn attach-file-to-issue! [support-issue-id filename content-type data]
@@ -180,3 +182,10 @@
     (assoc-file-with-issue! {:support-issue-id support-issue-id
                              :name             filename})
     filename))
+
+(defn remove-file-from-issue! [{:keys [support-issue-id name]}]
+  (conman/with-transaction [*db*]
+    (dissoc-file-from-issue!
+      {:support-issue-id support-issue-id
+       :name name})
+    (delete-file<! {:name name})))

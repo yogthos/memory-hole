@@ -55,18 +55,27 @@
 (def LogoutResponse
   {:result s/Str})
 
-(handler register! [{:keys [pass pass1] :as user}]
-  (if (= pass pass1)
+(handler register! [{:keys [pass pass1] :as user} admin?]
+  (cond
+    (not admin?)
+    (unauthorized {:error "you do not have permission to add users"})
+    (= pass pass1)
     (db/insert-user<!
       (-> user
           (update-in [:pass] hashers/encrypt)
           (dissoc :pass1)))
+    :else
     (bad-request {:error "invalid user"})))
+
+(handler update-user! [user admin?]
+  (if admin?
+    (ok {:user (db/update-user<! user)})
+    (unauthorized {:error "you do not have permission to edit users"})))
 
 (defn local-login [userid pass]
   (when-let [user (authenticate-local userid pass)]
     (-> user
-        (merge {:member-of []
+        (merge {:member-of    []
                 :account-name userid}))))
 
 (defn ldap-login [userid pass]
@@ -74,10 +83,10 @@
     (-> user
         ;; user :screenname as preferred name
         ;; fall back to userid if not supplied
+        (assoc :admin false
+               :is-active true)
         (update-in [:screenname] #(or (not-empty %) userid))
         (db/update-user-info!))))
-
-(authenticate-local "admin" "admin")
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
   (if-let [user (if (:ldap env)
