@@ -182,7 +182,7 @@
         (for [[idx file] (map-indexed vector files)]
           ^{:key idx}
           [:li
-           [:a {:href (str "/api/file/" file)} file]
+           [:a {:href (str js/context "/api/file/" file)} file]
            " "
            [:span.glyphicon.glyphicon-remove
             {:style {:color "red"}
