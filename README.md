@@ -63,6 +63,11 @@ The `conf.edn` file should contain the configuration such as the database URL th
 {:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"}
 ```
 
+### Security
+
+The app is not setup to use HTTPS, so it should be fronted with
+Nginx or similar in production for secure transport. See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details.
+
 ## Acknowledgments
 
 The original implementation of the tool was written by [Ryan Baldwin](https://github.com/ryanbaldwin). The app is based on the original schema and SQL queries.
