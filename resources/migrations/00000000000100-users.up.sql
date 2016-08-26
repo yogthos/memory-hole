@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+--;;
 CREATE TABLE users
 (user_id     SERIAL      NOT NULL PRIMARY KEY,
  screenname  VARCHAR(30) UNIQUE NOT NULL,
