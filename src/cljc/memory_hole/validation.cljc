@@ -24,19 +24,32 @@
       :detail v/required
       :tags [v/required [v/min-count 1]])))
 
-(defn validate-user [user]
+(defn validate-create-user [user]
+  (format-validation-errors
+    (b/validate
+      (fn [{:keys [path]}]
+        ({[:screenname]   "screenname is required"
+          [:pass]         "password of 8+ characters is required"
+          [:pass-confirm] "confirmation password of 8+ characters is required"
+          [:is-admin]     "must specify whether the user is an admin"
+          [:active]       "specify whether the user is active"}
+          path))
+      user
+      :pass [v/required [v/min-count 8]]
+      :pass-confirm [v/required [v/min-count 8]]
+      :screenname v/required
+      :admin v/required
+      :is-active v/required)))
+
+(defn validate-update-user [user]
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
         ({[:screenname] "screenname is required"
-          [:pass] "password is required"
-          [:pass-confirm] "confirmation password must match"
-          [:is-admin] "must specify whether the user is an admin"
-          [:active] "specify whether the user is active"}
+          [:is-admin]   "must specify whether the user is an admin"
+          [:active]     "specify whether the user is active"}
           path))
       user
       :screenname v/required
-      :pass v/required
-      :pass-confirm v/required
-      :is-admin v/required
-      :active v/required)))
+      :admin v/required
+      :is-active v/required)))

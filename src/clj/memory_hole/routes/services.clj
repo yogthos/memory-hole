@@ -10,6 +10,10 @@
             [buddy.auth.accessrules :refer [restrict]]
             [buddy.auth :refer [authenticated?]]))
 
+(defn admin?
+  [request]
+  (:admin (:identity request)))
+
 (defn access-error [_ _]
   (unauthorized {:error "unauthorized"}))
 
@@ -38,6 +42,43 @@
                   pass :- s/Str]
     :summary "User login handler"
     (auth/login userid pass req))
+
+  (context "/admin" []
+    :auth-rules admin?
+    :tags ["admin"]
+
+    (GET "/users/:screenname" []
+      :path-params [screenname :- s/Str]
+      :return auth/SearchResponse
+      :summary "returns users with matching screennames"
+      (auth/find-users screenname))
+
+    (POST "/user" []
+      :body-params [screenname :- s/Str
+                    pass :- s/Str
+                    pass-confirm :- s/Str
+                    admin :- s/Bool
+                    is-active :- s/Bool]
+      (auth/register! {:screenname   screenname
+                       :pass         pass
+                       :pass-confirm pass-confirm
+                       :admin        admin
+                       :is-active    is-active}))
+
+    (PUT "/user" []
+      :body-params [user-id :- s/Int
+                    screenname :- s/Str
+                    pass :- (s/maybe s/Str)
+                    pass-confirm :- (s/maybe s/Str)
+                    admin :- s/Bool
+                    is-active :- s/Bool]
+      :return auth/LoginResponse
+      (auth/update-user! {:user-id      user-id
+                          :screenname   screenname
+                          :pass         pass
+                          :pass-confirm pass-confirm
+                          :admin        admin
+                          :is-active    is-active})))
 
   (context "/api" []
     :auth-rules authenticated?
@@ -141,7 +182,7 @@
     ;;attachments
     (POST "/attach-file" []
       :multipart-params [support-issue-id :- s/Int
-                         file             :- TempFileUpload]
+                         file :- TempFileUpload]
       :middleware [wrap-multipart-params]
       :summary "handles file upload"
       :return s/Str
@@ -149,13 +190,13 @@
 
     (GET "/file/:name" []
       :summary "load a file from the database"
-      :path-params [name :- String]
+      :path-params [name :- s/Str]
       (attachments/load-file-data {:name name}))
 
     (DELETE "/file/:support-issue-id/:name" []
       :summary "delete a file from the database"
       :path-params [support-issue-id :- s/Int
-                    name :- String]
+                    name :- s/Str]
       :return attachments/AttachmentResult
       (attachments/remove-file-from-issue! {:support-issue-id support-issue-id
-                                            :name name}))))
+                                            :name             name}))))

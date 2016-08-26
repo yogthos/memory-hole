@@ -1,10 +1,10 @@
-(ns memory-hole.pages.users
+(ns memory-hole.pages.admin.users
   (:require [memory-hole.bootstrap :as bs]
             [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.common :refer [spacer validation-modal]]
-            [memory-hole.validation :refer [validate-user]]
+            [memory-hole.validation :as v]
             [reagent.core :as r]))
 
 (defn issue-search []
@@ -23,7 +23,7 @@
         {:on-click do-search}
         "search"]]]]))
 
-(defn control-buttons [user cancel-action]
+(defn control-buttons [user close-editor]
   (r/with-let [errors  (r/atom nil)
                user-id (:user-id @user)]
     [:div.row>div.col-sm-12
@@ -31,16 +31,25 @@
      [:div.pull-right
       [bs/Button
        {:bs-style "danger"
-        :on-click cancel-action}
+        :on-click close-editor}
        "Cancel"]
       [:span {:style {:margin-right "5px"}}]
       [bs/Button
        {:bs-style   "primary"
         :pull-right true
-        :on-click   #(when-not (reset! errors (validate-user @user))
-                      (if user-id
-                        (dispatch [:save-user @user])
-                        (dispatch [:create-user @user])))}
+        :on-click   #(let [new-user? (nil? user-id)]
+                      (println user-id new-user?)
+                      (when-not (reset! errors
+                                        ((if new-user?
+                                           v/validate-create-user
+                                           v/validate-update-user)
+                                          @user))
+                        (dispatch
+                          [(if new-user?
+                             :admin/create-user-profile
+                             :admin/update-user-profile)
+                           @user])
+                        (close-editor)))}
        "Save"]]]))
 
 (defn field-group [label cursor type placeholder]
@@ -53,10 +62,13 @@
      :on-change   #(reset! cursor (-> % .-target .-value))
      :placeholder placeholder}]])
 
-(defn edit-user [user-map cancel-action]
+(defn edit-user [user-map close-editor]
   (r/with-let [user (-> user-map
-                        (update :is-admin boolean)
-                        (update :active boolean)
+                        (dissoc :last-login)
+                        (update :pass identity)
+                        (update :pass-confirm identity)
+                        (update :admin boolean)
+                        (update :is-active boolean)
                         r/atom)]
     [:div
      [field-group
@@ -80,7 +92,7 @@
       {:checked  (boolean (:is-active @user))
        :on-click #(swap! user update :is-active not)}
       "Active"]
-     [control-buttons user cancel-action]]))
+     [control-buttons user close-editor]]))
 
 (defn user-info [user-map]
   (r/with-let [expanded? (r/atom false)]
@@ -90,16 +102,16 @@
        [:div
         [:span (:screenname user-map)]
         [bs/Label
-         {:bs-style   "primary"
-          :class "pull-right edit-user"
-          :on-click   #(swap! expanded? not)}
+         {:bs-style "primary"
+          :class    "pull-right edit-user"
+          :on-click #(swap! expanded? not)}
          "edit"]])]))
 
 (defn user-list []
-  (let [users (subscribe [:user]) #_(subscribe [:admin/users])]
+  (let [users (subscribe [:admin/users])]
     (when-not (empty? @users)
       [bs/ListGroup
-       (for [user [@users]]
+       (for [user @users]
          ^{:key (:user-id user)}
          [user-info user])])))
 

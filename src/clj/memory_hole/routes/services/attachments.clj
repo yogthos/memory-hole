@@ -33,7 +33,7 @@
 (handler remove-file-from-issue! [opts]
   (ok (db/remove-file-from-issue! opts)))
 
-(defn load-file-data [file]
+(handler load-file-data [file]
   (if-let [{:keys [type data]} (db/load-file-data file)]
     (-> (ByteArrayInputStream. data)
         (ok)

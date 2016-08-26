@@ -2,6 +2,11 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
+  :db-state
+  (fn [db _]
+    db))
+
+(reg-sub
   :active-page
   (fn [db _]
     (:active-page db)))
@@ -46,7 +51,9 @@
   (fn [db _]
     (:login-events db)))
 
+;;admin
 (reg-sub
-  :db-state
+  :admin/users
   (fn [db _]
-    db))
+    (:admin/users db)))
+

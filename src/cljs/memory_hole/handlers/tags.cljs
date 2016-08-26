@@ -1,5 +1,6 @@
 (ns memory-hole.handlers.tags
   (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
+            [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [GET POST]]))
 
 (reg-event-db
@@ -17,7 +18,7 @@
   (fn [db _]
     (GET "/api/tags"
          {:handler       #(dispatch [:set-tags (:tags %)])
-          :error-handler #(dispatch [:set-error (str %)])})
+          :error-handler #(ajax-error %)})
     db))
 
 (reg-event-db
@@ -31,5 +32,5 @@
     (POST "/api/tag"
           {:params        {:tag tag}
            :handler       #(dispatch [:add-tag %])
-           :error-handler #(dispatch [:set-error (str %)])})
+           :error-handler #(ajax-error %)})
     db))

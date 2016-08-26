@@ -3,6 +3,7 @@
             [ajax.core :refer [DELETE GET POST PUT]]
             [memory-hole.routes :refer [set-location!]]
             [memory-hole.db :as db]
+            memory-hole.handlers.admin
             memory-hole.handlers.issues
             memory-hole.handlers.tags))
 

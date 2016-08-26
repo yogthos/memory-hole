@@ -3,7 +3,7 @@
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [set-location!]]
-            [memory-hole.pages.users :refer [users-page]]
+            [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
             [memory-hole.pages.auth :refer [login-page logout]]))

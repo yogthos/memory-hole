@@ -38,15 +38,19 @@
       (dissoc user :pass))))
 
 (def User
-  {:user-id        s/Int
-   :member-of      [(s/maybe s/Str)]
-   :screenname     (s/maybe s/Str)
-   :account-name   (s/maybe s/Str)
-   :last-login     java.util.Date
-   :admin          s/Bool
-   :is-active      s/Bool
-   :client-ip      s/Str
-   :source-address s/Str})
+  {:user-id                         s/Int
+   :screenname                      (s/maybe s/Str)
+   :admin                           s/Bool
+   :is-active                       s/Bool
+   :last-login                      java.util.Date
+   (s/optional-key :member-of)      [(s/maybe s/Str)]
+   (s/optional-key :account-name)   (s/maybe s/Str)
+   (s/optional-key :client-ip)      s/Str
+   (s/optional-key :source-address) s/Str})
+
+(def SearchResponse
+  {(s/optional-key :users) [User]
+   (s/optional-key :error) s/Str})
 
 (def LoginResponse
   {(s/optional-key :user)  User
@@ -55,22 +59,28 @@
 (def LogoutResponse
   {:result s/Str})
 
-(handler register! [{:keys [pass pass1] :as user} admin?]
-  (cond
-    (not admin?)
-    (unauthorized {:error "you do not have permission to add users"})
-    (= pass pass1)
+(handler register! [{:keys [pass pass-confirm] :as user}]
+  (if (= pass pass-confirm)
     (db/insert-user<!
       (-> user
-          (update-in [:pass] hashers/encrypt)
-          (dissoc :pass1)))
-    :else
-    (bad-request {:error "invalid user"})))
+          (dissoc :pass-confirm)
+          (update-in [:pass] hashers/encrypt)))
+    (bad-request {:error "re-entered password doesn't match"})))
 
-(handler update-user! [user admin?]
-  (if admin?
-    (ok {:user (db/update-user<! user)})
-    (unauthorized {:error "you do not have permission to edit users"})))
+(handler find-users [screenname]
+  (ok
+    {:users
+     (db/users-by-screenname
+       {:screenname (str "%" screenname "%")})}))
+
+(handler update-user! [{:keys [pass pass-confirm] :as user}]
+  (if (= pass pass-confirm)
+    (ok
+      {:user
+       (if pass
+         (db/update-user-with-pass<!
+           (update user :pass hashers/encrypt))
+         (db/update-user<! user))})))
 
 (defn local-login [userid pass]
   (when-let [user (authenticate-local userid pass)]
@@ -105,5 +115,5 @@
       (log/info "login failed for" userid remote-addr server-name)
       (unauthorized {:error "The username or password was incorrect."}))))
 
-(defn logout []
+(handler logout []
   (assoc (ok {:result "ok"}) :session nil))

@@ -2,6 +2,9 @@
   (:require [re-frame.core :refer [dispatch]]
             [ajax.core :as ajax]))
 
+(defn ajax-error [{:keys [error]}]
+  (dispatch [:set-error error]))
+
 (defn request-defaults [request]
   (dispatch [:set-loading])
   (-> request
