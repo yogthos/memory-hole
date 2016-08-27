@@ -24,19 +24,21 @@
   (let [active-page (subscribe [:active-page])]
     [bs/NavItem {:href uri :active (= page @active-page)} title]))
 
-(defn navbar [user]
+(defn navbar [{:keys [admin screenname]}]
   [bs/Navbar {:inverse true}
    [bs/Navbar.Header]
    [bs/Navbar.Brand
     [:a#logo {:href "#/"}
      [:span "Issues"]]]
    [bs/Navbar.Collapse
-    (when (:admin user)
+    (when admin
       [bs/Nav
        [nav-link "#/users" "Manage Users" :users]])
     [bs/Nav {:pull-right true}
-     [bs/MenuItem {:on-click logout}
-      (r/as-component [:span "Logout " (:screenname user)])]]]])
+     [bs/MenuItem
+      [bs/DropdownButton
+       {:bs-style "link" :title screenname}
+       [bs/MenuItem {:id 1 :on-click logout} "logout"]]]]]])
 
 (defmulti pages (fn [page _] page))
 (defmethod pages :home [_ _] [home-page])
