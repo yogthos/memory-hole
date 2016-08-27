@@ -1,5 +1,13 @@
 # Memory Hole
 
+<img src="https://cdn.rawgit.com/yogthos/memory-hole/master/memory-hole.png"
+ hspace="20" align="left" height="200"/>
+
+>When one knew that any document was due for destruction, or even when one saw a scrap of waste paper lying about, it was an automatic action to lift the flap of the nearest memory hole and drop it in, whereupon it would be whirled away on a current of warm air to the enormous furnaces which were hidden somewhere in the recesses of the building
+>- from [1984 by George Orwell](https://www.goodreads.com/book/show/5470.1984)
+
+---
+
 Memory Hole is a support issue organizer. It's designed to provide a way to organize and search common support issues and their resolution.
 
 ### [screenshots](https://github.com/yogthos/memory-hole/tree/master/screenshots)
@@ -15,13 +23,18 @@ Memory Hole is a support issue organizer. It's designed to provide a way to orga
 
 ## Prerequisites
 
-You will need [Leiningen][1] 2.0 or above installed.
+You will need [Leiningen][1] 2.0 or above installed to compile the application.
+You will also need an instance of [PostgreSQL][2] database configured. See [here](#configuring-postgresql) for
+details.
 
 [1]: https://github.com/technomancy/leiningen
+[2]: http://postgresql.org
+
+
 
 ## Running during development
 
-You will need to setup a `profiles.clj` with the configuration settings for the database and optionally LDAP, e.g:
+Create a `profiles.clj` file in the project directory with the configuration settings for the database and optionally LDAP, e.g:
 
 ```clojure
 {:profiles/dev
@@ -88,8 +101,35 @@ To disable HTTP access, set the `:port` to `nil`:
   :keystore-pass "changeit"}}
 ```
 
-The app is not setup to use HTTPS, so it should be fronted with
-Nginx or similar in production for secure transport. See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details.
+Alternatively, you can front the app with Nginx in production.
+See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details on configuring Nginx.
+
+
+## Configuring PostgreSQL
+
+Follow these steps to configure the database for the application
+
+1. Run the `psql` command:
+
+        psql -U <superuser|postgres user> -d postgres -h localhost
+
+2. Create the role role for accessing the database:
+
+        CREATE ROLE memoryhole;
+
+3. Set the password for the role:
+
+        \password memoryhole;
+
+4. Optionally, create a schema and grant the `memoryhole` role authorization:
+
+        CREATE SCHEMA AUTHORIZATION memoryhole;
+        GRANT ALL ON SHCEMA memoryhole TO memoryhole;
+        GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
+
+5. Exit the shell
+
+        \q
 
 ## Acknowledgments
 
