@@ -48,12 +48,10 @@
   [box
    :size "atuo"
    :child
-   [bs/FormControl
-    {:component-class "textarea"
-     :class           "edit-issue-detail"
-     :placeholder     "issue detail"
-     :value           @text
-     :on-change       #(reset! text (-> % .-target .-value))}]])
+   [:textarea.form-control.edit-issue-detail
+    {:placeholder "issue detail"
+     :value       @text
+     :on-change   #(reset! text (-> % .-target .-value))}]])
 
 (defn control-buttons [issue]
   (r/with-let [issue-id (:support-issue-id @issue)
@@ -185,7 +183,7 @@
            [:a {:href (str js/context "/api/file/" file)} file]
            " "
            [:span.glyphicon.glyphicon-remove
-            {:style {:color "red"}
+            {:style    {:color "red"}
              :on-click (fn []
                          (reset! action #(dispatch [:delete-file support-issue-id file]))
                          (reset! confirm-open? true))}]])]])))
