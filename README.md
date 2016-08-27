@@ -27,7 +27,7 @@ You will need to setup a `profiles.clj` with the configuration settings for the 
 {:profiles/dev
  {:env
   {:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
-  ;;optional, will use internal table otherwise  
+  ;;optional, will use internal table otherwise
   :ldap
   {:host
      {:address         "my-ldap-server.ca"
@@ -39,7 +39,7 @@ You will need to setup a `profiles.clj` with the configuration settings for the 
 Run the migrations
 
     lein run migrate
-    
+
 This will create the tables and add a default admin user, The default login is: `admin/admin`.
 
 To start a web server for the application, run:
@@ -47,15 +47,15 @@ To start a web server for the application, run:
     lein run
 
 To compile ClojureScript front-end, run:
-    
+
     lein figwheel
 
 ## Building for production
 
     lein uberjar
-    
+
 This will produce `target/uberjar/memory-hole.jar` archive that can be run as follows:
-   
+
     java -Dconf=conf.edn -jar memory-hole.jar migrate
     java -Dconf=conf.edn -jar memory-hole.jar
 
@@ -66,6 +66,27 @@ The `conf.edn` file should contain the configuration such as the database URL th
 ```
 
 ### Security
+
+To enable HTTPS support in production add the the following configuration under the `:ssl` key:
+
+```clojure
+{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
+ :ssl
+ {:port 3001
+  :keystore "keystore.jks"
+  :keystore-pass "changeit"}}
+```
+
+To disable HTTP access, set the `:port` to `nil`:
+
+```clojure
+{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
+ :port nil
+ :ssl
+ {:port 3001
+  :keystore "keystore.jks"
+  :keystore-pass "changeit"}}
+```
 
 The app is not setup to use HTTPS, so it should be fronted with
 Nginx or similar in production for secure transport. See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details.
