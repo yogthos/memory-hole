@@ -4,7 +4,6 @@
   :url "https://github.com/yogthos/memory-hole"
 
   :dependencies [[metosin/compojure-api "1.1.6"]
-                 [migratus "0.8.30"]
                  [cljs-ajax "0.5.8"]
                  [secretary "1.2.3"]
                  [reagent-utils "0.2.0"]
