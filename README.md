@@ -104,6 +104,28 @@ To disable HTTP access, set the `:port` to `nil`:
 Alternatively, you can front the app with Nginx in production.
 See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details on configuring Nginx.
 
+## Nginx Proxy
+
+The app can be proxied with Nginx to a custom path as follows:
+
+```
+server {
+    listen ...;
+    ...
+    location /memory-hole {
+        proxy_pass http://127.0.0.1:3000;
+    }
+    ...
+}
+```
+
+You will then need to add the `:app-context` in the `conf.edn` file with the context:
+
+```clojure
+{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
+ :port 3000
+ :app-context "/memory-hole"}
+```
 
 ## Configuring PostgreSQL
 
