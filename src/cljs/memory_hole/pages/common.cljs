@@ -16,7 +16,7 @@
                 :on-click #(reset! errors nil)}
      "Close"]]])
 
-(defn confirm-delete-modal [title confirm-open? action]
+(defn confirm-modal [title confirm-open? action action-label]
   [bs/Modal {:show @confirm-open?}
    [bs/Modal.Header
     [bs/Modal.Title title]]
@@ -30,4 +30,4 @@
                 :on-click   #(do
                               (reset! confirm-open? false)
                               (action))}
-     "Delete"]]])
+     action-label]]])

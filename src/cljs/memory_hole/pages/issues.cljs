@@ -9,7 +9,7 @@
              :refer [hv-split-args-desc]]
             [memory-hole.validation :as v]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.pages.common :refer [spacer validation-modal confirm-delete-modal]]
+            [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
             [memory-hole.routes :refer [set-location!]]
             [memory-hole.attachments :refer [upload-form]]
             [clojure.string :as s]))
@@ -53,25 +53,43 @@
      :value       @text
      :on-change   #(reset! text (-> % .-target .-value))}]])
 
-(defn control-buttons [issue]
-  (r/with-let [issue-id (:support-issue-id @issue)
-               errors   (r/atom nil)]
+(defn select-issue-keys [issue]
+  (let [issue-keys [:title :tags :summary :detail]]
+    (select-keys (update issue :tags set) issue-keys)))
+
+(defn issue-updated? [original-issue edited-issue]
+  (or (nil? (:support-issue-id edited-issue))
+      (= (select-issue-keys original-issue)
+         (select-issue-keys edited-issue))))
+
+(defn control-buttons [original-issue edited-issue]
+  (r/with-let [issue-id      (:support-issue-id @edited-issue)
+               errors        (r/atom nil)
+               confirm-open? (r/atom false)
+               cancel-edit   #(set-location!
+                               (if issue-id (str "#/issue/" issue-id) "#/"))]
     [:div.row>div.col-sm-12
+     [confirm-modal
+      "Discard changes?"
+      confirm-open?
+      cancel-edit
+      "Discard"]
      [validation-modal errors]
      [:div.pull-right
       [bs/Button
        {:bs-style "danger"
-        :on-click #(set-location!
-                    (if issue-id (str "#/issue/" issue-id) "#/"))}
+        :on-click #(if (issue-updated? @original-issue @edited-issue)
+                    (cancel-edit)
+                    (reset! confirm-open? true))}
        "Cancel"]
       spacer
       [bs/Button
        {:bs-style   "primary"
         :pull-right true
-        :on-click   #(when-not (reset! errors (v/validate-issue @issue))
+        :on-click   #(when-not (reset! errors (v/validate-issue @edited-issue))
                       (if issue-id
-                        (dispatch [:save-issue @issue])
-                        (dispatch [:create-issue @issue])))}
+                        (dispatch [:save-issue @edited-issue])
+                        (dispatch [:create-issue @edited-issue])))}
        "Save"]]]))
 
 (defn render-tags [tags]
@@ -117,10 +135,11 @@
                action        (r/atom nil)]
     (when-not (empty? files)
       [:div
-       [confirm-delete-modal
+       [confirm-modal
         "Are you sue you wish to delete this file?"
         confirm-open?
-        @action]
+        @action
+        "Delete"]
        [:h4 "Attachments"]
        [:hr]
        [:ul
@@ -166,7 +185,7 @@
      :gap "10px"
      :height "auto"
      :children
-     [[control-buttons edited-issue]
+     [[control-buttons original-issue edited-issue]
       [bs/FormGroup
        [bs/ControlLabel "Issue Title"]
        [input-text
@@ -192,15 +211,16 @@
        :size "auto"]
       (when-let [support-issue-id (:support-issue-id @edited-issue)]
         [attachment-component support-issue-id (r/cursor original-issue [:files])])
-      [control-buttons edited-issue]]]))
+      [control-buttons original-issue edited-issue]]]))
 
 (defn delete-issue [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]
     [:div.pull-left
-     [confirm-delete-modal
+     [confirm-modal
       "Are you sue you wish to delete the issue?"
       confirm-open?
-      #(dispatch [:delete-issue support-issue-id])]
+      #(dispatch [:delete-issue support-issue-id])
+      "Delete"]
      [bs/Button {:bs-style "danger"
                  :on-click #(reset! confirm-open? true)}
       "delete"]]))
