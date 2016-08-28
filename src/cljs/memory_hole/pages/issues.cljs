@@ -112,59 +112,6 @@
    [:div.col-sm-6
     [:h4 [render-tags @tags]]]])
 
-(defn edit-issue-page []
-  (r/with-let [issue   (-> @(subscribe [:issue])
-                           (update :title #(or % ""))
-                           (update :summary #(or % ""))
-                           (update :detail #(or % ""))
-                           (update :tags #(set (or % [])))
-                           r/atom)
-               title   (r/cursor issue [:title])
-               summary (r/cursor issue [:summary])
-               detail  (r/cursor issue [:detail])
-               tags    (r/cursor issue [:tags])]
-    [v-box
-     :size "auto"
-     :gap "10px"
-     :height "auto"
-     :children
-     [[control-buttons issue]
-      [bs/FormGroup
-       [bs/ControlLabel "Issue Title"]
-       [input-text
-        :model title
-        :width "100%"
-        :class "edit-issue-title"
-        :placeholder "title of the issue"
-        :on-change #(reset! title %)]]
-      [bs/FormGroup
-       [bs/ControlLabel "Issue Summary"]
-       [input-text
-        :model summary
-        :width "100%"
-        :placeholder "issue summary"
-        :on-change #(reset! summary %)]]
-      [bs/FormGroup
-       [bs/ControlLabel "Issue Tags"]
-       [tag-editor tags]]
-      [h-split
-       :class "issue-editor"
-       :panel-1 [edit-panel detail]
-       :panel-2 [preview-panel @detail]
-       :size "auto"]
-      [control-buttons issue]]]))
-
-(defn delete-issue [{:keys [support-issue-id]}]
-  (r/with-let [confirm-open? (r/atom false)]
-    [:div.pull-left
-     [confirm-delete-modal
-      "Are you sue you wish to delete the issue?"
-      confirm-open?
-      #(dispatch [:delete-issue support-issue-id])]
-     [bs/Button {:bs-style "danger"
-                 :on-click #(reset! confirm-open? true)}
-      "delete"]]))
-
 (defn attachment-list [support-issue-id files]
   (r/with-let [confirm-open? (r/atom false)
                action        (r/atom nil)]
@@ -201,6 +148,62 @@
       (fn [filename]
         (reset! open? false)
         (dispatch [:attach-file filename]))]]))
+
+(defn edit-issue-page []
+  (r/with-let [original-issue (subscribe [:issue])
+               edited-issue   (-> @original-issue
+                                  (update :title #(or % ""))
+                                  (update :summary #(or % ""))
+                                  (update :detail #(or % ""))
+                                  (update :tags #(set (or % [])))
+                                  r/atom)
+               title          (r/cursor edited-issue [:title])
+               summary        (r/cursor edited-issue [:summary])
+               detail         (r/cursor edited-issue [:detail])
+               tags           (r/cursor edited-issue [:tags])]
+    [v-box
+     :size "auto"
+     :gap "10px"
+     :height "auto"
+     :children
+     [[control-buttons edited-issue]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Title"]
+       [input-text
+        :model title
+        :width "100%"
+        :class "edit-issue-title"
+        :placeholder "title of the issue"
+        :on-change #(reset! title %)]]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Summary"]
+       [input-text
+        :model summary
+        :width "100%"
+        :placeholder "issue summary"
+        :on-change #(reset! summary %)]]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Tags"]
+       [tag-editor tags]]
+      [h-split
+       :class "issue-editor"
+       :panel-1 [edit-panel detail]
+       :panel-2 [preview-panel @detail]
+       :size "auto"]
+      (when-let [support-issue-id (:support-issue-id @edited-issue)]
+        [attachment-component support-issue-id (r/cursor original-issue [:files])])
+      [control-buttons edited-issue]]]))
+
+(defn delete-issue [{:keys [support-issue-id]}]
+  (r/with-let [confirm-open? (r/atom false)]
+    [:div.pull-left
+     [confirm-delete-modal
+      "Are you sue you wish to delete the issue?"
+      confirm-open?
+      #(dispatch [:delete-issue support-issue-id])]
+     [bs/Button {:bs-style "danger"
+                 :on-click #(reset! confirm-open? true)}
+      "delete"]]))
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
