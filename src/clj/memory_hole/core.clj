@@ -19,7 +19,12 @@ http-server
   (http/start
     (-> env
         (assoc :handler (handler/app))
-        (update :port #(or (-> env :options :port) %))))
+        (update :port #(or (-> env :options :port) %))
+        (merge
+          (when-let [{:keys [port keystore keystore-pass]} (:ssl env)]
+            {:ssl-port     port
+             :keystore     keystore
+             :key-password keystore-pass}))))
   :stop
   (http/stop http-server))
 
