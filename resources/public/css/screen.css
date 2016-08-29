@@ -114,11 +114,15 @@ body {
 .edit-panel {
     border:           none;
 }
+.issue-editor {
+    margin: 0px !important;
+}
 .edit-issue-title {
     font-size: 13pt;
 }
 .edit-issue-detail {
     width:800px;
+    min-height: 500px;
 }
 .view-issue-detail {
     white-space: pre-wrap;
@@ -143,3 +147,4 @@ code.hljs {
     font-size: 12pt;
     cursor: pointer;
 }
+

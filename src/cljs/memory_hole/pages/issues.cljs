@@ -103,7 +103,7 @@
 (defn tag-input [tags]
   (r/with-let [tags-text (r/atom (if-let [tags (not-empty @tags)] (s/join " " tags) ""))]
     [:div
-     [bs/FormControl
+     [:input.form-control
       {:type        "text"
        :placeholder "space separated tags fro the issue"
        :value       @tags-text
@@ -204,6 +204,7 @@
       [bs/FormGroup
        [bs/ControlLabel "Issue Tags"]
        [tag-editor tags]]
+      [bs/ControlLabel "Issue Detail"]
       [h-split
        :class "issue-editor"
        :panel-1 [edit-panel detail]
