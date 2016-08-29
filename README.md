@@ -146,7 +146,7 @@ Follow these steps to configure the database for the application
 4. Optionally, create a schema and grant the `memoryhole` role authorization:
 
         CREATE SCHEMA AUTHORIZATION memoryhole;
-        GRANT ALL ON SHCEMA memoryhole TO memoryhole;
+        GRANT ALL ON SCHEMA memoryhole TO memoryhole;
         GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
 
 5. Exit the shell
