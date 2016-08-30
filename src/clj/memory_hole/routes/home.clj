@@ -9,8 +9,7 @@
 
 (defroutes home-routes
   (GET "/" [] (home-page))
+  (GET "/create-issue" [] (home-page))
   (GET "/issue/:id" [] (home-page))
-  (GET "/issues/:tag-id" [] (home-page))
-  (GET "/docs" [] (-> (response/ok (-> "docs/docs.md" io/resource slurp))
-                      (response/header "Content-Type" "text/plain; charset=utf-8"))))
+  (GET "/issues/:tag-id" [] (home-page)))
 

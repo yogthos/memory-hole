@@ -15,6 +15,12 @@
       (dispatch event)
       (dispatch [:add-login-event event]))))
 
+(defn href [url]
+  {:href (str js/context url)})
+
+(defn navigate! [url]
+  (accountant/navigate! (str js/context url)))
+
 ;; -------------------------
 ;; Routes
 (secretary/defroute "/" []
@@ -38,7 +44,7 @@
 (secretary/defroute "/edit-issue" []
   (if-not (or (logged-in?)
               (nil? @(subscribe [:issue])))
-    (accountant/navigate! "/")
+    (navigate! "/")
     (dispatch [:set-active-page :edit-issue])))
 
 (secretary/defroute "/issue/:id" [id]
