@@ -11,11 +11,13 @@
   (let [io (IframeIo.)]
     (gev/listen
       io goog.net.EventType.SUCCESS
-      #(on-success (.getResponseJson io)))
-    (gev/listen
-      io goog.net.EventType.ERROR
-      on-error)
-    (.setErrorChecker io #(.isSuccess io))
+      #(let [response (js->clj (.getResponseJson io) :keywordize-keys true)]
+        ;; goog.net.EventType.ERROR doesn't
+        ;; doesn't appear to trigger for responses outside
+        ;; 200 range, so have to handle the error manually
+        (if-let [error (:error response)]
+          (on-error error)
+          (on-success response))))
     (.sendFromForm
       io
       (.getElementById js/document upload-form-id)
@@ -25,11 +27,13 @@
   (r/with-let [form-id    "upload-form"
                uploading? (r/atom false)
                on-success (fn [filename]
+                            (reset! modal-open? false)
                             (reset! uploading? false)
                             (success-action filename))
-               on-error   (fn []
+               on-error   (fn [error]
+                            (reset! modal-open? false)
                             (reset! uploading? false)
-                            (dispatch [:set-error "failed to upload the file"]))]
+                            (dispatch [:set-error error]))]
     [bs/Modal
      {:show @modal-open?}
      [bs/Modal.Header
@@ -45,7 +49,7 @@
                 :method   "POST"}
          [:fieldset.form-group
           [:label {:for "file"} "select a file to upload"]
-          [:input {:type "hidden" :name "support-issue-id"
+          [:input {:type  "hidden" :name "support-issue-id"
                    :value (str support-issue-id)}]
           [:input.form-control {:id "file" :name "file" :type "file"}]]])]
      [bs/Modal.Footer

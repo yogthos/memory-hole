@@ -146,7 +146,7 @@
         (for [[idx file] (map-indexed vector files)]
           ^{:key idx}
           [:li
-           [:a {:href (str js/context "/api/file/" file)} file]
+           [:a {:href (str js/context "/api/file/" support-issue-id "/" file)} file]
            " "
            [:span.glyphicon.glyphicon-remove
             {:style    {:color "red"}
@@ -164,9 +164,8 @@
      [upload-form
       support-issue-id
       open?
-      (fn [filename]
-        (reset! open? false)
-        (dispatch [:attach-file filename]))]]))
+      (fn [{:keys [name]}]
+        (dispatch [:attach-file name]))]]))
 
 (defn edit-issue-page []
   (r/with-let [original-issue (subscribe [:issue])

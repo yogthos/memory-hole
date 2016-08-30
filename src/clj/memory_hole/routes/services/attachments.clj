@@ -23,15 +23,15 @@
   (if
     (empty? filename)
     (bad-request "a file must be selected")
-    (ok
-      (db/attach-file-to-issue!
-        support-issue-id
-        (.replaceAll filename "[^a-zA-Z0-9-_\\.]" "")
-        content-type
-        (file->byte-array tempfile)))))
+    (let [db-file-name (.replaceAll filename "[^a-zA-Z0-9-_\\.]" "")]
+      (db/save-file! {:support-issue-id support-issue-id
+                      :type             content-type
+                      :name             db-file-name
+                      :data             (file->byte-array tempfile)})
+      (ok {:name db-file-name}))))
 
 (handler remove-file-from-issue! [opts]
-  (ok (db/remove-file-from-issue! opts)))
+  (ok (db/delete-file<! opts)))
 
 (handler load-file-data [file]
   (if-let [{:keys [type data]} (db/load-file-data file)]

@@ -1,7 +1,20 @@
 (ns memory-hole.pages.common
-  (:require [memory-hole.bootstrap :as bs]))
+  (:require [reagent.core :as r]
+            [re-frame.core :refer [dispatch subscribe]]
+            [memory-hole.bootstrap :as bs]))
 
 (def spacer [:span {:style {:margin-right "5px"}}])
+
+(defn error-modal []
+  (when-let [error @(subscribe [:error])]
+    [bs/Modal {:show error}
+     [bs/Modal.Header
+      [bs/Modal.Title "and error has occured"]]
+     [bs/Modal.Body
+      [:p error]
+      [bs/Button {:bs-style "danger"
+                  :on-click #(dispatch [:set-error] nil)}
+       "OK"]]]))
 
 (defn validation-modal [errors]
   [bs/Modal {:show (boolean @errors)}

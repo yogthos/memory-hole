@@ -26,7 +26,7 @@
                         "sql/users.sql"
                         "sql/attachments.sql")
 
-(defn ->kebab-case-keyword [k]
+(defn ->kebab-case-keyword* [k]
   (-> (reduce
         (fn [s c]
           (if (and
@@ -40,6 +40,8 @@
       (.replaceAll "_" "-")
       (.toLowerCase)
       (keyword)))
+
+(def ->kebab-case-keyword (memoize ->kebab-case-keyword*))
 
 (defn transform-keys [t coll]
   "Recursively transforms all map keys in coll with t."
@@ -174,18 +176,3 @@
                         :is-active  is-active
                         :pass       pass})))))
 
-(defn attach-file-to-issue! [support-issue-id filename content-type data]
-  (conman/with-transaction [*db*]
-    (save-file! {:type content-type
-                 :name filename
-                 :data data})
-    (assoc-file-with-issue! {:support-issue-id support-issue-id
-                             :name             filename})
-    filename))
-
-(defn remove-file-from-issue! [{:keys [support-issue-id name]}]
-  (conman/with-transaction [*db*]
-    (dissoc-file-from-issue!
-      {:support-issue-id support-issue-id
-       :name name})
-    (delete-file<! {:name name})))

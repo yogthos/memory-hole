@@ -185,13 +185,15 @@
                          file :- TempFileUpload]
       :middleware [wrap-multipart-params]
       :summary "handles file upload"
-      :return s/Str
+      :return attachments/AttachmentResult
       (attachments/attach-file-to-issue! support-issue-id file))
 
-    (GET "/file/:name" []
-      :summary "load a file from the database"
-      :path-params [name :- s/Str]
-      (attachments/load-file-data {:name name}))
+    (GET "/file/:support-issue-id/:name" []
+      :summary "load a file from the database using the support issue id and the filename"
+      :path-params [support-issue-id :- s/Int
+                    name :- s/Str]
+      (attachments/load-file-data {:support-issue-id support-issue-id
+                                   :name             name}))
 
     (DELETE "/file/:support-issue-id/:name" []
       :summary "delete a file from the database"

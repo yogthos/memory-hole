@@ -46,8 +46,7 @@ FROM support_issues si
   INNER JOIN users created on si.created_by = created.user_id
   LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
   LEFT JOIN tags t ON sit.tag_id = t.tag_id
-  LEFT JOIN support_issues_files sif ON si.support_issue_id = sif.support_issue_id
-  LEFT JOIN files f ON sif.file_id = f.file_id
+  LEFT JOIN files f ON f.support_issue_id = si.support_issue_id
   LEFT OUTER JOIN users updated on si.last_updated_by = updated.user_id
 WHERE
   si.support_issue_id = :support-issue-id

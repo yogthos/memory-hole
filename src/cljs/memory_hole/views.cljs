@@ -3,6 +3,7 @@
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [set-location!]]
+            [memory-hole.pages.common :refer [error-modal]]
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
@@ -62,6 +63,7 @@
       [:div
        [navbar @user]
        [loading-throbber]
+       [error-modal]
        [:div.container
         (pages @active-page @user)]]
       (pages :login nil))))
