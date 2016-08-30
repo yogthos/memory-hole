@@ -5,6 +5,18 @@
 
 (def spacer [:span {:style {:margin-right "5px"}}])
 
+(defn loading-throbber
+  []
+  (let [loading? (subscribe [:loading?])]
+    (when @loading?
+      [bs/Modal
+       {:show true}
+       [bs/Modal.Body
+        [:div.spinner
+         [:div.bounce1]
+         [:div.bounce2]
+         [:div.bounce3]]]])))
+
 (defn error-modal []
   (when-let [error @(subscribe [:error])]
     [bs/Modal {:show error}
