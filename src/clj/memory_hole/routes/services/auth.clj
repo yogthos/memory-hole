@@ -1,6 +1,7 @@
 (ns memory-hole.routes.services.auth
   (:require [memory-hole.config :refer [env]]
             [memory-hole.db.core :as db]
+            [memory-hole.validation :as v]
             [memory-hole.routes.services.common :refer [handler]]
             [buddy.hashers :as hashers]
             [mount.core :refer [defstate]]
@@ -59,27 +60,34 @@
 (def LogoutResponse
   {:result s/Str})
 
-(handler register! [{:keys [pass pass-confirm] :as user}]
-  (if (= pass pass-confirm)
-    (db/insert-user<!
-      (-> user
-          (dissoc :pass-confirm)
-          (update-in [:pass] hashers/encrypt)))
-    (bad-request {:error "re-entered password doesn't match"})))
-
 (handler find-users [screenname]
   (ok
     {:users
      (db/users-by-screenname
        {:screenname (str "%" screenname "%")})}))
 
-(handler update-user! [{:keys [pass pass-confirm] :as user}]
-  (if (= pass pass-confirm)
+(handler register! [user]
+  (if-let [errors (v/validate-create-user user)]
+    (do
+      (log/error "error creating user:" errors)
+      (bad-request {:error "invalid user"}))
+    (db/insert-user<!
+      (-> user
+          (dissoc :pass-confirm)
+          (update-in [:pass] hashers/encrypt)))))
+
+(handler update-user! [{:keys [pass] :as user}]
+  (if-let [errors (v/validate-update-user user)]
+    (do
+      (log/error "error updating user:" errors)
+      (bad-request {:error "invalid user"}))
     (ok
       {:user
        (if pass
          (db/update-user-with-pass<!
-           (update user :pass hashers/encrypt))
+           (-> user
+               (dissoc :pass-confirm)
+               (update :pass hashers/encrypt)))
          (db/update-user<! user))})))
 
 (defn local-login [userid pass]

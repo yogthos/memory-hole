@@ -17,10 +17,18 @@
     db))
 
 (reg-event-db
+  :admin/set-user-info
+  (fn [db [_ {:keys [user-id] :as user}]]
+    (update db :admin/users
+            (fn [users]
+              (map #(if (= user-id (:user-id %)) user %) users)))))
+
+(reg-event-db
   :admin/update-user-profile
   (fn [db [_ user]]
     (PUT "/admin/user"
          {:params        user
+          :handler       #(dispatch [:admin/set-user-info (:user %)])
           :error-handler #(ajax-error %)})
     db))
 

@@ -24,8 +24,9 @@
       [bs/Modal.Title "and error has occured"]]
      [bs/Modal.Body
       [:p error]
-      [bs/Button {:bs-style "danger"
-                  :on-click #(dispatch [:set-error] nil)}
+      [bs/Button
+       {:bs-style "danger"
+        :on-click #(dispatch [:set-error] nil)}
        "OK"]]]))
 
 (defn validation-modal [errors]

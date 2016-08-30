@@ -38,7 +38,6 @@
        {:bs-style   "primary"
         :pull-right true
         :on-click   #(let [new-user? (nil? user-id)]
-                      (println user-id new-user?)
                       (when-not (reset! errors
                                         ((if new-user?
                                            v/validate-create-user
@@ -79,18 +78,20 @@
       "password"
       (r/cursor user [:pass])
       :password
-      "enter the password for the user"]
+      (if (:last-login user-map)
+        "enter the password for the user (leave empty to keep the existing password)"
+        "enter the password for the user")]
      [field-group
       "confirm password"
       (r/cursor user [:pass-confirm])
       :password "confirm the password for the user"]
      [bs/Checkbox
-      {:checked  (boolean (:admin @user))
-       :on-click #(swap! user update :admin not)}
+      {:checked   (boolean (:admin @user))
+       :on-change #(swap! user update :admin not)}
       "Admin"]
      [bs/Checkbox
-      {:checked  (boolean (:is-active @user))
-       :on-click #(swap! user update :is-active not)}
+      {:checked   (boolean (:is-active @user))
+       :on-change #(swap! user update :is-active not)}
       "Active"]
      [control-buttons user close-editor]]))
 
