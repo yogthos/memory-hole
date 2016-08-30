@@ -24,14 +24,9 @@
       [bs/Nav
        [nav-link "#/users" "Manage Users" :users]])
     [bs/Nav {:pull-right true}
-     [:div.nav-button
-      [bs/DropdownButton
-      {:id 1 :bs-style "link" :title screenname}
-      [bs/MenuItem {:on-click logout} "logout"]]]
-     #_[bs/MenuItem
-      [bs/DropdownButton
-       {:bs-style "link" :title screenname}
-       [bs/MenuItem {:id 1 :on-click logout} "logout"]]]]]])
+     [bs/NavDropdown
+      {:id "logout-menu" :title screenname}
+      [bs/MenuItem {:on-click logout} "logout"]]]]])
 
 (defmulti pages (fn [page _] page))
 (defmethod pages :home [_ _] [home-page])
