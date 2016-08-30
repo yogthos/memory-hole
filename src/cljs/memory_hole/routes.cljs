@@ -2,9 +2,16 @@
   (:require [re-frame.core :refer [dispatch dispatch-sync subscribe]]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
-            [secretary.core :as secretary]
-            [accountant.core :as accountant])
+            [secretary.core :as secretary])
   (:import goog.History))
+
+(defn url [parts]
+  (if-let [context (not-empty js/context)]
+    (apply (partial str context "/") parts)
+    (apply str parts)))
+
+(defn set-location! [& url-parts]
+  (set! (.-href js/location) (url url-parts)))
 
 (defn logged-in? []
   @(subscribe [:user]))
@@ -15,14 +22,10 @@
       (dispatch event)
       (dispatch [:add-login-event event]))))
 
-(defn href [url]
-  {:href (str js/context url)})
-
-(defn navigate! [url]
-  (accountant/navigate! (str js/context url)))
-
 ;; -------------------------
 ;; Routes
+(secretary/set-config! :prefix "#")
+
 (secretary/defroute "/" []
   (run-events [[:load-tags]
                [:load-recent-issues]
@@ -44,7 +47,7 @@
 (secretary/defroute "/edit-issue" []
   (if-not (or (logged-in?)
               (nil? @(subscribe [:issue])))
-    (navigate! "/")
+    (set-location! "#/")
     (dispatch [:set-active-page :edit-issue])))
 
 (secretary/defroute "/issue/:id" [id]
@@ -59,12 +62,4 @@
       HistoryEventType/NAVIGATE
       (fn [event]
         (secretary/dispatch! (.-token event))))
-    (.setEnabled true))
-  (accountant/configure-navigation!
-    {:nav-handler
-     (fn [path]
-       (secretary/dispatch! path))
-     :path-exists?
-     (fn [path]
-       (secretary/locate-route path))})
-  (accountant/dispatch-current!))
+    (.setEnabled true)))

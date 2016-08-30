@@ -8,8 +8,5 @@
   (layout/render "home.html"))
 
 (defroutes home-routes
-  (GET "/" [] (home-page))
-  (GET "/create-issue" [] (home-page))
-  (GET "/issue/:id" [] (home-page))
-  (GET "/issues/:tag-id" [] (home-page)))
+  (GET "/" [] (home-page)))
 

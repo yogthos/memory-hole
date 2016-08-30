@@ -1,10 +1,10 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
+            [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.issues :refer [markdown-component]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.routes :refer [href navigate!]]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
@@ -26,13 +26,14 @@
 
 (defn new-issue []
   [:span.pull-right
-   [:a.btn.btn-primary
-    (href "/create-issue") "Add Issue"]])
+   [bs/Button {:bs-style "primary"
+               :on-click #(set-location! "#/create-issue")}
+    "Add Issue"]])
 
 (defn issue-panel [{:keys [support-issue-id title summary views]}]
   [:div.panel.panel-default
    [:div.panel-heading.issue-title
-    [:h3>a (href (str "/issue/" support-issue-id))
+    [:h3>a {:href (str "#/issue/" support-issue-id)}
      title [:span.pull-right [bs/Badge views]]]]
    [:div.panel-body summary]])
 
@@ -54,13 +55,13 @@
                issues     (subscribe [:issues])
                selected   (subscribe [:selected-tag])
                select     (fn [action selection]
-                            (navigate! "/")
+                            (set-location! "#/")
                             (.scrollTo js/window 0 0)
                             (dispatch action)
                             (dispatch [:select-tag selection]))
                select-tag (fn [selection]
                             (.scrollTo js/window 0 0)
-                            (navigate! (str "/issues/" selection)))]
+                            (set-location! "#/issues/" selection))]
     [:div.container
      [:div.row
       [:div.col-md-3

@@ -7,10 +7,10 @@
             [memory-hole.datetime :as dt]
             [re-com.splits
              :refer [hv-split-args-desc]]
-            [memory-hole.routes :refer [href navigate!]]
             [memory-hole.validation :as v]
             [memory-hole.bootstrap :as bs]
             [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
+            [memory-hole.routes :refer [set-location!]]
             [memory-hole.attachments :refer [upload-form]]
             [clojure.string :as s]))
 
@@ -66,8 +66,8 @@
   (r/with-let [issue-id      (:support-issue-id @edited-issue)
                errors        (r/atom nil)
                confirm-open? (r/atom false)
-               cancel-edit   #(navigate!
-                               (if issue-id (str "/issue/" issue-id) "/"))]
+               cancel-edit   #(set-location!
+                               (if issue-id (str "#/issue/" issue-id) "#/"))]
     [:div.row>div.col-sm-12
      [confirm-modal
       "Discard changes?"
@@ -146,7 +146,7 @@
         (for [[idx file] (map-indexed vector files)]
           ^{:key idx}
           [:li
-           [:a (href (str js/context "/api/file/" support-issue-id "/" file)) file]
+           [:a {:href (str js/context "/api/file/" support-issue-id "/" file)} file]
            " "
            [:span.glyphicon.glyphicon-remove
             {:style    {:color "red"}
@@ -251,6 +251,8 @@
         [bs/FormGroup
          [delete-issue @issue]
          spacer
-         [:a.btn.btn-primary
-          (href "/edit-issue") "edit"]]]]]]))
+         [bs/Button
+          {:bs-style "primary"
+           :on-click #(set-location! "#/edit-issue")}
+          "edit"]]]]]]))
 
