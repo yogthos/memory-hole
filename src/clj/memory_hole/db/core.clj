@@ -156,8 +156,9 @@
     (reset-issue-tags! support-issue-id tags)
     (update-issue! (dissoc issue :tags))))
 
-(defn dissoc-from-tags-and-delete-issue! [m]
+(defn dissoc-from-tags-and-delete-issue-and-files! [m]
   (conman/with-transaction [*db*]
+    (delete-issue-files! m)
     (dissoc-tags-from-issue! m)
     (delete-issue! m)))
 
