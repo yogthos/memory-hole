@@ -2,12 +2,12 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.common :refer [loading-throbber error-modal]]
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
-            [memory-hole.pages.auth :refer [login-page logout]]))
+            [memory-hole.pages.auth :refer [login-page logout]]
+            [accountant.core :as accountant]))
 
 (defn nav-link [uri title page]
   (let [active-page (subscribe [:active-page])]
@@ -17,12 +17,12 @@
   [bs/Navbar {:inverse true}
    [bs/Navbar.Header]
    [bs/Navbar.Brand
-    [:a#logo {:href "#/"}
+    [:a#logo {:href "/"}
      [:span "Issues"]]]
    [bs/Navbar.Collapse
     (when admin
       [bs/Nav
-       [nav-link "#/users" "Manage Users" :users]])
+       [nav-link "/users" "Manage Users" :users]])
     [bs/Nav {:pull-right true}
      [bs/NavDropdown
       {:id "logout-menu" :title screenname}
@@ -34,7 +34,7 @@
 (defmethod pages :users [_ user]
   (if (:admin user)
     [users-page]
-    (set-location! "/#")))
+    (accountant/navigate! "/")))
 (defmethod pages :edit-issue [_ _]
   (.scrollTo js/window 0 0)
   [edit-issue-page])

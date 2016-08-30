@@ -1,9 +1,9 @@
 (ns memory-hole.handlers.issues
-  (:require [memory-hole.routes :refer [set-location!]]
-            [memory-hole.attachments :refer [upload-file!]]
+  (:require [memory-hole.attachments :refer [upload-file!]]
             [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
             [memory-hole.ajax :refer [ajax-error]]
-            [ajax.core :refer [DELETE GET POST PUT]]))
+            [ajax.core :refer [DELETE GET POST PUT]]
+            [accountant.core :as accountant]))
 
 (reg-event-db
   :set-issue
@@ -104,7 +104,7 @@
            :handler       #(do
                             (dispatch [:load-tags] tags)
                             (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
-                            (set-location! "#/issue/" %))
+                            (accountant/navigate! (str "/issue/" %)))
            :error-handler #(ajax-error %)})
     db))
 
@@ -120,7 +120,8 @@
           :handler       #(do
                            (dispatch [:load-tags] tags)
                            (dispatch-sync [:set-issue issue])
-                           (set-location! "#/issue/" support-issue-id))
+                           (accountant/navigate!
+                             (str "/issue/" support-issue-id)))
           :error-handler #(ajax-error %)})
     db))
 
@@ -128,7 +129,7 @@
   :delete-issue
   (fn [db [_ support-issue-id]]
     (DELETE (str "/api/issue/" support-issue-id)
-            {:handler       #(set-location! "#/")
+            {:handler       #(accountant/navigate! "/")
              :error-handler #(ajax-error %)})
     db))
 

@@ -10,9 +10,9 @@
             [memory-hole.validation :as v]
             [memory-hole.bootstrap :as bs]
             [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
-            [memory-hole.routes :refer [set-location!]]
             [memory-hole.attachments :refer [upload-form]]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [accountant.core :as accountant]))
 
 (def rounded-panel (flex-child-style "1"))
 
@@ -66,8 +66,8 @@
   (r/with-let [issue-id      (:support-issue-id @edited-issue)
                errors        (r/atom nil)
                confirm-open? (r/atom false)
-               cancel-edit   #(set-location!
-                               (if issue-id (str "#/issue/" issue-id) "#/"))]
+               cancel-edit   #(accountant/navigate!
+                               (if issue-id (str "/issue/" issue-id) "/"))]
     [:div.row>div.col-sm-12
      [confirm-modal
       "Discard changes?"
@@ -251,8 +251,6 @@
         [bs/FormGroup
          [delete-issue @issue]
          spacer
-         [bs/Button
-          {:bs-style "primary"
-           :on-click #(set-location! "#/edit-issue")}
-          "edit"]]]]]]))
+         [:a.btn.btn-primary
+          {:href "/edit-issue"} "edit"]]]]]]))
 

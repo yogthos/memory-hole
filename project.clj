@@ -39,7 +39,7 @@
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
                  [luminus-immutant "0.2.2"]
                  [re-frame "0.8.0"]
-                 ;hello
+                 [venantius/accountant "0.1.7"]
                  [com.andrewmcveigh/cljs-time "0.4.0"]
                  [org.clojars.pntblnk/clj-ldap "0.0.12"]]
 

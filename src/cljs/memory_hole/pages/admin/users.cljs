@@ -2,7 +2,6 @@
   (:require [memory-hole.bootstrap :as bs]
             [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.key-events :refer [on-enter]]
-            [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.common :refer [spacer validation-modal]]
             [memory-hole.validation :as v]
             [reagent.core :as r]))
