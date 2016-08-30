@@ -12,7 +12,7 @@ Memory Hole is a support issue organizer. It's designed to provide a way to orga
 
 ### [screenshots](https://github.com/yogthos/memory-hole/tree/master/screenshots)
 
-## Features
+## 1.0 Features
 
 - The app uses LDAP and/or internal table to handle authentication
 - Issues are ranked based on the number of views and last time of access
