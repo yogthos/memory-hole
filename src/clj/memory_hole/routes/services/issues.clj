@@ -87,7 +87,7 @@
   (ok {:issues (db/issues-by-tag m)}))
 
 (handler search-issues [m]
-  (ok {:issues (db/search-issues m)}))
+  (ok {:issues (db/search-issues (update m :query #(str "'" % "'")))}))
 
 (handler delete-issue! [m]
   (ok (db/dissoc-from-tags-and-delete-issue-and-files! m)))

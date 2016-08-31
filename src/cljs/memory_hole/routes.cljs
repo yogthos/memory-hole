@@ -2,16 +2,9 @@
   (:require [re-frame.core :refer [dispatch dispatch-sync subscribe]]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
-            [secretary.core :as secretary])
+            [secretary.core :as secretary]
+            [accountant.core :as accountant])
   (:import goog.History))
-
-(defn url [parts]
-  (if-let [context (not-empty js/context)]
-    (apply (partial str context "/") parts)
-    (apply str parts)))
-
-(defn set-location! [& url-parts]
-  (set! (.-href js/location) (url url-parts)))
 
 (defn logged-in? []
   @(subscribe [:user]))
@@ -22,36 +15,51 @@
       (dispatch event)
       (dispatch [:add-login-event event]))))
 
+(defn context-url [url]
+  (str js/context url))
+
+(defn href [url]
+  {:href (str js/context url)})
+
+(defn navigate! [url]
+  (accountant/navigate! (context-url url)))
+
 ;; -------------------------
 ;; Routes
-(secretary/set-config! :prefix "#")
-
-(secretary/defroute "/" []
+(secretary/defroute (context-url "/") []
   (run-events [[:load-tags]
                [:load-recent-issues]
                [:set-active-page :home]]))
 
-(secretary/defroute "/users" []
+(secretary/defroute (context-url "/search/:query") [query]
+  (.scrollTo js/window 0 0)
+  (run-events [[:load-tags]
+               [:search-for-issues query]]))
+
+(secretary/defroute (context-url "/users") []
   (run-events [[:set-active-page :users]]))
 
-(secretary/defroute "/issues/:tag" [tag]
+(secretary/defroute (context-url "/issues/:tag") [tag]
   (run-events
-    [[:select-tag tag]
+    [[:load-tags]
+     [:select-tag tag]
      [:load-issues-for-tag tag]]))
 
-(secretary/defroute "/create-issue" []
+(secretary/defroute (context-url "/create-issue") []
   (dispatch-sync [:close-issue])
   (run-events
-    [[:set-active-page :edit-issue]]))
+    [[:load-tags]
+     [:set-active-page :edit-issue]]))
 
-(secretary/defroute "/edit-issue" []
+(secretary/defroute (context-url "/edit-issue") []
   (if-not (or (logged-in?)
               (nil? @(subscribe [:issue])))
-    (set-location! "#/")
+    (navigate! "/")
     (dispatch [:set-active-page :edit-issue])))
 
-(secretary/defroute "/issue/:id" [id]
-  (run-events [[:load-and-view-issue (js/parseInt id)]]))
+(secretary/defroute (context-url "/issue/:id") [id]
+  (run-events [[:load-tags]
+               [:load-and-view-issue (js/parseInt id)]]))
 
 ;; -------------------------
 ;; History
@@ -62,4 +70,12 @@
       HistoryEventType/NAVIGATE
       (fn [event]
         (secretary/dispatch! (.-token event))))
-    (.setEnabled true)))
+    (.setEnabled true))
+  (accountant/configure-navigation!
+    {:nav-handler
+     (fn [path]
+       (secretary/dispatch! path))
+     :path-exists?
+     (fn [path]
+       (secretary/locate-route path))})
+  (accountant/dispatch-current!))

@@ -2,27 +2,27 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.routes :refer [set-location!]]
+            [memory-hole.routes :refer [context-url href navigate!]]
             [memory-hole.pages.common :refer [loading-throbber error-modal]]
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
             [memory-hole.pages.auth :refer [login-page logout]]))
 
-(defn nav-link [uri title page]
+(defn nav-link [url title page]
   (let [active-page (subscribe [:active-page])]
-    [bs/NavItem {:href uri :active (= page @active-page)} title]))
+    [bs/NavItem {:href (context-url url) :active (= page @active-page)} title]))
 
 (defn navbar [{:keys [admin screenname]}]
   [bs/Navbar {:inverse true}
    [bs/Navbar.Header]
    [bs/Navbar.Brand
-    [:a#logo {:href "#/"}
+    [:a#logo (href "/")
      [:span "Issues"]]]
    [bs/Navbar.Collapse
     (when admin
       [bs/Nav
-       [nav-link "#/users" "Manage Users" :users]])
+       [nav-link "/users" "Manage Users" :users]])
     [bs/Nav {:pull-right true}
      [bs/NavDropdown
       {:id "logout-menu" :title screenname}
@@ -34,7 +34,7 @@
 (defmethod pages :users [_ user]
   (if (:admin user)
     [users-page]
-    (set-location! "/#")))
+    (navigate! "/")))
 (defmethod pages :edit-issue [_ _]
   (.scrollTo js/window 0 0)
   [edit-issue-page])

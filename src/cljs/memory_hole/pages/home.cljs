@@ -1,17 +1,17 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
-            [memory-hole.routes :refer [set-location!]]
             [memory-hole.pages.issues :refer [markdown-component]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.bootstrap :as bs]
+            [memory-hole.routes :refer [href navigate!]]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
 (defn issue-search [select]
   (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
-                           (select [:search-for-issues value] nil))]
+                           (navigate! (str "/search/" value)))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl
@@ -26,14 +26,13 @@
 
 (defn new-issue []
   [:span.pull-right
-   [bs/Button {:bs-style "primary"
-               :on-click #(set-location! "#/create-issue")}
-    "Add Issue"]])
+   [:a.btn.btn-primary
+    (href "/create-issue") "Add Issue"]])
 
 (defn issue-panel [{:keys [support-issue-id title summary views]}]
   [:div.panel.panel-default
    [:div.panel-heading.issue-title
-    [:h3>a {:href (str "#/issue/" support-issue-id)}
+    [:h3>a (href (str "/issue/" support-issue-id))
      title [:span.pull-right [bs/Badge views]]]]
    [:div.panel-body summary]])
 
@@ -55,13 +54,13 @@
                issues     (subscribe [:issues])
                selected   (subscribe [:selected-tag])
                select     (fn [action selection]
-                            (set-location! "#/")
+                            (navigate! "/")
                             (.scrollTo js/window 0 0)
                             (dispatch action)
                             (dispatch [:select-tag selection]))
                select-tag (fn [selection]
                             (.scrollTo js/window 0 0)
-                            (set-location! "#/issues/" selection))]
+                            (navigate! (str "/issues/" selection)))]
     [:div.container
      [:div.row
       [:div.col-md-3
