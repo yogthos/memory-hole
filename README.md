@@ -30,8 +30,6 @@ details.
 [1]: https://github.com/technomancy/leiningen
 [2]: http://postgresql.org
 
-
-
 ## Running during development
 
 Create a `profiles.clj` file in the project directory with the configuration settings for the database and optionally LDAP, e.g:
@@ -72,19 +70,28 @@ This will produce `target/uberjar/memory-hole.jar` archive that can be run as fo
     java -Dconf=conf.edn -jar memory-hole.jar migrate
     java -Dconf=conf.edn -jar memory-hole.jar
 
-The `conf.edn` file should contain the configuration such as the database URL that will be used in production, e.g:
+The `conf.edn` file should contain the configuration such as the database URL that will be used in production. The following options are available.
+
+### Database URL
 
 ```clojure
 {:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"}
 ```
 
-### Security
+### Sessions
+
+The app defaults to using a memory session. You can switch to using a cookie based session by adding the `:cookie-session` in the configuration:
+
+```clojure
+{:cookie-session true}
+```
+
+### HTTPS Support
 
 To enable HTTPS support in production add the the following configuration under the `:ssl` key:
 
 ```clojure
-{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
- :ssl
+{:ssl
  {:port 3001
   :keystore "keystore.jks"
   :keystore-pass "changeit"}}
@@ -93,8 +100,7 @@ To enable HTTPS support in production add the the following configuration under 
 To disable HTTP access, set the `:port` to `nil`:
 
 ```clojure
-{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
- :port nil
+{:port nil
  :ssl
  {:port 3001
   :keystore "keystore.jks"

@@ -7,8 +7,9 @@
             [ring.middleware.format :refer [wrap-restful-format]]
             [memory-hole.config :refer [env]]
             [ring.middleware.flash :refer [wrap-flash]]
-            [immutant.web.middleware :refer [wrap-session]]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [immutant.web.middleware :as immutant]
+            [ring.middleware.defaults :as ring-defaults]
+            [ring.middleware.session.cookie :refer [cookie-store]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.accessrules :refer [restrict]]
@@ -37,8 +38,8 @@
       (handler req)
       (catch Throwable t
         (log/error t)
-        (error-page {:status 500
-                     :title "Something very bad has happened!"
+        (error-page {:status  500
+                     :title   "Something very bad has happened!"
                      :message "We've dispatched a team of highly trained gnomes to take care of the problem."})))))
 
 (defn wrap-csrf [handler]
@@ -47,25 +48,12 @@
     {:error-response
      (error-page
        {:status 403
-        :title "Invalid anti-forgery token"})}))
-
-(defn wrap-formats [handler]
-  (let [wrapped (wrap-restful-format
-                  handler
-                  {:formats [:json-kw :transit-json :transit-msgpack]})]
-    (fn [request]
-      ;; disable wrap-formats for websockets
-      ;; since they're not compatible with this middleware
-      ((if (:websocket? request) handler wrapped) request))))
+        :title  "Invalid anti-forgery token"})}))
 
 (defn on-error [request response]
   (error-page
     {:status 403
-     :title (str "Access to " (:uri request) " is not authorized")}))
-
-(defn wrap-restricted [handler]
-  (restrict handler {:handler authenticated?
-                     :on-error on-error}))
+     :title  (str "Access to " (:uri request) " is not authorized")}))
 
 (defn wrap-identity [handler]
   (fn [request]
@@ -79,15 +67,25 @@
         (wrap-authentication backend)
         (wrap-authorization backend))))
 
+(defn wrap-defaults [handler]
+  (if (:cookie-session env)
+    (ring-defaults/wrap-defaults
+      handler
+      (-> ring-defaults/site-defaults
+          (assoc-in [:security :anti-forgery] false)
+          (assoc-in [:session :store] (cookie-store))))
+    (-> handler
+        (immutant/wrap-session {:cookie-attrs {:http-only true}})
+        (ring-defaults/wrap-defaults
+          (-> ring-defaults/site-defaults
+              (assoc-in [:security :anti-forgery] false)
+              (dissoc :session))))))
+
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)
       wrap-auth
       wrap-webjars
       wrap-flash
-      (wrap-session {:cookie-attrs {:http-only true}})
-      (wrap-defaults
-        (-> site-defaults
-            (assoc-in [:security :anti-forgery] false)
-            (dissoc :session)))
+      wrap-defaults
       wrap-context
       wrap-internal-error))
