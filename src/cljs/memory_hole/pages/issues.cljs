@@ -12,7 +12,8 @@
             [memory-hole.bootstrap :as bs]
             [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
             [memory-hole.attachments :refer [upload-form]]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [cljsjs.showdown]))
 
 (def rounded-panel (flex-child-style "1"))
 
@@ -25,16 +26,17 @@
         (recur (dec i))))))
 
 (defn markdown-component []
-  (r/create-class
-    {:component-did-mount
-     #(highlight-code (r/dom-node %))
-     :component-did-update
-     #(highlight-code (r/dom-node %))
-     :reagent-render
-     (fn [content]
-       [:div.view-issue-detail
-        {:dangerouslySetInnerHTML
-         {:__html (-> content str js/marked)}}])}))
+  (let [md-parser (js/showdown.Converter.)]
+    (r/create-class
+      {:component-did-mount
+       #(highlight-code (r/dom-node %))
+       :component-did-update
+       #(highlight-code (r/dom-node %))
+       :reagent-render
+       (fn [content]
+         [:div.view-issue-detail
+          {:dangerouslySetInnerHTML
+           {:__html (.makeHtml md-parser (str content))}}])})))
 
 (defn preview-panel [text]
   [box

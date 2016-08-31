@@ -11,7 +11,7 @@
                  [org.clojure/clojurescript "1.9.211" :scope "provided"]
                  [org.clojure/clojure "1.8.0"]
                  [selmer "1.0.7"]
-                 [markdown-clj "0.9.89"]
+                 [cljsjs/showdown "1.4.2-0"]
                  [ring-middleware-format "0.7.0"]
                  [metosin/ring-http-response "0.8.0"]
                  [bouncer "1.0.0"]
@@ -75,8 +75,7 @@
                 :compiler
                 {:output-to "target/cljsbuild/public/js/app.js"
                  :externs ["react/externs/react.js"
-                           "public/js/hljs.js"
-                           "public/js/marked.js"]
+                           "public/js/hljs.js"]
                  :optimizations :advanced
                  :pretty-print false
                  :closure-warnings

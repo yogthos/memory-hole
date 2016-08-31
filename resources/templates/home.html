@@ -21,7 +21,6 @@
         var csrfToken = "{{csrf-token}}";
         var user = {{user|json|safe}};
     </script>
-    {% script "/js/marked.js" %}
     {% script "/js/hljs.js" %}
     <script src="{{servlet-context}}/js/app.js?{{timestamp}}" type="text/javascript"></script>
   </body>
