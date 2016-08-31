@@ -15,39 +15,42 @@
       (dispatch event)
       (dispatch [:add-login-event event]))))
 
+(defn context-url [url]
+  (str js/context url))
+
 (defn href [url]
   {:href (str js/context url)})
 
 (defn navigate! [url]
-  (accountant/navigate! (str js/context url)))
+  (accountant/navigate! (context-url url)))
 
 ;; -------------------------
 ;; Routes
-(secretary/defroute "/" []
+(secretary/defroute (context-url "/") []
   (run-events [[:load-tags]
                [:load-recent-issues]
                [:set-active-page :home]]))
 
-(secretary/defroute "/users" []
+(secretary/defroute (context-url "/users") []
   (run-events [[:set-active-page :users]]))
 
-(secretary/defroute "/issues/:tag" [tag]
+(secretary/defroute (context-url "/issues/:tag") [tag]
   (run-events
     [[:select-tag tag]
      [:load-issues-for-tag tag]]))
 
-(secretary/defroute "/create-issue" []
+(secretary/defroute (context-url "/create-issue") []
   (dispatch-sync [:close-issue])
   (run-events
     [[:set-active-page :edit-issue]]))
 
-(secretary/defroute "/edit-issue" []
+(secretary/defroute (context-url "/edit-issue") []
   (if-not (or (logged-in?)
               (nil? @(subscribe [:issue])))
     (navigate! "/")
     (dispatch [:set-active-page :edit-issue])))
 
-(secretary/defroute "/issue/:id" [id]
+(secretary/defroute (context-url "/issue/:id") [id]
   (run-events [[:load-and-view-issue (js/parseInt id)]]))
 
 ;; -------------------------

@@ -2,16 +2,16 @@
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.routes :refer [href navigate!]]
+            [memory-hole.routes :refer [context-url href navigate!]]
             [memory-hole.pages.common :refer [loading-throbber error-modal]]
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
             [memory-hole.pages.auth :refer [login-page logout]]))
 
-(defn nav-link [uri title page]
+(defn nav-link [url title page]
   (let [active-page (subscribe [:active-page])]
-    [bs/NavItem {:href (str js/context uri) :active (= page @active-page)} title]))
+    [bs/NavItem {:href (context-url url) :active (= page @active-page)} title]))
 
 (defn navbar [{:keys [admin screenname]}]
   [bs/Navbar {:inverse true}
