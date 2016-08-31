@@ -110,7 +110,7 @@ FROM support_issues si
 WHERE
   si.delete_date IS NULL
 GROUP BY si.support_issue_id
-ORDER BY si.last_viewed_date ASC
+ORDER BY si.views DESC
 OFFSET :offset
 LIMIT :limit;
 

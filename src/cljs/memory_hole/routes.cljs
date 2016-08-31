@@ -24,26 +24,36 @@
 (defn navigate! [url]
   (accountant/navigate! (context-url url)))
 
+(defn home-page-events [& events]
+  (.scrollTo js/window 0 0)
+  (run-events (into
+                [[:load-tags]
+                 [:set-active-page :home]]
+                events)))
+
 ;; -------------------------
 ;; Routes
 (secretary/defroute (context-url "/") []
-  (run-events [[:load-tags]
-               [:load-recent-issues]
-               [:set-active-page :home]]))
+  (home-page-events [:load-recent-issues]))
 
 (secretary/defroute (context-url "/search/:query") [query]
-  (.scrollTo js/window 0 0)
-  (run-events [[:load-tags]
-               [:search-for-issues query]]))
+  (home-page-events [:search-for-issues query]))
 
-(secretary/defroute (context-url "/users") []
-  (run-events [[:set-active-page :users]]))
+(secretary/defroute (context-url "/all-issues") []
+  (home-page-events [:select-tag "All"]
+                    [:load-all-issues]))
+
+(secretary/defroute (context-url "/recent-issues") []
+  (home-page-events [:select-tag "Recent"]
+                    [:load-recent-issues]))
+
+(secretary/defroute (context-url "/most-viewed-issues") []
+  (home-page-events [:select-tag "Most Viewed"]
+                    [:load-most-viewed-issues]))
 
 (secretary/defroute (context-url "/issues/:tag") [tag]
-  (run-events
-    [[:load-tags]
-     [:select-tag tag]
-     [:load-issues-for-tag tag]]))
+  (home-page-events [:select-tag tag]
+                    [:load-issues-for-tag tag]))
 
 (secretary/defroute (context-url "/create-issue") []
   (dispatch-sync [:close-issue])
@@ -61,6 +71,8 @@
   (run-events [[:load-tags]
                [:load-and-view-issue (js/parseInt id)]]))
 
+(secretary/defroute (context-url "/users") []
+  (run-events [[:set-active-page :users]]))
 ;; -------------------------
 ;; History
 ;; must be called after routes have been defined

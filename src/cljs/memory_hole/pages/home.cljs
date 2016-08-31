@@ -8,7 +8,7 @@
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
-(defn issue-search [select]
+(defn issue-search []
   (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
                            (navigate! (str "/search/" value)))]
@@ -52,15 +52,7 @@
 (defn home-page []
   (r/with-let [tags       (subscribe [:tags])
                issues     (subscribe [:issues])
-               selected   (subscribe [:selected-tag])
-               select     (fn [action selection]
-                            (navigate! "/")
-                            (.scrollTo js/window 0 0)
-                            (dispatch action)
-                            (dispatch [:select-tag selection]))
-               select-tag (fn [selection]
-                            (.scrollTo js/window 0 0)
-                            (navigate! (str "/issues/" selection)))]
+               selected   (subscribe [:selected-tag])]
     [:div.container
      [:div.row
       [:div.col-md-3
@@ -70,30 +62,30 @@
          "All"
          nil
          selected
-         #(select [:load-all-issues] "All")]
+         #(navigate! "/all-issues")]
         [tag-control
          "Recent"
          nil
          selected
-         #(select [:load-recent-issues] "Recent")]
+         #(navigate! "/recent-issues")]
         [tag-control
          "Most Viewed"
          nil
          selected
-         #(select [:load-most-viewed-issues] "Most Viewed")]
+         #(navigate! "/most-viewed-issues")]
         (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags)]
           ^{:key tag-id}
           [tag-control
            tag
            tag-count
            selected
-           #(select-tag tag)])]]
+           #(navigate! (str "/issues/" tag))])]]
       [:div.col-md-9
        [:h3 "Issues "
         (when-let [tag @selected]
           [bs/Badge tag])
         [new-issue]]
-       [issue-search select]
+       [issue-search]
        (for [issue-summary @issues]
          ^{:key (:support-issue-id issue-summary)}
          [issue-panel issue-summary])]]]))

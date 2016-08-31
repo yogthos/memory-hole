@@ -109,7 +109,7 @@
       {:type        "text"
        :placeholder "space separated tags fro the issue"
        :value       @tags-text
-       :on-change   #(let [value (-> % .-target .-value)]
+       :on-change   #(let [value (some-> (-> % .-target .-value) s/lower-case)]
                       (reset! tags-text value)
                       (reset! tags (->> (s/split value #" ")
                                         (map s/trim)
