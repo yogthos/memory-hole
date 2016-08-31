@@ -31,6 +31,10 @@
                [:load-recent-issues]
                [:set-active-page :home]]))
 
+(secretary/defroute (context-url "/search/:query") [query]
+  (.scrollTo js/window 0 0)
+  (run-events [[:search-for-issues query]]))
+
 (secretary/defroute (context-url "/users") []
   (run-events [[:set-active-page :users]]))
 

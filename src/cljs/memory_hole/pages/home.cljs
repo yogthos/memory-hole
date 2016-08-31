@@ -11,7 +11,7 @@
 (defn issue-search [select]
   (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
-                           (select [:search-for-issues value] nil))]
+                           (navigate! (str "/search/" value)))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl

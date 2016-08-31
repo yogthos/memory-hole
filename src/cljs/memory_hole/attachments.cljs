@@ -2,6 +2,7 @@
   (:require [goog.events :as gev]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch]]
+            [memory-hole.routes :refer [context-url]]
             [memory-hole.bootstrap :as bs])
   (:import goog.net.IframeIo
            goog.net.EventType
@@ -21,7 +22,7 @@
     (.sendFromForm
       io
       (.getElementById js/document upload-form-id)
-      (str js/context "/api/attach-file"))))
+      (context-url "/api/attach-file"))))
 
 (defn upload-form [support-issue-id modal-open? success-action]
   (r/with-let [form-id    "upload-form"
