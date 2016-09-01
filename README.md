@@ -77,6 +77,14 @@ The `conf.edn` file should contain the configuration such as the database URL th
 :database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
 ```
 
+### HTTP Port
+
+The HTTP port defaults to `3000`, to set a custom port add the following key to the config:
+
+```clojure
+:port 80
+```
+
 ### Sessions
 
 The app defaults to using a memory session. You can switch to using a cookie based session by adding the `:cookie-session` in the configuration:
