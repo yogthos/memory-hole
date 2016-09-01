@@ -23,12 +23,11 @@ Memory Hole is a support issue organizer. It's designed to provide a way to orga
 
 ## Prerequisites
 
-You will need [Leiningen][1] 2.0 or above installed to compile the application.
-You will also need an instance of [PostgreSQL][2] database configured. See [here](#configuring-postgresql) for
-details.
+You will need the following to compile and run the application:
 
-[1]: https://github.com/technomancy/leiningen
-[2]: http://postgresql.org
+* [JDK](http://www.azul.com/downloads/zulu)
+* [Leiningen](https://leiningen.org/)
+* [PostgreSQL](http://postgresql.org) - see [here](#configuring-postgresql) for configuration details
 
 ## Running during development
 
@@ -37,7 +36,7 @@ Create a `profiles.clj` file in the project directory with the configuration set
 ```clojure
 {:profiles/dev
  {:env
-  {:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
+  {:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
   ;;optional, will use internal table otherwise
   :ldap
   {:host
@@ -75,7 +74,7 @@ The `conf.edn` file should contain the configuration such as the database URL th
 ### Database URL
 
 ```clojure
-{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"}
+:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
 ```
 
 ### Sessions
@@ -83,7 +82,7 @@ The `conf.edn` file should contain the configuration such as the database URL th
 The app defaults to using a memory session. You can switch to using a cookie based session by adding the `:cookie-session` in the configuration:
 
 ```clojure
-{:cookie-session true}
+:cookie-session true
 ```
 
 ### HTTPS Support
@@ -91,24 +90,32 @@ The app defaults to using a memory session. You can switch to using a cookie bas
 To enable HTTPS support in production add the the following configuration under the `:ssl` key:
 
 ```clojure
-{:ssl
- {:port 3001
-  :keystore "keystore.jks"
-  :keystore-pass "changeit"}}
+:ssl
+{:port 3001
+ :keystore "keystore.jks"
+ :keystore-pass "changeit"}
 ```
 
 To disable HTTP access, set the `:port` to `nil`:
 
 ```clojure
-{:port nil
+:port nil
+```
+
+Alternatively, you can front the app with Nginx in production.
+See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details on configuring Nginx.
+
+A complete `conf.edn` example:
+
+```clojure
+{:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
+ :cookie-session true
+ :port nil
  :ssl
  {:port 3001
   :keystore "keystore.jks"
   :keystore-pass "changeit"}}
 ```
-
-Alternatively, you can front the app with Nginx in production.
-See [here](http://www.luminusweb.net/docs/deployment.md#setting_up_ssl) for details on configuring Nginx.
 
 ## Nginx Proxy
 
@@ -128,7 +135,7 @@ server {
 You will then need to add the `:app-context` in the `conf.edn` file with the context:
 
 ```clojure
-{:database-url "jdbc:postgresql://localhost/postgres?user=admin&password=admin"
+{:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
  :port 3000
  :app-context "/memory-hole"}
 ```
