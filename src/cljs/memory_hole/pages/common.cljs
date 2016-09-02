@@ -19,7 +19,7 @@
 
 (defn error-modal []
   (when-let [error @(subscribe [:error])]
-    [bs/Modal {:show error}
+    [bs/Modal {:show (boolean error)}
      [bs/Modal.Header
       [bs/Modal.Title "and error has occured"]]
      [bs/Modal.Body

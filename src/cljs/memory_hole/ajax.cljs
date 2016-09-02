@@ -3,7 +3,9 @@
             [ajax.core :as ajax]))
 
 (defn ajax-error [response]
-  (dispatch [:set-error (-> response :response :error)]))
+  (if (= 401 (:status response))
+    (dispatch [:logout])
+    (dispatch [:set-error (-> response :response :error)])))
 
 (defn request-defaults [request]
   (dispatch [:set-loading])

@@ -68,12 +68,16 @@
         (wrap-authorization backend))))
 
 (defn wrap-defaults [handler]
-  (if (:cookie-session env)
+  (if-let [{:keys [cookie-attrs key]} (:cookie-session env)]
     (ring-defaults/wrap-defaults
       handler
       (-> ring-defaults/site-defaults
           (assoc-in [:security :anti-forgery] false)
-          (assoc-in [:session :store] (cookie-store))))
+          (update-in [:session :cookie-attrs] merge cookie-attrs)
+          (assoc-in [:session :cookie-name] "secure-ring-session")
+          (assoc-in [:session :store] (if key
+                                        (cookie-store {:key key})
+                                        (cookie-store)))))
     (-> handler
         (immutant/wrap-session {:cookie-attrs {:http-only true}})
         (ring-defaults/wrap-defaults
