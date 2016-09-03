@@ -139,7 +139,10 @@ A complete `conf.edn` example:
 
 ```clojure
 {:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
- :cookie-session true
+ :cookie-session
+ {:key "a 16-byte secret"
+  :cookie-attrs
+  {:max-age 60}}
  :port nil
  :ssl
  {:port 3001
