@@ -79,7 +79,11 @@
                                         (cookie-store {:key key})
                                         (cookie-store)))))
     (-> handler
-        (immutant/wrap-session {:cookie-attrs {:http-only true}})
+        (immutant/wrap-session
+          (if-let [timeout (-> env :memory-session :max-age)]
+            {:timeout timeout
+             :cookie-attrs {:http-only true}}
+            {:cookie-attrs {:http-only true}}))
         (ring-defaults/wrap-defaults
           (-> ring-defaults/site-defaults
               (assoc-in [:security :anti-forgery] false)

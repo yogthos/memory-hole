@@ -85,9 +85,17 @@ The HTTP port defaults to `3000`, to set a custom port add the following key to 
 :port 80
 ```
 
-### Cookies
+### Session Configuration 
 
 The app defaults to using a server-side memory based session store.
+
+The number of sessions before a memory session times out can be set using the `:memory-session` key as follows:
+
+```clojure
+:memory-session
+{:max-age 3600}
+```
+
 If you wish to use a cookie based memory store, then add a `:cookie-session` key to the configuration.
 The `:cookie-session` key should point to a map containing two optional key:
 
@@ -104,7 +112,7 @@ An example configuration might look as follows:
 {:key "a 16-byte secret"
  :cookie-attrs
  {:secure  true
-  :max-age 30}}
+  :max-age 3600}}
 ```
 
 ### HTTPS Support
