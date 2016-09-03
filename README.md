@@ -172,7 +172,10 @@ You will then need to add the `:app-context` in the `conf.edn` file with the con
 
 ## Configuring PostgreSQL
 
-Follow these steps to configure the database for the application
+Follow these steps to configure the database for the application:
+
+0. Make sure you have the [CITEXT](https://www.postgresql.org/docs/9.5/static/citext.html)
+extension installed on PostgreSQL.
 
 1. Run the `psql` command:
 
@@ -192,7 +195,11 @@ Follow these steps to configure the database for the application
         GRANT ALL ON SCHEMA memoryhole TO memoryhole;
         GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
 
-5. Exit the shell
+5. Add the CITEXT extension to the schema:
+
+        CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+
+6. Exit the shell
 
         \q
 

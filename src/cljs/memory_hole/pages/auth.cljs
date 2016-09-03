@@ -47,7 +47,7 @@
          [bs/FormGroup
           [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Username"]]
           [bs/Col {:sm 6}
-           [bs/FormControl
+           [:input.form-control
             {:type      "text"
              :value     (or (:userid @params) "")
              :on-change #(swap! params assoc :userid (-> % .-target .-value))
@@ -55,7 +55,7 @@
          [bs/FormGroup
           [bs/Col {:class "text-right" :sm 4} [bs/ControlLabel "Password"]]
           [bs/Col {:sm 6}
-           [bs/FormControl
+           [:input.form-control
             {:type      "password"
              :value     (or (:pass @params) "")
              :on-change #(swap! params assoc :pass (-> % .-target .-value))
