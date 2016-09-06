@@ -142,7 +142,7 @@ A complete `conf.edn` example:
  :cookie-session
  {:key "a 16-byte secret"
   :cookie-attrs
-  {:max-age 60}}
+  {:max-age 3600}}
  :port nil
  :ssl
  {:port 3001
