@@ -30,7 +30,8 @@
             (rename-keys
               {:displayName    :screenname
                :memberOf       :member-of
-               :sAMAccountName :account-name})))
+               :sAMAccountName :account-name})
+            (update :member-of #(if (string? %) [%] %))))
       (finally (client/release-connection ldap-pool conn)))))
 
 (defn authenticate-local [userid pass]
