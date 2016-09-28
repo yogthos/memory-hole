@@ -124,8 +124,8 @@ body {
     width:800px;
     min-height: 500px;
 }
+
 .view-issue-detail {
-    white-space: pre-wrap;
 }
 code.hljs {
     border: none;
