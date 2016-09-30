@@ -1,6 +1,6 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
-            [re-frame.core :refer [dispatch subscribe]]
+            [re-frame.core :refer [subscribe]]
             [memory-hole.pages.issues :refer [markdown-component]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.bootstrap :as bs]
