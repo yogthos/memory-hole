@@ -64,11 +64,12 @@
        [:ul.nav.nav-tabs
         [:li {:class (when (= @sort-type :count) "active")}
          [:a {:on-click #(reset! sort-type :count)}
-          "count"]]
+          "# Issues"]]
         [:li {:class (when (= @sort-type :name) "active")}
          [:a {:on-click #(reset! sort-type :name)}
-          "name"]]]
-       [bs/ListGroup
+          "A-Z"]]]
+       [:div.panel
+        [bs/ListGroup
         [tag-control
          "All"
          nil
@@ -90,7 +91,7 @@
            tag
            tag-count
            selected
-           #(navigate! (str "/issues/" tag))])]]
+           #(navigate! (str "/issues/" tag))])]]]
       [:div.col-md-9
        [:h3 "Issues "
         (when-let [tag @selected]
