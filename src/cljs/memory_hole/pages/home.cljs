@@ -43,20 +43,31 @@
    [:b title] " "
    (when count [bs/Badge count])])
 
-(defn tags-with-issues [tags]
-  (->> tags
-       (filter #(pos? (:tag-count %)))
-       (sort-by :tag-count)
-       (reverse)))
+(defn tags-with-issues [tags sort-type]
+  (let [tags-with-issues (filter #(pos? (:tag-count %)) tags)]
+    (case sort-type
+      :name (sort-by :tag tags-with-issues)
+
+      :count (->> tags-with-issues
+                  (sort-by :tag-count)
+                  (reverse)))))
 
 (defn home-page []
-  (r/with-let [tags       (subscribe [:tags])
-               issues     (subscribe [:issues])
-               selected   (subscribe [:selected-tag])]
+  (r/with-let [tags      (subscribe [:tags])
+               issues    (subscribe [:issues])
+               selected  (subscribe [:selected-tag])
+               sort-type (r/atom :count)]
     [:div.container
      [:div.row
       [:div.col-md-3
        [:h3 "Tags"]
+       [:ul.nav.nav-tabs
+        [:li {:class (when (= @sort-type :count) "active")}
+         [:a {:on-click #(reset! sort-type :count)}
+          "count"]]
+        [:li {:class (when (= @sort-type :name) "active")}
+         [:a {:on-click #(reset! sort-type :name)}
+          "name"]]]
        [bs/ListGroup
         [tag-control
          "All"
@@ -73,7 +84,7 @@
          nil
          selected
          #(navigate! "/most-viewed-issues")]
-        (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags)]
+        (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags @sort-type)]
           ^{:key tag-id}
           [tag-control
            tag
