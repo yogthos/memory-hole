@@ -40,7 +40,7 @@
     :return auth/LoginResponse
     :body-params [userid :- s/Str
                   pass :- s/Str]
-    :summary "User login handler"
+    :summary "user login handler"
     (auth/login userid pass req))
 
   (context "/admin" []
@@ -85,7 +85,6 @@
     :tags ["private"]
 
     (POST "/logout" []
-
       :return auth/LogoutResponse
       :summary "remove the user from the session"
       (auth/logout))
@@ -144,7 +143,7 @@
     (GET "/issue/:id" []
       :path-params [id :- s/Int]
       :return issues/IssueResult
-      :summary "list 10 most recent issues"
+      :summary "returns the issue with the given id"
       (issues/issue {:support-issue-id id}))
 
     (POST "/issue" []
@@ -170,7 +169,7 @@
                     detail :- s/Str
                     tags :- [s/Str]]
       :return s/Int
-      :summary "update an new issue"
+      :summary "update an existing issue"
       (issues/update-issue!
         {:support-issue-id support-issue-id
          :title            title
@@ -189,7 +188,7 @@
       (attachments/attach-file-to-issue! support-issue-id file))
 
     (GET "/file/:support-issue-id/:name" []
-      :summary "load a file from the database using the support issue id and the filename"
+      :summary "load a file from the database matching the support issue id and the filename"
       :path-params [support-issue-id :- s/Int
                     name :- s/Str]
       (attachments/load-file-data {:support-issue-id support-issue-id
