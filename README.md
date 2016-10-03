@@ -101,9 +101,9 @@ The `:cookie-session` key should point to a map containing two optional key:
 
 * `:key` - a secret key used to encrypt the session cookie
 * `:cookie-attrs` - a map containing optional cookie attributes:
-   * ``:http-only` - restrict the cookie to HTTP if true (default)
-   * ``:secure` - restrict the cookie to HTTPS URLs if true
-   * ``:max-age` - the number of seconds until the cookie expires
+* `:http-only` - restrict the cookie to HTTP if true (default)
+* `:secure` - restrict the cookie to HTTPS URLs if true
+* `:max-age` - the number of seconds until the cookie expires
 
 An example configuration might look as follows:
 
