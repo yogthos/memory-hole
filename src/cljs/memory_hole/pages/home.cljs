@@ -59,7 +59,7 @@
                sort-type (r/atom :count)]
     [:div.container
      [:div.row
-      [:div.col-md-3
+      [:div.col-sm-3
        [:h3 "Tags"]
        [:ul.nav.nav-tabs
         [:li {:class (when (= @sort-type :count) "active")}
@@ -92,7 +92,7 @@
            tag-count
            selected
            #(navigate! (str "/issues/" tag))])]]]
-      [:div.col-md-9
+      [:div.col-sm-9
        [:h3 "Issues "
         (when-let [tag @selected]
           [bs/Badge tag])
