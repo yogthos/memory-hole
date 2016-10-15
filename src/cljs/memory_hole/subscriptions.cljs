@@ -6,54 +6,27 @@
   (fn [db _]
     db))
 
-(reg-sub
-  :active-page
-  (fn [db _]
-    (:active-page db)))
+(defn query [db [event-id]]
+  (event-id db))
 
-(reg-sub
-  :loading?
-  (fn [db _]
-    (:loading? db)))
+(reg-sub :active-page query)
 
-(reg-sub
-  :user
-  (fn [db _]
-    (:user db)))
+(reg-sub :loading? query)
 
-(reg-sub
-  :tags
-  (fn [db _]
-    (:tags db)))
+(reg-sub :user query)
 
-(reg-sub
-  :selected-tag
-  (fn [db _]
-    (:selected-tag db)))
+(reg-sub :tags query)
 
-(reg-sub
-  :issue
-  (fn [db _]
-    (:issue db)))
+(reg-sub :selected-tag query)
 
-(reg-sub
-  :issues
-  (fn [db _]
-    (:issues db)))
+(reg-sub :issue query)
 
-(reg-sub
-  :error
-  (fn [db _]
-    (:error db)))
+(reg-sub :issues query)
 
-(reg-sub
-  :login-events
-  (fn [db _]
-    (:login-events db)))
+(reg-sub :error query)
+
+(reg-sub :login-events query)
 
 ;;admin
-(reg-sub
-  :admin/users
-  (fn [db _]
-    (:admin/users db)))
+(reg-sub :admin/users query)
 
