@@ -46,14 +46,36 @@
    [:div.rounded-panel {:style rounded-panel}
     [markdown-component text]]])
 
+(defn editor [text]
+  (r/create-class
+    {:component-did-mount
+     #(let [editor (js/SimpleMDE.
+                     (clj->js
+                       {:autofocus    true
+                        :placeholder  "issue detail"
+                        :toolbar      ["bold"
+                                       "italic"
+                                       "strikethrough"
+                                       "|"
+                                       "heading"
+                                       "code"
+                                       "quote"
+                                       "|"
+                                       "unordered-list"
+                                       "ordered-list"
+                                       "|"
+                                       "link"
+                                       "image"]
+                        :element      (r/dom-node %)
+                        :initialValue @text}))]
+       (-> editor .-codemirror (.on "change" (fn [] (reset! text (.value editor))))))
+     :reagent-render
+     (fn [] [:textarea])}))
+
 (defn edit-panel [text]
   [box
    :size "atuo"
-   :child
-   [:textarea.form-control.edit-issue-detail
-    {:placeholder "issue detail"
-     :value       @text
-     :on-change   #(reset! text (-> % .-target .-value))}]])
+   :child [:div.edit-issue-detail [editor text]]])
 
 (defn select-issue-keys [issue]
   (let [issue-keys [:title :tags :summary :detail]]

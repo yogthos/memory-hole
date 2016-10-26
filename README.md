@@ -194,13 +194,13 @@ extension installed on PostgreSQL.
 
 4. Optionally, create a schema and grant the `memoryhole` role authorization:
 
-        CREATE SCHEMA AUTHORIZATION memoryhole;
+        CREATE SCHEMA memoryhole AUTHORIZATION memoryhole;
         GRANT ALL ON SCHEMA memoryhole TO memoryhole;
         GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
 
 5. Add the CITEXT extension to the schema:
 
-        CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+        CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA memoryhole;
 
 6. Exit the shell
 
