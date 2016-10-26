@@ -53,7 +53,6 @@
      #(let [editor (js/SimpleMDE.
                      (clj->js
                        {:autofocus    true
-                        :spellChecker false
                         :placeholder  "issue detail"
                         :toolbar      ["bold"
                                        "italic"
