@@ -145,9 +145,25 @@ code.hljs {
 }
 .edit-user {
     font-size: 12pt;
+    font-weight: 400;
     cursor: pointer;
 }
 .CodeMirror, .CodeMirror-scroll {
     min-height: 500px;
 }
 
+.filter-control {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 7px;
+    margin: 2px;
+}
+
+.tag-badge {
+    background-color: green;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 7px;
+    margin: 2px;
+}

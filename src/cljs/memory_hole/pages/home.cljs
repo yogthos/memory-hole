@@ -16,13 +16,13 @@
      [bs/InputGroup
       [bs/FormControl
        {:type        "text"
-        :placeholder "type in issue details to find matching issues"
+        :placeholder "Type in issue details to find matching issues"
         :on-change   #(reset! search (-> % .-target .-value))
         :on-key-down #(on-enter % do-search)}]
       [bs/InputGroup.Button
        [bs/Button
         {:on-click do-search}
-        "search"]]]]))
+        "Search"]]]]))
 
 (defn new-issue []
   [:span.pull-right
@@ -35,6 +35,13 @@
     [:h3>a (href (str "/issue/" support-issue-id))
      title [:span.pull-right [bs/Badge views]]]]
    [:div.panel-body summary]])
+
+(defn filter-control [title selected on-click]
+  [bs/Badge
+   {:on-click on-click
+    :class    "filter-control"
+    :style    {:background-color (if (= title @selected) "green" "grey")}}
+   title])
 
 (defn tag-control [title count selected on-click]
   [bs/ListGroupItem
@@ -70,32 +77,30 @@
           "A-Z"]]]
        [:div.panel
         [bs/ListGroup
-        [tag-control
-         "All"
-         nil
-         selected
-         #(navigate! "/all-issues")]
-        [tag-control
-         "Recent"
-         nil
-         selected
-         #(navigate! "/recent-issues")]
-        [tag-control
-         "Most Viewed"
-         nil
-         selected
-         #(navigate! "/most-viewed-issues")]
-        (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags @sort-type)]
-          ^{:key tag-id}
-          [tag-control
-           tag
-           tag-count
-           selected
-           #(navigate! (str "/issues/" tag))])]]]
+         (for [{:keys [tag-count tag-id tag]} (tags-with-issues @tags @sort-type)]
+           ^{:key tag-id}
+           [tag-control
+            tag
+            tag-count
+            selected
+            #(navigate! (str "/issues/" tag))])]]]
       [:div.col-sm-9
        [:h3 "Issues "
-        (when-let [tag @selected]
-          [bs/Badge tag])
+        [filter-control
+         "All"
+         selected
+         #(navigate! "/all-issues")]
+        [filter-control
+         "Recent"
+         selected
+         #(navigate! "/recent-issues")]
+        [filter-control
+         "Most Viewed"
+         selected
+         #(navigate! "/most-viewed-issues")]
+        (let [tag @selected]
+          (when-not (contains? #{"All" "Recent" "Most Viewed"} tag)
+            [bs/Badge {:class "tag-badge"} tag]))
         [new-issue]]
        [issue-search]
        (for [issue-summary @issues]

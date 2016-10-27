@@ -14,13 +14,13 @@
      [bs/InputGroup
       [bs/FormControl
        {:type        "text"
-        :placeholder "type in a user name to see user details"
+        :placeholder "Type in a user name to see user details"
         :on-change   #(reset! search (-> % .-target .-value))
         :on-key-down #(on-enter % do-search)}]
       [bs/InputGroup.Button
        [bs/Button
         {:on-click do-search}
-        "search"]]]]))
+        "Search"]]]]))
 
 (defn control-buttons [user close-editor]
   (r/with-let [errors  (r/atom nil)
@@ -70,20 +70,20 @@
                         r/atom)]
     [:div
      [field-group
-      "screen name"
+      "Screen Name"
       (r/cursor user [:screenname])
-      :text "enter screen name for the user"]
+      :text "Enter screen name for the user"]
      [field-group
-      "password"
+      "Password"
       (r/cursor user [:pass])
       :password
       (if (:last-login user-map)
-        "enter the password for the user (leave empty to keep the existing password)"
-        "enter the password for the user")]
+        "Enter the password for the user (leave empty to keep the existing password)"
+        "Enter the password for the user")]
      [field-group
-      "confirm password"
+      "Confirm password"
       (r/cursor user [:pass-confirm])
-      :password "confirm the password for the user"]
+      :password "Confirm the password for the user"]
      [bs/Checkbox
       {:checked   (boolean (:admin @user))
        :on-change #(swap! user update :admin not)}
@@ -105,7 +105,7 @@
          {:bs-style "primary"
           :class    "pull-right edit-user"
           :on-click #(swap! expanded? not)}
-         "edit"]])]))
+         "Edit"]])]))
 
 (defn user-list []
   (let [users (subscribe [:admin/users])]

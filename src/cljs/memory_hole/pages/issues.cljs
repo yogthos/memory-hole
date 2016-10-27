@@ -264,7 +264,7 @@
       "Delete"]
      [bs/Button {:bs-style "danger"
                  :on-click #(reset! confirm-open? true)}
-      "delete"]]))
+      "Delete"]]))
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
@@ -293,5 +293,5 @@
          [delete-issue @issue]
          spacer
          [:a.btn.btn-primary
-          (href "/edit-issue") "edit"]]]]]]))
+          (href "/edit-issue") "Edit"]]]]]]))
 
