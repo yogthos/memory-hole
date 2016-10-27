@@ -25,7 +25,7 @@
 (defn- filter-selections [selections all-tags issue-tags user-input]
   (->> (difference all-tags issue-tags)
        (sort)
-       (filter #(s/includes? % user-input))
+       (filter #(s/includes? (s/lower-case %) (some-> user-input s/lower-case)))
        (reset! selections)))
 
 (defn- remove-tag [tags tag]
