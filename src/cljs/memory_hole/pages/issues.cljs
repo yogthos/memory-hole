@@ -1,23 +1,22 @@
 (ns memory-hole.pages.issues
-  (:require [reagent.core :as r]
+  (:require [cljsjs.showdown]
             [clojure.set :refer [difference rename-keys]]
+            [clojure.string :as s]
+            [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [re-com.core
              :refer [box v-box h-split v-split title flex-child-style input-text input-textarea single-dropdown]]
             [memory-hole.datetime :as dt]
             [re-com.splits
              :refer [hv-split-args-desc]]
-            [memory-hole.routes :refer [href navigate!]]
-            [memory-hole.validation :as v]
+            [memory-hole.attachments :refer [upload-form]]
             [memory-hole.bootstrap :as bs]
             [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
-            [memory-hole.attachments :refer [upload-form]]
-            [clojure.string :as s]
-            [cljsjs.showdown]))
+            [memory-hole.routes :refer [href navigate!]]
+            [memory-hole.validation :as v]
+            [memory-hole.widgets.tag-editor :refer [tag-editor]]))
 
 (def rounded-panel (flex-child-style "1"))
-(def key-enter 13)
-(def key-backspace 8)
 
 (defn highlight-code [node]
   (let [nodes (.querySelectorAll (r/dom-node node) "pre code")]
@@ -54,7 +53,7 @@
      #(let [editor (js/SimpleMDE.
                      (clj->js
                        {:autofocus    true
-                        :spellChecker false                        
+                        :spellChecker false
                         :placeholder  "issue detail"
                         :toolbar      ["bold"
                                        "italic"
@@ -126,51 +125,6 @@
      [bs/Label
       {:style {:margin-right "5px"}}
       tag])])
-
-(defn remove-tag [tags tag]
-  (->> tags
-       (remove #(= % tag))
-       vec))
-
-(defn add-tag [tags new-tag]
-  (when (seq (s/trim @new-tag))
-    (swap! tags conj @new-tag)
-    (reset! new-tag nil)))
-
-(defn tag-input [tags]
-  (r/with-let [new-tag (r/atom nil)]
-    [:div
-     [:div.bootstrap-tagsinput
-      (for [tag @tags]
-        ^{:key tag}
-        [:span.tag.label.label-info
-         tag
-         [:span {:data-role "remove"
-                 :on-click  #(swap! tags remove-tag tag)}]])
-      [:input
-       {:type        :text
-        :value       @new-tag
-        :on-change   #(reset! new-tag (-> % .-target .-value s/lower-case))
-        :on-blur     #(add-tag tags new-tag)
-        :on-key-down #(condp = (.-keyCode %)
-                       key-enter (add-tag tags new-tag)
-                       key-backspace (if (s/blank? @new-tag) (swap! tags (comp vec butlast)))
-                       "Default")}]]
-
-     (when-let [new-tags (-> (set @tags)
-                             (difference (set (map :tag @(subscribe [:tags]))))
-                             (not-empty))]
-       [:div "Creating tags: "
-        (for [tag new-tags]
-          ^{:key tag}
-          [bs/Label {:bs-style "danger"
-                     :style    {:margin-right "5px"}}
-           tag])])]))
-
-(defn tag-editor [tags]
-  [:div.row
-   [:div.col-sm-12
-    [tag-input tags]]])
 
 (defn attachment-list [support-issue-id files]
   (r/with-let [confirm-open? (r/atom false)
