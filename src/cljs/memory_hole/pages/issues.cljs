@@ -16,6 +16,8 @@
             [cljsjs.showdown]))
 
 (def rounded-panel (flex-child-style "1"))
+(def key-enter 13)
+(def key-backspace 8)
 
 (defn highlight-code [node]
   (let [nodes (.querySelectorAll (r/dom-node node) "pre code")]
@@ -124,23 +126,40 @@
       {:style {:margin-right "5px"}}
       tag])])
 
+(defn remove-tag [tags tag]
+  (->> tags
+       (remove #(= % tag))
+       vec))
+
+(defn add-tag [tags new-tag]
+  (when (seq (s/trim @new-tag))
+    (swap! tags conj @new-tag)
+    (reset! new-tag nil)))
+
 (defn tag-input [tags]
-  (r/with-let [tags-text (r/atom (if-let [tags (not-empty @tags)] (s/join " " tags) ""))]
+  (r/with-let [new-tag (r/atom nil)]
     [:div
-     [:input.form-control
-      {:type        "text"
-       :placeholder "space separated tags fro the issue"
-       :value       @tags-text
-       :on-change   #(let [value (some-> (-> % .-target .-value) s/lower-case)]
-                      (reset! tags-text value)
-                      (reset! tags (->> (s/split value #" ")
-                                        (map s/trim)
-                                        (remove empty?)
-                                        (set))))}]
+     [:div.bootstrap-tagsinput
+      (for [tag @tags]
+        ^{:key tag}
+        [:span.tag.label.label-info
+         tag
+         [:span {:data-role "remove"
+                 :on-click  #(swap! tags remove-tag tag)}]])
+      [:input
+       {:type        :text
+        :value       @new-tag
+        :on-change   #(reset! new-tag (-> % .-target .-value s/lower-case))
+        :on-blur     #(add-tag tags new-tag)
+        :on-key-down #(condp = (.-keyCode %)
+                       key-enter (add-tag tags new-tag)
+                       key-backspace (if (s/blank? @new-tag) (swap! tags (comp vec butlast)))
+                       "Default")}]]
+
      (when-let [new-tags (-> (set @tags)
                              (difference (set (map :tag @(subscribe [:tags]))))
                              (not-empty))]
-       [:div "creating tags: "
+       [:div "Creating tags: "
         (for [tag new-tags]
           ^{:key tag}
           [bs/Label {:bs-style "danger"
@@ -149,10 +168,8 @@
 
 (defn tag-editor [tags]
   [:div.row
-   [:div.col-sm-6
-    [tag-input tags]]
-   [:div.col-sm-6
-    [:h4 [render-tags @tags]]]])
+   [:div.col-sm-12
+    [tag-input tags]]])
 
 (defn attachment-list [support-issue-id files]
   (r/with-let [confirm-open? (r/atom false)
