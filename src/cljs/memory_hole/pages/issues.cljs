@@ -83,10 +83,16 @@
   (let [issue-keys [:title :tags :summary :detail]]
     (select-keys (update issue :tags set) issue-keys)))
 
+(defn issue-empty? [issue]
+  (->> issue
+       (keep #(-> % second not-empty))
+       (empty?)))
+
 (defn issue-updated? [original-issue edited-issue]
-  (or (nil? (:support-issue-id edited-issue))
-      (= (select-issue-keys original-issue)
-         (select-issue-keys edited-issue))))
+  (if (:support-issue-id edited-issue)
+    (not= (select-issue-keys original-issue)
+          (select-issue-keys edited-issue))
+    (not (issue-empty? edited-issue))))
 
 (defn delete-issue-button [{:keys [support-issue-id]}]
   (r/with-let [confirm-open? (r/atom false)]
@@ -117,8 +123,8 @@
       [bs/Button
        {:bs-style "warning"
         :on-click #(if (issue-updated? @original-issue @edited-issue)
-                    (cancel-edit)
-                    (reset! confirm-open? true))}
+                    (reset! confirm-open? true)
+                    (cancel-edit))}
        "Cancel"]
       [bs/Button
        {:bs-style   "success"
