@@ -21,7 +21,8 @@
      [bs/Modal.Header
       [bs/Modal.Title "An error has occured"]]
      [bs/Modal.Body
-      [:p error]
+      [:p error]]
+     [bs/Modal.Footer
       [:button.btn.btn-sm.btn-danger
        {:on-click #(dispatch [:set-error] nil)}
        "OK"]]]))
@@ -34,7 +35,8 @@
     [:ul
      (for [[_ error] @errors]
        ^{:key error}
-       [:li error])]
+       [:li error])]]
+   [bs/Modal.Footer
     [:button.btn.btn-sm.btn-danger
      {:on-click #(reset! errors nil)}
      "Close"]]])
@@ -43,14 +45,13 @@
   [bs/Modal {:show @confirm-open?}
    [bs/Modal.Header
     [bs/Modal.Title title]]
-   [bs/Modal.Body
+   [bs/Modal.Footer
     [:div.btn-toolbar
-     [bs/Button {:bs-style "danger"
-                 :on-click #(reset! confirm-open? false)}
+     [:button.btn.btn-sm.btn-danger
+      {:on-click #(reset! confirm-open? false)}
       "Cancel"]
-     [bs/Button {:bs-style   "success"
-                 :pull-right true
-                 :on-click   #(do
-                               (reset! confirm-open? false)
-                               (action))}
+     [:button.btn.btn-sm.btn-success
+      {:on-click #(do
+                   (reset! confirm-open? false)
+                   (action))}
       action-label]]]])
