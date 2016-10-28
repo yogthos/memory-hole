@@ -49,20 +49,18 @@
                 :enc-type "multipart/form-data"
                 :method   "POST"}
          [:fieldset.form-group
-          [:label {:for "file"} "select a file to upload"]
+          [:label {:for "file"} "Select a file to upload"]
           [:input {:type  "hidden" :name "support-issue-id"
                    :value (str support-issue-id)}]
           [:input.form-control {:id "file" :name "file" :type "file"}]]])]
      [bs/Modal.Footer
       [:div.pull-right
-       [bs/Button
-        {:bs-style "danger"
-         :disabled @uploading?
+       [:button.btn.btn-sm.btn-danger
+        {:disabled @uploading?
          :on-click #(reset! modal-open? false)}
         "Cancel"]
-       [bs/Button
-        {:bs-style "primary"
-         :disabled @uploading?
+       [:button.btn.btn-sm.btn-primary
+        {:disabled @uploading?
          :on-click #(do
                      (reset! uploading? true)
                      (upload-file! form-id on-success on-error))}

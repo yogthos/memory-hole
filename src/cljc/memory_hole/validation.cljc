@@ -13,10 +13,10 @@
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
-        ({[:title]   "issue title is required"
-          [:summary] "issue summary is required"
-          [:detail]  "issue details are required"
-          [:tags]    "issue must have at least one tag"}
+        ({[:title]   "Issue title is required"
+          [:summary] "Issue summary is required"
+          [:detail]  "Issue details are required"
+          [:tags]    "Issue must have at least one tag"}
           path))
       issue
       :title v/required
@@ -31,11 +31,11 @@
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
-        ({[:screenname]   "screenname is required"
-          [:pass]         "password of 8+ characters is required"
-          [:pass-confirm] "confirmation password doesn't match"
-          [:is-admin]     "must specify whether the user is an admin"
-          [:active]       "specify whether the user is active"}
+        ({[:screenname]   "Screenname is required"
+          [:pass]         "Password of 8+ characters is required"
+          [:pass-confirm] "Password confirmation doesn't match"
+          [:is-admin]     "You must specify whether the user is an admin"
+          [:active]       "You must pecify whether the user is active"}
           path))
       user
       :pass [v/required [v/min-count 8]]
@@ -48,10 +48,10 @@
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
-        ({[:screenname] "screenname is required"
-          [:is-admin]   "must specify whether the user is an admin"
-          [:pass-confirm] "confirmation password doesn't match"
-          [:active]     "specify whether the user is active"}
+        ({[:screenname]   "Screenname is required"
+          [:is-admin]     "You must specify whether the user is an admin"
+          [:pass-confirm] "Password confirmation doesn't match"
+          [:active]       "You must pecify whether the user is active"}
           path))
       user
       :screenname v/required

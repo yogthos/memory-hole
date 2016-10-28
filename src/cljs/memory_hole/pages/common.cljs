@@ -3,8 +3,6 @@
             [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.bootstrap :as bs]))
 
-(def spacer [:span {:style {:margin-right "5px"}}])
-
 (defn loading-throbber
   []
   (let [loading? (subscribe [:loading?])]
@@ -21,12 +19,11 @@
   (when-let [error @(subscribe [:error])]
     [bs/Modal {:show (boolean error)}
      [bs/Modal.Header
-      [bs/Modal.Title "and error has occured"]]
+      [bs/Modal.Title "An error has occured"]]
      [bs/Modal.Body
       [:p error]
-      [bs/Button
-       {:bs-style "danger"
-        :on-click #(dispatch [:set-error] nil)}
+      [:button.btn.btn-sm.btn-danger
+       {:on-click #(dispatch [:set-error] nil)}
        "OK"]]]))
 
 (defn validation-modal [errors]
@@ -38,8 +35,8 @@
      (for [[_ error] @errors]
        ^{:key error}
        [:li error])]
-    [bs/Button {:bs-style "danger"
-                :on-click #(reset! errors nil)}
+    [:button.btn.btn-sm.btn-danger
+     {:on-click #(reset! errors nil)}
      "Close"]]])
 
 (defn confirm-modal [title confirm-open? action action-label]
@@ -47,13 +44,13 @@
    [bs/Modal.Header
     [bs/Modal.Title title]]
    [bs/Modal.Body
-    [bs/Button {:bs-style "danger"
-                :on-click #(reset! confirm-open? false)}
-     "Cancel"]
-    spacer
-    [bs/Button {:bs-style   "primary"
-                :pull-right true
-                :on-click   #(do
-                              (reset! confirm-open? false)
-                              (action))}
-     action-label]]])
+    [:div.btn-toolbar
+     [bs/Button {:bs-style "danger"
+                 :on-click #(reset! confirm-open? false)}
+      "Cancel"]
+     [bs/Button {:bs-style   "success"
+                 :pull-right true
+                 :on-click   #(do
+                               (reset! confirm-open? false)
+                               (action))}
+      action-label]]]])

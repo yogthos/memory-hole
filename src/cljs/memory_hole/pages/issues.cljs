@@ -11,7 +11,7 @@
              :refer [hv-split-args-desc]]
             [memory-hole.attachments :refer [upload-form]]
             [memory-hole.bootstrap :as bs]
-            [memory-hole.pages.common :refer [spacer validation-modal confirm-modal]]
+            [memory-hole.pages.common :refer [validation-modal confirm-modal]]
             [memory-hole.routes :refer [href navigate!]]
             [memory-hole.validation :as v]
             [memory-hole.widgets.tag-editor :refer [tag-editor]]))
@@ -26,7 +26,7 @@
           (.highlightBlock js/hljs item))
         (recur (dec i))))))
 
-(defn markdown-component []
+(defn markdown-preview []
   (let [md-parser (js/showdown.Converter.)]
     (r/create-class
       {:component-did-mount
@@ -41,11 +41,11 @@
 
 (defn preview-panel [text]
   [box
-   :size "atuo"
+   :size "auto"
    :class "edit-issue-detail"
    :child
    [:div.rounded-panel {:style rounded-panel}
-    [markdown-component text]]])
+    [markdown-preview text]]])
 
 (defn editor [text]
   (r/create-class
@@ -53,7 +53,8 @@
      #(let [editor (js/SimpleMDE.
                      (clj->js
                        {:autofocus    true
-                        :placeholder  "issue detail"
+                        :spellChecker false
+                        :placeholder  "Issue details"
                         :toolbar      ["bold"
                                        "italic"
                                        "strikethrough"
@@ -75,7 +76,7 @@
 
 (defn edit-panel [text]
   [box
-   :size "atuo"
+   :size "auto"
    :child [:div.edit-issue-detail [editor text]]])
 
 (defn select-issue-keys [issue]
@@ -86,6 +87,18 @@
   (or (nil? (:support-issue-id edited-issue))
       (= (select-issue-keys original-issue)
          (select-issue-keys edited-issue))))
+
+(defn delete-issue-button [{:keys [support-issue-id]}]
+  (r/with-let [confirm-open? (r/atom false)]
+    [bs/Button
+     {:bs-style "danger"
+      :on-click #(reset! confirm-open? true)}
+     "Delete"
+     [confirm-modal
+      "Are you sue you wish to delete the issue?"
+      confirm-open?
+      #(dispatch [:delete-issue support-issue-id])
+      "Delete"]]))
 
 (defn control-buttons [original-issue edited-issue]
   (r/with-let [issue-id      (:support-issue-id @edited-issue)
@@ -100,16 +113,15 @@
       cancel-edit
       "Discard"]
      [validation-modal errors]
-     [:div.pull-right
+     [:div.btn-toolbar.pull-right
       [bs/Button
-       {:bs-style "danger"
+       {:bs-style "warning"
         :on-click #(if (issue-updated? @original-issue @edited-issue)
                     (cancel-edit)
                     (reset! confirm-open? true))}
        "Cancel"]
-      spacer
       [bs/Button
-       {:bs-style   "primary"
+       {:bs-style   "success"
         :pull-right true
         :on-click   #(when-not (reset! errors (v/validate-issue @edited-issue))
                       (if issue-id
@@ -118,11 +130,11 @@
        "Save"]]]))
 
 (defn render-tags [tags]
-  [:span
+  [:p
    (for [tag tags]
      ^{:key tag}
      [bs/Label
-      {:style {:margin-right "5px"}}
+      {:class "tag"}
       tag])])
 
 (defn attachment-list [support-issue-id files]
@@ -155,7 +167,7 @@
      [attachment-list support-issue-id @files]
      [bs/Button
       {:on-click #(reset! open? true)}
-      "attach file"]
+      "Attach File"]
      [upload-form
       support-issue-id
       open?
@@ -179,46 +191,41 @@
      :gap "10px"
      :height "auto"
      :children
-     [[control-buttons original-issue edited-issue]
+     [[:div.row
+       [:div.col-sm-6
+        [:h3.page-title (if @original-issue "Edit Issue" "Add Issue")]]
+       [:div.col-sm-6
+        [control-buttons original-issue edited-issue]]]
       [bs/FormGroup
        [bs/ControlLabel "Issue Title"]
        [input-text
         :model title
         :width "100%"
         :class "edit-issue-title"
-        :placeholder "title of the issue"
+        :placeholder "Title of the issue"
         :on-change #(reset! title %)]]
       [bs/FormGroup
        [bs/ControlLabel "Issue Summary"]
        [input-text
         :model summary
         :width "100%"
-        :placeholder "issue summary"
+        :placeholder "Issue summary"
         :on-change #(reset! summary %)]]
       [bs/FormGroup
        [bs/ControlLabel "Issue Tags"]
        [tag-editor tags]]
-      [bs/ControlLabel "Issue Detail"]
+      [bs/ControlLabel "Issue Details"]
       [h-split
        :class "issue-editor"
        :panel-1 [edit-panel detail]
        :panel-2 [preview-panel @detail]
        :size "auto"]
-      (when-let [support-issue-id (:support-issue-id @edited-issue)]
-        [attachment-component support-issue-id (r/cursor original-issue [:files])])
-      [control-buttons original-issue edited-issue]]]))
-
-(defn delete-issue [{:keys [support-issue-id]}]
-  (r/with-let [confirm-open? (r/atom false)]
-    [:div.pull-left
-     [confirm-modal
-      "Are you sue you wish to delete the issue?"
-      confirm-open?
-      #(dispatch [:delete-issue support-issue-id])
-      "Delete"]
-     [bs/Button {:bs-style "danger"
-                 :on-click #(reset! confirm-open? true)}
-      "Delete"]]))
+      [:div.row
+       [:div.col-sm-6
+        (when-let [support-issue-id (:support-issue-id @edited-issue)]
+          [attachment-component support-issue-id (r/cursor original-issue [:files])])]
+       [:div.col-sm-6
+        [control-buttons original-issue edited-issue]]]]]))
 
 (defn view-issue-page []
   (let [issue (subscribe [:issue])]
@@ -230,22 +237,21 @@
         (:title @issue)
         [:span.pull-right [bs/Badge (str (:views @issue))]]]
        [:div.col-sm-12>p (:summary @issue)]
-       [:div.col-sm-12>h4 (render-tags (:tags @issue))]
+       [:div.col-sm-12 (render-tags (:tags @issue))]
        [:div.col-sm-12>p
-        "last updated by: "
+        "Last updated by: "
         (:updated-by-screenname @issue)
         " on " (dt/format-date (:update-date @issue))]
        [:div.col-sm-12>hr]
-       [:div.col-sm-12 [markdown-component (:detail @issue)]]
-       [:div.col-sm-12
+       [:div.col-sm-12 [markdown-preview (:detail @issue)]]
+       [:div.col-sm-12>hr]
+       [:div.col-sm-6
         [attachment-component
          (:support-issue-id @issue)
          (r/cursor issue [:files])]]
-       [:div.col-sm-12>hr]
-       [:div.col-sm-12>div.pull-right
-        [bs/FormGroup
-         [delete-issue @issue]
-         spacer
+       [:div.col-sm-6
+        [:div.btn-toolbar.pull-right
+         [delete-issue-button @issue]
          [:a.btn.btn-primary
           (href "/edit-issue") "Edit"]]]]]]))
 
