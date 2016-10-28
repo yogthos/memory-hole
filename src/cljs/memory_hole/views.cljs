@@ -14,7 +14,7 @@
     [bs/NavItem {:href (context-url url) :active (= page @active-page)} title]))
 
 (defn navbar [{:keys [admin screenname]}]
-  [bs/Navbar {:inverse true}
+  [bs/Navbar
    [bs/Navbar.Header]
    [bs/Navbar.Brand
     [:a#logo (href "/")
@@ -26,7 +26,7 @@
     [bs/Nav {:pull-right true}
      [bs/NavDropdown
       {:id "logout-menu" :title screenname}
-      [bs/MenuItem {:on-click logout} "logout"]]]]])
+      [bs/MenuItem {:on-click logout} "Logout"]]]]])
 
 (defmulti pages (fn [page _] page))
 (defmethod pages :home [_ _] [home-page])
@@ -51,6 +51,6 @@
        [navbar @user]
        [loading-throbber]
        [error-modal]
-       [:div.container
+       [:div.container.content
         (pages @active-page @user)]]
       (pages :login nil))))

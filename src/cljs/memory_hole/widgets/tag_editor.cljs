@@ -74,9 +74,8 @@
                          (reset! user-input (get (vec @selections) @selected-index))
                          (add-tag-and-close-typeahead issue-tags user-input selected-index typeahead-hidden? mouse-on-list?))]
     [:div
-     [:div.bootstrap-tagsinput
-      {:on-click #(when-let [dropdown (-> % .-target .-lastChild)]
-                   (-> dropdown .-firstChild .focus))}
+     [:div.tags-input
+      {:on-click #(some-> % .-target .-lastChild .-firstChild .focus)}
       (for [tag @issue-tags]
         ^{:key tag}
         [:span.tag.label.label-info
@@ -87,6 +86,8 @@
        {:class (if @typeahead-hidden? "dropdown" "dropdown open")}
        [:input
         {:type        :text
+
+         :placeholder "Type tag and press enter to add"
 
          :value       @user-input
 
@@ -126,12 +127,11 @@
      (when-let [new-tags (-> (set @issue-tags)
                              (difference all-tags)
                              (not-empty))]
-       [:div "Creating tags: "
+       [:div.new-tags-list
+        "Creating tags: "
         (for [tag new-tags]
           ^{:key tag}
-          [bs/Label {:bs-style "danger"
-                     :style    {:margin-right "5px"}}
-           tag])])]))
+          [:span.label.label-danger.new-issue-tag tag])])]))
 
 (defn tag-editor [tags]
   [:div.row

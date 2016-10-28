@@ -1,177 +1,29 @@
 html,
 body {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     height: 100%;
 }
+
+/* ----------------- HOME ----------------- */
+
 .navbar {
-  margin-bottom: 10px;
-}
-.navbar-brand {
-  float: none;
-}
-.navbar-nav .nav-item {
-  float: none;
-}
-.navbar-divider,
-.navbar-nav .nav-item+.nav-item,
-.navbar-nav .nav-link + .nav-link {
-  margin-left: 0;
-}
-@media (min-width: 34em) {
-  .navbar-brand {
-    float: left;
-  }
-  .navbar-nav .nav-item {
-    float: left;
-  }
-  .navbar-divider,
-  .navbar-nav .nav-item+.nav-item,
-  .navbar-nav .nav-link + .nav-link {
-    margin-left: 1rem;
-  }
+    margin-bottom: 10px;
+    border-radius: 0;
 }
 
-@-moz-keyframes three-quarters-loader {
-    0% {
-        -moz-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -moz-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-@-webkit-keyframes three-quarters-loader {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-@keyframes three-quarters-loader {
-    0% {
-        -moz-transform: rotate(0deg);
-        -ms-transform: rotate(0deg);
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -moz-transform: rotate(360deg);
-        -ms-transform: rotate(360deg);
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-.spinner {
-  margin: 100px auto 0;
-  width: 70px;
-  text-align: center;
-}
-
-.spinner > div {
-  width: 18px;
-  height: 18px;
-  background-color: #333;
-
-  border-radius: 100%;
-  display: inline-block;
-  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-}
-
-.spinner .bounce1 {
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-
-.spinner .bounce2 {
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-
-@-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0) }
-  40% { -webkit-transform: scale(1.0) }
-}
-
-@keyframes sk-bouncedelay {
-  0%, 80%, 100% {
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  } 40% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
-  }
-}
-.rounded-panel {
-    border:           1px solid lightgray;
-    border-radius:    4px;
-    padding:          0px 20px 0px 20px;
-}
-.edit-panel {
-    border:           none;
-}
-.issue-editor {
-    margin: 0px !important;
-}
-.edit-issue-title {
-    font-size: 13pt;
-}
-.edit-issue-detail {
-    width:800px;
-    min-height: 500px;
-}
-
-/* tag editor */
-.clickable {
-    cursor: pointer;
-}
-
-.dropdown-menu {
-    margin-top: 10px;
-    padding: 5px 0;
-    background-color: #ffffff;
-}
-
-.dropdown-menu li {
-    padding: 5px 15px;
-}
-
-.selected {
-    color: white;
-    background-color: #3bafda;
-}
-/* end tag editor */
-
-.view-issue-detail {
-}
-code.hljs {
-    border: none;
-    background: none;
-}
 .issue-title {
     cursor: pointer;
 }
-.view-issue-panel {
-    padding-left: 20px;
-    padding-right: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
-}
-.issue-title>h3 {
+
+.issue-title > h3 {
     margin: 0px;
+    font-size: 24px;
 }
-.edit-user {
-    font-size: 12pt;
-    font-weight: 400;
-    cursor: pointer;
+
+.issue-title a {
+    color: #2c3e50;
 }
-.CodeMirror, .CodeMirror-scroll {
-    min-height: 500px;
-}
+
 
 .filter-control {
     cursor: pointer;
@@ -187,4 +39,144 @@ code.hljs {
     font-weight: 500;
     padding: 5px 7px;
     margin: 2px;
+}
+
+
+/* ----------------- SPINNER ----------------- */
+@-moz-keyframes three-quarters-loader {
+    0% {
+        -moz-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -moz-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes three-quarters-loader {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes three-quarters-loader {
+    0% {
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -moz-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    margin: 100px auto 0;
+    width: 70px;
+    text-align: center;
+}
+
+.spinner > div {
+    width: 18px;
+    height: 18px;
+    background-color: #333;
+    border-radius: 100%;
+    display: inline-block;
+    -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+    0%, 80%, 100% { -webkit-transform: scale(0) }
+    40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+    0%, 80%, 100% {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+    }
+    40% {
+        -webkit-transform: scale(1.0);
+        transform: scale(1.0);
+    }
+}
+
+/* ----------------- ISSUES ----------------- */
+.edit-issue-title {
+    font-size: 13pt;
+}
+
+.edit-issue-detail {
+    width: 800px;
+    min-height: 500px;
+}
+
+.rounded-panel {
+    border: 1px solid lightgray;
+    border-radius: 4px;
+    padding: 0px 20px 0px 20px;
+}
+
+.view-issue-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.issue-editor {
+    margin: 0px !important;
+}
+
+code.hljs {
+    border: none;
+    background: none;
+}
+
+.CodeMirror, .CodeMirror-scroll {
+    min-height: 500px;
+}
+
+
+/* ----------------- MISC ----------------- */
+.input-group {
+    width: 100%;
+}
+
+.btn-toolbar {
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.page-title {
+    margin: 10px 0;
+}
+
+.content {
+    padding: 15px 15px 30px 15px;
 }
