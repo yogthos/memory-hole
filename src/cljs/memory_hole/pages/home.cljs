@@ -6,7 +6,8 @@
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [href navigate!]]
             [re-com.core
-             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
+             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]
+            [clojure.string :as s]))
 
 (defn issue-search []
   (r/with-let [search    (r/atom nil)
@@ -77,7 +78,7 @@
    title])
 
 (defn filters [selected]
-  [:div.btn-toolbar
+  [:div.btn-toolbar.filters
    [filter-control
     "All"
     selected

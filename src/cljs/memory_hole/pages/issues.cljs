@@ -136,11 +136,11 @@
        "Save"]]]))
 
 (defn render-tags [tags]
-  [:p
+  [:div.btn-toolbar
    (for [tag tags]
      ^{:key tag}
-     [bs/Label
-      {:class "tag"}
+     [:button.btn.btn-xs.btn-default
+      {:on-click #(navigate! (str "/issues/" tag))}
       tag])])
 
 (defn attachment-list [support-issue-id files]
@@ -243,7 +243,7 @@
         (:title @issue)
         [:span.pull-right [bs/Badge (str (:views @issue))]]]
        [:div.col-sm-12>p (:summary @issue)]
-       [:div.col-sm-12 (render-tags (:tags @issue))]
+       [:div.col-sm-12.padded-bottom (render-tags (:tags @issue))]
        [:div.col-sm-12>p
         "Last updated by: "
         (:updated-by-screenname @issue)

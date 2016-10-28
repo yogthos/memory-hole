@@ -24,6 +24,9 @@ body {
     color: #2c3e50;
 }
 
+.filters {
+    margin-left: 5px;
+}
 
 .filter-control {
     cursor: pointer;
@@ -165,7 +168,6 @@ code.hljs {
 }
 
 .btn-toolbar {
-    margin-left: 5px;
     display: inline-block;
 }
 
@@ -179,4 +181,16 @@ code.hljs {
 
 .content {
     padding: 15px 15px 30px 15px;
+}
+.padded-top {
+    margin-top: 10px;
+}
+
+.padded-sides {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.padded-bottom {
+    margin-bottom: 10px;
 }

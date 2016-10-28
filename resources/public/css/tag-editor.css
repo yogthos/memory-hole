@@ -42,8 +42,11 @@
 .tag {
     display: inline-block;
     margin: 2px 3px 2px 0;
-    font-size: 14.25px;
     padding: 4px 7px;
+}
+
+.tags-input .tag {
+    font-size: 14.25px;
 }
 
 .tags-input .tag [data-role="remove"] {
