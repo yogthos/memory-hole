@@ -194,3 +194,23 @@ code.hljs {
 .padded-bottom {
     margin-bottom: 10px;
 }
+
+.issue-editor, .edit-issue-detail {
+    width: 100% !important;
+    margin: 0px  !important;
+}
+.editor-view-button {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none!important;
+    color: #888;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.active {
+    color: #000 !important;
+}

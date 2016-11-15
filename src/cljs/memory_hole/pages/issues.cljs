@@ -76,6 +76,7 @@
 
 (defn edit-panel [text]
   [box
+   :class "issue-editor"
    :size "auto"
    :child [:div.edit-issue-detail [editor text]]])
 
@@ -180,6 +181,36 @@
       (fn [{:keys [name]}]
         (dispatch [:attach-file name]))]]))
 
+(defn issue-detail-pane [detail]
+  (r/with-let [preview (r/atom :split)]
+    [:div
+     [bs/ControlLabel "Issue Details"]
+     [:span.pull-right
+      {:style {:display "float"}}
+      [:a.editor-view-button
+       {:class    (if (= :edit @preview) "active")
+        :on-click #(reset! preview :edit)}
+       [:span.fa.fa-pencil-square-o]]
+      [:a.editor-view-button
+       {:class    (if (= :split @preview) "active")
+        :on-click #(reset! preview :split)}
+       [:span.fa.fa-columns]]
+      [:a.editor-view-button
+       {:class    (if (= :preview @preview) "active")
+        :on-click #(reset! preview :preview)}
+       [:span.fa.fa-file-text-o]]]
+     (case @preview
+       :split
+       [h-split
+        :class "issue-editor"
+        :panel-1 [edit-panel detail]
+        :panel-2 [preview-panel @detail]
+        :size "auto"]
+       :preview
+       [preview-panel @detail]
+       :edit
+       [edit-panel detail])]))
+
 (defn edit-issue-page []
   (r/with-let [original-issue (subscribe [:issue])
                edited-issue   (-> @original-issue
@@ -220,12 +251,8 @@
       [bs/FormGroup
        [bs/ControlLabel "Issue Tags"]
        [tag-editor tags]]
-      [bs/ControlLabel "Issue Details"]
-      [h-split
-       :class "issue-editor"
-       :panel-1 [edit-panel detail]
-       :panel-2 [preview-panel @detail]
-       :size "auto"]
+      [:div.row>div.col-sm-12
+       [issue-detail-pane detail]]
       [:div.row
        [:div.col-sm-6
         (when-let [support-issue-id (:support-issue-id @edited-issue)]
