@@ -148,10 +148,6 @@ body {
     margin-right: 20px;
 }
 
-.issue-editor {
-    margin: 0px !important;
-}
-
 code.hljs {
     border: none;
     background: none;
@@ -195,9 +191,10 @@ code.hljs {
     margin-bottom: 10px;
 }
 
-.issue-editor, .edit-issue-detail {
+.issue-detail {
     width: 100% !important;
     margin: 0px  !important;
+    margin: 0px !important;
 }
 .editor-view-button {
     display: inline-block;

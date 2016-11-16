@@ -35,14 +35,14 @@
        #(highlight-code (r/dom-node %))
        :reagent-render
        (fn [content]
-         [:div.view-issue-detail
+         [:div
           {:dangerouslySetInnerHTML
            {:__html (.makeHtml md-parser (str content))}}])})))
 
 (defn preview-panel [text]
   [box
    :size "auto"
-   :class "edit-issue-detail"
+   :class "issue-detail"
    :child
    [:div.rounded-panel {:style rounded-panel}
     [markdown-preview text]]])
@@ -76,9 +76,9 @@
 
 (defn edit-panel [text]
   [box
-   :class "issue-editor"
+   :class "issue-detail"
    :size "auto"
-   :child [:div.edit-issue-detail [editor text]]])
+   :child [:div.issue-detail [editor text]]])
 
 (defn select-issue-keys [issue]
   (let [issue-keys [:title :tags :summary :detail]]
@@ -202,7 +202,7 @@
      (case @preview
        :split
        [h-split
-        :class "issue-editor"
+        :class "issue-detail"
         :panel-1 [edit-panel detail]
         :panel-2 [preview-panel @detail]
         :size "auto"]
