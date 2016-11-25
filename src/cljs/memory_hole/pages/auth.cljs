@@ -29,7 +29,7 @@
   (r/with-let [user      (subscribe [:user])
                params    (r/atom nil)
                error     (r/atom nil)
-               on-close  #(do
+               on-close  (fn []
                            (reset! params nil)
                            (reset! error nil))
                on-key-up (fn [e]
