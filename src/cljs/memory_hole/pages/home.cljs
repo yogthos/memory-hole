@@ -1,6 +1,7 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe]]
+            [memory-hole.widgets.lazy-scroll :refer [lazy-scroll]]
             [memory-hole.pages.issues :refer [markdown-preview]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.bootstrap :as bs]
@@ -12,7 +13,7 @@
 (defn issue-search []
   (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
-                           (navigate! (str "/search/" value)))]
+                            (navigate! (str "/search/" value)))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl
@@ -109,4 +110,8 @@
        [issue-search]
        (for [issue-summary @issues]
          ^{:key (:support-issue-id issue-summary)}
-         [issue-panel issue-summary])]]]))
+         [issue-panel issue-summary])]]
+     [lazy-scroll
+      {:can-show-more? true
+       :threshold      1
+       :load-fn        #(println "todo load items")}]]))
