@@ -41,6 +41,7 @@ Create a `profiles.clj` file in the project directory with the configuration set
   :ldap
   {:host
      {:address         "my-ldap-server.ca"
+      :domain          "domain.ca"
       :port            389
       :connect-timeout (* 1000 5)
       :timeout         (* 1000 30)}}}}}

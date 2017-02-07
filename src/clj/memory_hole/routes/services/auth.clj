@@ -16,7 +16,7 @@
 
 (defn authenticate-ldap [userid pass]
   (let [conn           (client/get-connection ldap-pool)
-        qualified-name (str userid "@" (-> host :host :address))]
+        qualified-name (str userid "@" (-> host :host :domain))]
     (try
       (when (client/bind? conn qualified-name pass)
         (-> (client/search conn
