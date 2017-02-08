@@ -6,8 +6,7 @@
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [href navigate!]]
             [re-com.core
-             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]
-            [clojure.string :as s]))
+             :refer [box v-box h-split v-split title flex-child-style input-text input-textarea]]))
 
 (defn issue-search []
   (r/with-let [search    (r/atom nil)

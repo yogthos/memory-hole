@@ -1,5 +1,5 @@
 (ns memory-hole.pages.auth
-  (:require [clojure.string :as string]
+  (:require [cuerdas.core :as string]
             [reagent.core :as r]
             [ajax.core :refer [POST]]
             [memory-hole.bootstrap :as bs]

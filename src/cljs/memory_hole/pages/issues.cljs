@@ -1,7 +1,6 @@
 (ns memory-hole.pages.issues
   (:require [cljsjs.showdown]
             [clojure.set :refer [difference rename-keys]]
-            [clojure.string :as s]
             [reagent.core :as r]
             [re-frame.core :refer [dispatch subscribe]]
             [re-com.core

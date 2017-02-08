@@ -2,11 +2,12 @@
   (:require
     [cheshire.core :refer [generate-string parse-string]]
     [clojure.java.jdbc :as jdbc]
-    [conman.core :as conman]
     [clojure.set :refer [difference]]
     [clojure.walk :refer [postwalk]]
-    [memory-hole.config :refer [env]]
-    [mount.core :refer [defstate]])
+    [conman.core :as conman]
+    [cuerdas.core :as string]
+    [mount.core :refer [defstate]]
+    [memory-hole.config :refer [env]])
   (:import org.postgresql.util.PGobject
            java.sql.Array
            clojure.lang.IPersistentMap
@@ -36,7 +37,7 @@
             (str s "-" c)
             (str s c)))
         "" (name k))
-      (clojure.string/replace #"[\s]+" "-")
+      (string/replace #"[\s]+" "-")
       (.replaceAll "_" "-")
       (.toLowerCase)
       (keyword)))
