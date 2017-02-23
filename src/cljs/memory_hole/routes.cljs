@@ -34,7 +34,8 @@
 ;; -------------------------
 ;; Routes
 (secretary/defroute (context-url "/") []
-  (home-page-events [:load-recent-issues]))
+  (home-page-events [:select-tag "Recent"]
+                    [:load-recent-issues]))
 
 (secretary/defroute (context-url "/search/:query") [query]
   (home-page-events [:search-for-issues query]))
