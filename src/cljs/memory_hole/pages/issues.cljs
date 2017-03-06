@@ -101,7 +101,7 @@
       :on-click #(reset! confirm-open? true)}
      "Delete"
      [confirm-modal
-      "Are you sue you wish to delete the issue?"
+      "Are you sure you wish to delete the issue?"
       confirm-open?
       #(dispatch [:delete-issue support-issue-id])
       "Delete"]]))
@@ -149,7 +149,7 @@
     (when-not (empty? files)
       [:div
        [confirm-modal
-        "Are you sue you wish to delete this file?"
+        "Are you sure you wish to delete this file?"
         confirm-open?
         @action
         "Delete"]
