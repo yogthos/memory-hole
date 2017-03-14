@@ -7,7 +7,7 @@ RUN apk add wget ca-certificates
 RUN apk add tar
 RUN apk add curl
 RUN apk add bash
-RUN apk add openjdk8
+RUN apk add openjdk8-jre
 
 WORKDIR /root
 
