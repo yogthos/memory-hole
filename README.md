@@ -29,6 +29,17 @@ You will need the following to compile and run the application:
 * [Leiningen](https://leiningen.org/)
 * [PostgreSQL](http://postgresql.org) - see [here](#configuring-postgresql) for configuration details
 
+## Running with Docker
+
+```
+mkdir memory-hole
+cd memory-hole
+curl -O https://raw.githubusercontent.com/yogthos/memory-hole/master/docker-compose.yml
+docker-compose up
+```
+
+The app will be available at `http://localhost:8000` once it starts.
+
 ## Running during development
 
 Create a `profiles.clj` file in the project directory with the configuration settings for the database and optionally LDAP, e.g:

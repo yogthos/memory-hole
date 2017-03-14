@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+   db:
+     image: postgres:9.6.2
+     volumes:
+       - db_data:/var/lib/postgres
+     restart: always
+     environment:
+       POSTGRES_USER: memory
+       POSTGRES_PASSWORD: hole
+       POSTGRES_DB: memoryhole
+
+   memory-hole:
+     depends_on:
+       - db
+     image: yogthos/memory-hole:latest
+     ports:
+       - "8000:3000"
+     restart: always
+     environment:
+       DATABASE_URL: jdbc:postgresql://db/memoryhole?user=memory&password=hole
+volumes:
+    db_data:
