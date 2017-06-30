@@ -1,5 +1,5 @@
 (ns memory-hole.handlers.admin
-  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
+  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [GET POST PUT]]))
 
@@ -8,13 +8,13 @@
   (fn [db [_ users]]
     (assoc db :admin/users users)))
 
-(reg-event-db
+(reg-event-fx
   :admin/search-for-users
-  (fn [db [_ screenname]]
+  (fn [_ [_ screenname]]
     (GET (str "/admin/users/" screenname)
          :handler #(dispatch [:admin/set-users (:users %)])
          :error-handler #(ajax-error %))
-    db))
+    nil))
 
 (reg-event-db
   :admin/set-user-info
@@ -23,19 +23,19 @@
             (fn [users]
               (map #(if (= user-id (:user-id %)) user %) users)))))
 
-(reg-event-db
+(reg-event-fx
   :admin/update-user-profile
-  (fn [db [_ user]]
+  (fn [_ [_ user]]
     (PUT "/admin/user"
          {:params        user
           :handler       #(dispatch [:admin/set-user-info (:user %)])
           :error-handler #(ajax-error %)})
-    db))
+    nil))
 
-(reg-event-db
+(reg-event-fx
   :admin/create-user-profile
-  (fn [db [_ user]]
+  (fn [_ [_ user]]
     (POST "/admin/user"
           {:params        user
            :error-handler #(ajax-error %)})
-    db))
+    nil))

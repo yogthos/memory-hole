@@ -1,5 +1,5 @@
 (ns memory-hole.handlers
-  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db]]
+  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [ajax.core :refer [DELETE GET POST PUT]]
             [memory-hole.db :as db]
             memory-hole.handlers.admin
@@ -16,12 +16,11 @@
   (fn [db [_ page]]
     (assoc db :active-page page)))
 
-(reg-event-db
+(reg-event-fx
   :run-login-events
-  (fn [db _]
+  (fn [{:keys [db]} _]
     (doseq [event (:login-events db)]
-      (dispatch event))
-    db))
+      (dispatch event))))
 
 (reg-event-db
   :add-login-event
