@@ -40,6 +40,39 @@ docker-compose up
 
 The app will be available at `http://localhost:8000` once it starts.
 
+## Configuring PostgreSQL
+
+Follow these steps to configure the database for the application:
+
+0. Make sure you have the [CITEXT](https://www.postgresql.org/docs/9.5/static/citext.html)
+extension installed on PostgreSQL.
+
+1. Run the `psql` command:
+
+        psql -U <superuser|postgres user> -d postgres -h localhost
+
+2. Create the role role for accessing the database:
+
+        CREATE ROLE memoryhole;
+
+3. Set the password for the role:
+
+        \password memoryhole;
+
+4. Optionally, create a schema and grant the `memoryhole` role authorization:
+
+        CREATE SCHEMA memoryhole AUTHORIZATION memoryhole;
+        GRANT ALL ON SCHEMA memoryhole TO memoryhole;
+        GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
+
+5. Add the CITEXT extension to the schema:
+
+        CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA memoryhole;
+
+6. Exit the shell
+
+        \q
+
 ## Running during development
 
 Create a `profiles.clj` file in the project directory with the configuration settings for the database and optionally LDAP, e.g:
@@ -185,38 +218,6 @@ You will then need to add the `:app-context` in the `conf.edn` file with the con
  :app-context "/memory-hole"}
 ```
 
-## Configuring PostgreSQL
-
-Follow these steps to configure the database for the application:
-
-0. Make sure you have the [CITEXT](https://www.postgresql.org/docs/9.5/static/citext.html)
-extension installed on PostgreSQL.
-
-1. Run the `psql` command:
-
-        psql -U <superuser|postgres user> -d postgres -h localhost
-
-2. Create the role role for accessing the database:
-
-        CREATE ROLE memoryhole;
-
-3. Set the password for the role:
-
-        \password memoryhole;
-
-4. Optionally, create a schema and grant the `memoryhole` role authorization:
-
-        CREATE SCHEMA memoryhole AUTHORIZATION memoryhole;
-        GRANT ALL ON SCHEMA memoryhole TO memoryhole;
-        GRANT ALL ON ALL TABLES IN SCHEMA memoryhole TO memoryhole;
-
-5. Add the CITEXT extension to the schema:
-
-        CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA memoryhole;
-
-6. Exit the shell
-
-        \q
 
 ## Acknowledgments
 
