@@ -25,6 +25,7 @@
                         "sql/issues.sql"
                         "sql/tags.sql"
                         "sql/users.sql"
+                        "sql/groups.sql"
                         "sql/attachments.sql")
 
 (defn ->kebab-case-keyword* [k]
