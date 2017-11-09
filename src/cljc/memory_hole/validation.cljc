@@ -58,3 +58,17 @@
       :admin v/required
       :pass-confirm [[pass-matches? (:pass user)]]
       :is-active v/required)))
+
+(defn group-unique? [group-name other-groups]
+  (every? #(not= group-name %) other-groups))
+
+(defn validate-group [group other-groups]
+  (format-validation-errors
+    (b/validate
+      (fn [{:keys [path]}]
+        ({[:group-name] "Group name is required and must be unique"}
+          path))
+      group
+      :group-name [v/required
+                   [v/min-count 1]
+                   [group-unique? other-groups]])))
