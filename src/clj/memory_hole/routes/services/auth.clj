@@ -45,6 +45,7 @@
    :admin                           s/Bool
    :is-active                       s/Bool
    :last-login                      java.util.Date
+   (s/optional-key :belongs-to)     [(s/maybe s/Str)]
    (s/optional-key :member-of)      [(s/maybe s/Str)]
    (s/optional-key :account-name)   (s/maybe s/Str)
    (s/optional-key :client-ip)      s/Str
@@ -66,6 +67,12 @@
     {:users
      (db/users-by-screenname
        {:screenname (str "%" screenname "%")})}))
+
+(handler find-users-by-group [group-name]
+  (ok
+    {:users
+     (db/users-by-group
+       {:group-name group-name})}))
 
 (handler register! [user]
   (if-let [errors (v/validate-create-user user)]

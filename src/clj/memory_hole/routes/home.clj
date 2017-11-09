@@ -9,6 +9,7 @@
   (GET "/" [] (home-page))
   (GET "/search/:query" [] (home-page))
   (GET "/users" [] (home-page))
+  (GET "/groups" [] (home-page))
   (GET "/create-issue" [] (home-page))
   (GET "/edit-issue" [] (home-page))
   (GET "/all-issues" [] (home-page))
