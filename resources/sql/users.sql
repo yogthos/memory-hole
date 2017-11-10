@@ -21,7 +21,7 @@ where screenname like :screenname;
 -- :doc get all the users in a group
 select user_id, belongs_to, screenname, admin, last_login, is_active
 from users_with_groups
-where ARRAY[:group-name] <@ belongs_to
+where ARRAY[:group-name::text] <@ belongs_to
 and is_active = true;
 
 -- :name update-user-with-pass<! :<! :1
