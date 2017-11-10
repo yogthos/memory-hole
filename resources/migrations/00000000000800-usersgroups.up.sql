@@ -14,7 +14,7 @@ CREATE UNIQUE INDEX idx_user_id_group_id ON users_groups(user_id, group_id);
 CREATE VIEW users_with_groups (user_id, screenname, pass, email, admin, last_login, is_active, create_date, update_date, belongs_to) AS
 SELECT users.user_id, users.screenname, users.pass, users.email, users.admin, users.last_login, users.is_active, users.create_date, users.update_date, array_agg(groups.group_name)
 FROM users, groups, users_groups
-and users.user_id = users_groups.user_id
+where users.user_id = users_groups.user_id
 and groups.group_id = users_groups.group_id
 group by users.user_id;
 

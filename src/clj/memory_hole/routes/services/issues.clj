@@ -15,6 +15,7 @@
 (def Issue
   {:support-issue-id             s/Num
    :title                        s/Str
+   :group-name                   s/Str
    :summary                      s/Str
    :detail                       s/Str
    (s/optional-key :create-date) Date
@@ -34,6 +35,7 @@
   (select-keys Issue
                [:support-issue-id
                 :title
+                :group-name
                 :summary
                 (s/optional-key :create-date)
                 (s/optional-key :tags)

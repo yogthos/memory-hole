@@ -1,13 +1,14 @@
 -- :name add-issue<! :<! :1
 -- :doc create a new issue
-INSERT INTO support_issues (title, summary, detail, created_by, last_updated_by)
-VALUES (:title, :summary, :detail, :user-id, :user-id)
+INSERT INTO support_issues (title, group_name, summary, detail, created_by, last_updated_by)
+VALUES (:title, :group-name, :summary, :detail, :user-id, :user-id)
 RETURNING support_issue_id;
 
 -- :name update-issue! :! :n
 -- :doc Updates the issue using optimistic concurrency (last-in wins)
 UPDATE support_issues
 SET title            = :title,
+    group_name       = :group-name,
     summary          = :summary,
     detail           = :detail,
     last_updated_by  = :user-id,
@@ -29,6 +30,7 @@ RETURNING views;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.detail,
   si.create_date,
@@ -57,6 +59,7 @@ GROUP BY si.support_issue_id, created.user_id , updated.user_id;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.create_date,
   si.update_date,
@@ -77,6 +80,7 @@ ORDER BY last_viewed_date;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.create_date,
   si.update_date,
@@ -98,6 +102,7 @@ LIMIT :limit;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.create_date,
   si.update_date,
@@ -119,6 +124,7 @@ LIMIT :limit;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.create_date,
   si.update_date,
@@ -135,6 +141,28 @@ GROUP BY
   si.support_issue_id
 ORDER BY last_viewed_date;
 
+-- :name issues-by-group :? :*
+-- :doc Gets all issues in order of popularity by group name.
+SELECT
+si.support_issue_id,
+si.title,
+si.group_name,
+si.summary,
+si.create_date,
+si.update_date,
+si.last_viewed_date,
+array_agg(t.tag) as tags,
+si.views
+FROM support_issues si
+LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
+LEFT JOIN tags t ON sit.tag_id = t.tag_id
+WHERE
+si.group_name = :group-name
+delete_date IS NULL
+GROUP BY
+si.support_issue_id
+ORDER BY last_viewed_date;
+
 -- :name delete-issue! :! :n
 -- :doc Deletes the support issue with the given support_issue_id
 UPDATE support_issues
@@ -146,6 +174,7 @@ WHERE support_issue_id = :support-issue-id;
 SELECT
   si.support_issue_id,
   si.title,
+  si.group_name,
   si.summary,
   si.create_date,
   si.update_date,
