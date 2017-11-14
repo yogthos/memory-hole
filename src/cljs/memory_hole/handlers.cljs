@@ -19,9 +19,9 @@
 
 (reg-event-fx
   :run-login-events
-  (fn [{:keys [db]} _]
-    (doseq [event (:login-events db)]
-      (dispatch event))))
+  (fn [{{events :login-events :as db} :db} _]
+    {:dispatch-n events
+     :db db}))
 
 (reg-event-db
   :add-login-event
@@ -52,12 +52,21 @@
 (reg-event-db
   :unset-loading
   (fn [db _]
-    (dissoc db :loading? :error)))
+    (dissoc db :loading? :error :should-be-loading?)))
 
 (reg-event-db
+ :set-loading-for-real-this-time
+ (fn [{:keys [should-be-loading?] :as db} _]
+   (if should-be-loading?
+     (assoc db :loading? true)
+     db)))
+;; Why error false, not dissoc error?
+(reg-event-fx
   :set-loading
-  (fn [db _]
-    (assoc db :loading? true
-              :error false)))
+  (fn [{db :db} _]
+    {:dispatch-later [{:ms 100 :dispatch [:set-loading-for-real-this-time]}]
+     :db (-> db
+            (assoc :should-be-loading? true)
+            (dissoc :error))}))
 
 

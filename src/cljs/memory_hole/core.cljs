@@ -6,6 +6,7 @@
             [memory-hole.pages.auth :refer [logged-in?]]
             [re-frame.core :refer [dispatch dispatch-sync]]
     ;;initialize handlers and subscriptions
+            memory-hole.effects
             memory-hole.handlers
             memory-hole.subscriptions))
 

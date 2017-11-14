@@ -24,6 +24,7 @@
 (defn navigate! [url]
   (accountant/navigate! (context-url url)))
 
+;; Why do you need to scrollTo on these events?
 (defn home-page-events [& events]
   (.scrollTo js/window 0 0)
   (run-events (into
@@ -34,23 +35,22 @@
 ;; -------------------------
 ;; Routes
 (secretary/defroute (context-url "/") []
-  (home-page-events [:select-tag "Recent"]
-                    [:load-recent-issues]))
+  (home-page-events [:load-issues :recent]))
 
 (secretary/defroute (context-url "/search/:query") [query]
   (home-page-events [:search-for-issues query]))
 
 (secretary/defroute (context-url "/all-issues") []
   (home-page-events [:select-tag "All"]
-                    [:load-all-issues]))
+                    [:load-issues :all]))
 
 (secretary/defroute (context-url "/recent-issues") []
   (home-page-events [:select-tag "Recent"]
-                    [:load-recent-issues]))
+                    [:load-issues :recent]))
 
 (secretary/defroute (context-url "/most-viewed-issues") []
   (home-page-events [:select-tag "Most Viewed"]
-                    [:load-most-viewed-issues]))
+                    [:load-issues :most-viewed]))
 
 (secretary/defroute (context-url "/issues/:tag") [tag]
   (home-page-events [:select-tag tag]
@@ -69,8 +69,10 @@
     (dispatch [:set-active-page :edit-issue])))
 
 (secretary/defroute (context-url "/issue/:id") [id]
+  (dispatch-sync [:close-issue])
   (run-events [[:load-tags]
-               [:load-and-view-issue (js/parseInt id)]]))
+               [:load-issue (js/parseInt id)]
+               [:set-active-page :view-issue]]))
 
 (secretary/defroute (context-url "/users") []
   (run-events [[:load-all-groups]
