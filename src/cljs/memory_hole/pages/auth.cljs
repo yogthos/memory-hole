@@ -6,11 +6,11 @@
             [re-frame.core :refer [dispatch subscribe]]))
 
 (defn logged-in? []
-  (boolean js/user))
+  (some? js/user))
 
 (defn logout []
   (POST "/api/logout"
-        {:handler (dispatch [:logout])}))
+        {:handler #(dispatch [:logout])}))
 
 (defn login [params error on-close]
   (reset! error nil)
