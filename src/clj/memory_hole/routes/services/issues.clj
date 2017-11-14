@@ -88,6 +88,9 @@
 (handler issues-by-tag [m]
   (ok {:issues (db/issues-by-tag m)}))
 
+(handler issues-by-group [m]
+         (ok {:issues (db/issues-by-group m)}))
+
 (handler search-issues [m]
   (ok {:issues (db/search-issues (update m :query #(str "'" % "'")))}))
 

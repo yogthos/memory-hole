@@ -4,6 +4,7 @@
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [context-url href navigate!]]
             [memory-hole.pages.common :refer [loading-throbber error-modal]]
+            [memory-hole.pages.admin.groups :refer [groups-page]]
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
@@ -23,6 +24,9 @@
     (when admin
       [bs/Nav
        [nav-link "/users" "Manage Users" :users]])
+    (when admin
+      [bs/Nav
+       [nav-link "/groups" "Manage Groups" :groups]])
     [bs/Nav {:pull-right true}
      [bs/NavDropdown
       {:id "logout-menu" :title screenname}
@@ -34,6 +38,10 @@
 (defmethod pages :users [_ user]
   (if (:admin user)
     [users-page]
+    (navigate! "/")))
+(defmethod pages :groups [_ user]
+  (if (:admin user)
+    [groups-page]
     (navigate! "/")))
 (defmethod pages :edit-issue [_ _]
   (.scrollTo js/window 0 0)

@@ -66,11 +66,13 @@
                     pass :- s/Str
                     pass-confirm :- s/Str
                     admin :- s/Bool
+                    belongs-to :- [s/Str]
                     is-active :- s/Bool]
       (auth/register! {:screenname   screenname
                        :pass         pass
                        :pass-confirm pass-confirm
                        :admin        admin
+                       :belongs-to   belongs-to
                        :is-active    is-active}))
 
     (PUT "/user" []
@@ -79,10 +81,12 @@
                     pass :- (s/maybe s/Str)
                     pass-confirm :- (s/maybe s/Str)
                     admin :- s/Bool
+                    belongs-to :- [s/Str]
                     is-active :- s/Bool]
       :return auth/LoginResponse
       (auth/update-user! {:user-id      user-id
                           :screenname   screenname
+                          :belongs-to   belongs-to
                           :pass         pass
                           :pass-confirm pass-confirm
                           :admin        admin
@@ -145,6 +149,12 @@
       :summary "list issues by the given tag"
       (issues/issues-by-tag {:tag tag}))
 
+    (GET "/issues-by-group/:group" []
+         :path-params [group :- s/Str]
+         :return issues/IssueSummaryResults
+         :summary "list issues by the given group"
+         (issues/issues-by-group {:group group}))
+
     (DELETE "/issue/:id" []
       :path-params [id :- s/Int]
       :return s/Int
@@ -172,6 +182,7 @@
       :body-params [title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
+                    group-name :- s/Str
                     tags :- [s/Str]]
       :return s/Int
       :summary "adds a new issue"
@@ -180,6 +191,7 @@
          :summary summary
          :detail  detail
          :tags    tags
+         :group-name group-name
          :user-id (:user-id user)}))
 
     (PUT "/issue" []
@@ -188,6 +200,7 @@
                     title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
+                    group-name :- s/Str
                     tags :- [s/Str]]
       :return s/Int
       :summary "update an existing issue"
@@ -197,6 +210,7 @@
          :summary          summary
          :detail           detail
          :tags             tags
+         :group-name       group-name
          :user-id          (:user-id user)}))
 
     ;;attachments

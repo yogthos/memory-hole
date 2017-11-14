@@ -1,13 +1,14 @@
 (ns memory-hole.db.core
   (:require
-    [cheshire.core :refer [generate-string parse-string]]
-    [clojure.java.jdbc :as jdbc]
-    [clojure.set :refer [difference]]
-    [clojure.walk :refer [postwalk]]
-    [conman.core :as conman]
-    [cuerdas.core :as string]
-    [mount.core :refer [defstate]]
-    [memory-hole.config :refer [env]])
+   [cheshire.core :refer [generate-string parse-string]]
+   [clojure.java.jdbc :as jdbc]
+   [clojure.set :refer [difference]]
+   [clojure.walk :refer [postwalk]]
+   [conman.core :as conman]
+   [cuerdas.core :as string]
+   [mount.core :refer [defstate]]
+   [memory-hole.config :refer [env]]
+   [buddy.hashers :as hashers])
   (:import org.postgresql.util.PGobject
            java.sql.Array
            clojure.lang.IPersistentMap
@@ -179,3 +180,56 @@
                         :is-active  is-active
                         :pass       pass})))))
 
+(defn insert-user-with-belongs-to!
+  "inserts a user and adds them to specified groups in a transaction."
+  [{:keys [screenname pass admin is-active belongs-to] :as user}]
+  (conman/with-transaction [*db*]
+    (let [{:keys [user-id]}
+          (insert-user<! {:screenname screenname
+                          :admin admin
+                          :is-active is-active
+                          :pass pass})]
+      (add-user-to-groups! {:user-id user-id
+                            :groups belongs-to})
+      (user-by-screenname {:screenname screenname}))))
+
+(defn update-or-insert-user-with-belongs-to!
+  "updates a user and modifies their group membership."
+  [{:keys [screenname pass admin is-active belongs-to] :as user}]
+  (conman/with-transaction [*db*]
+    (let [existing-user (user-by-screenname {:screenname screenname})
+          {:keys [user-id]} (or (not-empty existing-user)
+                                (insert-user<! {:screenname screenname
+                                                :admin admin
+                                                :is-active is-active
+                                                :pass pass}))
+          old-groups (:belongs-to existing-user nil)
+          del-groups (remove (set belongs-to) old-groups)
+          add-groups (remove (set old-groups) belongs-to)]
+      (when (not-empty existing-user)
+        (if pass
+          (update-user-with-pass<! (-> user
+                                       (update :pass hashers/encrypt)
+                                       (select-keys [:screenname
+                                                     :pass
+                                                     :admin
+                                                     :is-active
+                                                     :user-id]))))
+        (update-user<! {:user-id    user-id
+                        :admin      admin
+                        :is-active  is-active
+                        :screenname screenname})
+        (when (not-empty del-groups)
+          (remove-user-from-groups! {:user-id user-id
+                                     :groups del-groups})))
+      (when (not-empty add-groups)
+        (add-user-to-groups! {:user-id user-id
+                              :groups add-groups}))
+      (select-keys
+       (user-by-screenname {:screenname screenname})
+       [:user-id
+        :screenname
+        :admin
+        :is-active
+        :last-login
+        :belongs-to]))))

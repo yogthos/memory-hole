@@ -34,6 +34,7 @@
         ({[:screenname]   "Screenname is required"
           [:pass]         "Password of 8+ characters is required"
           [:pass-confirm] "Password confirmation doesn't match"
+          [:belongs-to]   "Must belong to at least one group"
           [:is-admin]     "You must specify whether the user is an admin"
           [:active]       "You must pecify whether the user is active"}
           path))
@@ -50,6 +51,7 @@
       (fn [{:keys [path]}]
         ({[:screenname]   "Screenname is required"
           [:is-admin]     "You must specify whether the user is an admin"
+          [:belongs-to]   "Must belong to at least one group"
           [:pass-confirm] "Password confirmation doesn't match"
           [:active]       "You must pecify whether the user is active"}
           path))

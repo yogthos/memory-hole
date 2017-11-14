@@ -27,10 +27,10 @@
        {:on-click #(dispatch [:set-error] nil)}
        "OK"]]]))
 
-(defn validation-modal [errors]
+(defn validation-modal [title errors]
   [bs/Modal {:show (boolean @errors)}
    [bs/Modal.Header
-    [bs/Modal.Title "Missing required fields"]]
+    [bs/Modal.Title title]]
    [bs/Modal.Body
     [:ul
      (for [[_ error] @errors]

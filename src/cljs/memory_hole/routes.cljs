@@ -73,7 +73,13 @@
                [:load-and-view-issue (js/parseInt id)]]))
 
 (secretary/defroute (context-url "/users") []
-  (run-events [[:set-active-page :users]]))
+  (run-events [[:load-all-groups]
+               [:set-active-page :users]]))
+
+(secretary/defroute (context-url "/groups") []
+  (run-events [[:load-all-groups]
+               [:set-active-page :groups]]))
+
 ;; -------------------------
 ;; History
 ;; must be called after routes have been defined

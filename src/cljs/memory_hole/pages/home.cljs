@@ -95,7 +95,7 @@
 
 (defn home-page []
   (r/with-let [tags     (subscribe [:tags])
-               issues   (subscribe [:issues])
+               issues   (subscribe [:visible-issues])
                selected (subscribe [:selected-tag])]
     [:div.container
      [:div.row

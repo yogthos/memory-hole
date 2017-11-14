@@ -1,7 +1,10 @@
 (ns memory-hole.handlers.admin
-  (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
+  (:require [re-frame.core :as rf :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [GET POST PUT]]))
+
+
+;;users
 
 (reg-event-db
   :admin/set-users
@@ -39,3 +42,31 @@
           {:params        user
            :error-handler #(ajax-error %)})
     nil))
+
+;;groups
+(reg-event-db
+  :admin/add-group-info
+  (fn [db [_ group]]
+    (update db :groups #(conj % group))))
+
+(reg-event-db
+  :admin/create-group
+  (fn [db [_ group]]
+    (POST "/admin/group"
+          {:params        group
+           :handler       #(dispatch [:admin/add-group-info (:group %)])
+           :error-handler #(ajax-error %)})
+    db))
+
+(reg-event-db
+  :admin/set-group-users
+  (fn [db [_ group-name users]]
+    (assoc-in db [:group-users group-name] users)))
+
+(reg-event-db
+  :admin/load-group-users
+  (fn [db [_ group-name]]
+    (GET (str "/admin/users/group/" group-name)
+         :handler #(dispatch [:admin/set-group-users group-name (:users %)])
+         :error-handler #(ajax-error %))
+    db))

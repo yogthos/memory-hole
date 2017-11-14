@@ -118,7 +118,7 @@
       confirm-open?
       cancel-edit
       "Discard"]
-     [validation-modal errors]
+     [validation-modal "Missing required fields" errors]
      [:div.btn-toolbar.pull-right
       [bs/Button
        {:bs-style "warning"
@@ -212,15 +212,18 @@
 
 (defn edit-issue-page []
   (r/with-let [original-issue (subscribe [:issue])
+               group-list (mapv (fn [group-name] {:id group-name :label group-name}) @(subscribe [:user-belongs-to]))
                edited-issue   (-> @original-issue
                                   (update :title #(or % ""))
                                   (update :summary #(or % ""))
                                   (update :detail #(or % ""))
+                                  (update :group-name #(or % (:id (first group-list))))
                                   (update :tags #(set (or % [])))
                                   r/atom)
                title          (r/cursor edited-issue [:title])
                summary        (r/cursor edited-issue [:summary])
                detail         (r/cursor edited-issue [:detail])
+               group          (r/cursor edited-issue [:group-name])
                tags           (r/cursor edited-issue [:tags])]
     [v-box
      :size "auto"
@@ -250,6 +253,14 @@
       [bs/FormGroup
        [bs/ControlLabel "Issue Tags"]
        [tag-editor tags]]
+      [bs/FormGroup
+       [bs/ControlLabel "Issue Group"]
+       [single-dropdown
+        :model group
+        :choices group-list
+        :width "100%"
+        :placeholder "Issue Group"
+        :on-change #(reset! group %)]]
       [:div.row>div.col-sm-12
        [issue-detail-pane detail]]
       [:div.row
@@ -260,7 +271,9 @@
         [control-buttons original-issue edited-issue]]]]]))
 
 (defn view-issue-page []
-  (let [issue (subscribe [:issue])]
+  (let [issue (subscribe [:issue])
+        format-date (fn [date]
+                      (when-not (nil? date) (dt/format-date date)))]
     [:div.row>div.col-sm-12
      [bs/Panel
       {:class "view-issue-panel"}
@@ -268,12 +281,13 @@
        [:div.col-sm-12>h2
         (:title @issue)
         [:span.pull-right [bs/Badge (str (:views @issue))]]]
+       [:div.col-sm-12>p "Group: " (:group-name @issue)]
        [:div.col-sm-12>p (:summary @issue)]
        [:div.col-sm-12.padded-bottom (render-tags (:tags @issue))]
        [:div.col-sm-12>p
         "Last updated by: "
         (:updated-by-screenname @issue)
-        " on " (dt/format-date (:update-date @issue))]
+        " on " (format-date (:update-date @issue))]
        [:div.col-sm-12>hr]
        [:div.col-sm-12 [markdown-preview (:detail @issue)]]
        [:div.col-sm-12>hr]

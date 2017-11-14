@@ -79,7 +79,7 @@
     (do
       (log/error "error creating user:" errors)
       (bad-request {:error "invalid user"}))
-    (db/insert-user<!
+    (db/insert-user-with-belongs-to!
       (-> user
           (dissoc :pass-confirm)
           (update-in [:pass] hashers/encrypt)))))
@@ -91,12 +91,7 @@
       (bad-request {:error "invalid user"}))
     (ok
       {:user
-       (if pass
-         (db/update-user-with-pass<!
-           (-> user
-               (dissoc :pass-confirm)
-               (update :pass hashers/encrypt)))
-         (db/update-user<! user))})))
+       (db/update-or-insert-user-with-belongs-to! user)})))
 
 (defn local-login [userid pass]
   (when-let [user (authenticate-local userid pass)]
