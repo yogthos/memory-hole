@@ -4,7 +4,7 @@
 
 (defn ajax-error [response]
   (if (= 401 (:status response))
-    (dispatch [:logout])
+    (dispatch [:logout-client])
     (dispatch [:set-error (-> response :response :error)])))
 
 (defn request-defaults [request]

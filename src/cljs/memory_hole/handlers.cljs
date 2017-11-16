@@ -40,6 +40,11 @@
     {:dispatch [:run-login-events]
      :db (assoc db :user user)}))
 
+(reg-event-db
+ :logout-client
+ (fn [db _]
+   (dissoc db :user)))
+
 (reg-event-fx
  :handle-logout
  (fn [_ _]
