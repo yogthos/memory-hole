@@ -32,7 +32,7 @@
                  [org.webjars/bootstrap "3.3.6"]
                  [org.webjars/font-awesome "4.7.0"]
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
-                 [postgresql "9.3-1102.jdbc41"]
+                 [org.postgresql/postgresql "42.1.4"]
                  [re-com "2.1.0"]
                  [re-frame "0.9.4"]
                  [reagent "0.6.1"]
