@@ -37,16 +37,10 @@
    (:belongs-to user)))
 
 (reg-sub
- :ignored-groups
- (fn [_ _]
-   #{}))
-
-(reg-sub
  :visible-issues
- :<-[:ignored-groups]
  :<-[:issues]
- (fn [[groups issues] _]
-   (remove (fn [{group :group-name}] ((set groups) group)) issues)))
+ (fn [issues _]
+   issues))
 
 
 ;;admin

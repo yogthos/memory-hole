@@ -13,15 +13,16 @@
        :or {error-event [:ajax-error]
             ajax-map {}}}]
    (dispatch [:set-loading])
-   (method url (merge ajax-map
-                      {:handler (fn [response]
-                                  (dispatch (if ignore-response-body
-                                              success-event
-                                              (conj success-event response)))
-                                  (dispatch [:unset-loading]))
-                       :error-handler (fn [error]
+   (method url (merge (when success-event
+                        {:handler (fn [response]
+                                    (dispatch (if ignore-response-body
+                                                success-event
+                                                (conj success-event response)))
+                                    (dispatch [:unset-loading]))})
+                      {:error-handler (fn [error]
                                         (dispatch (conj error-event error))
-                                        (dispatch [:unset-loading]))}))))
+                                        (dispatch [:unset-loading]))}
+                      ajax-map))))
 (defn context-url [url]
   (str js/context url))
 
@@ -30,3 +31,6 @@
  (fn [url]
    (accountant/navigate! (context-url url))))
 
+(reg-fx
+ :reload-page
+ (fn [_] (accountant/dispatch-current!)))

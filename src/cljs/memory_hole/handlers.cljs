@@ -40,10 +40,18 @@
     {:dispatch [:run-login-events]
      :db (assoc db :user user)}))
 
-(reg-event-db
+(reg-event-fx
+ :handle-logout
+ (fn [_ _]
+   {:reload-page true}))
+(reg-event-fx
   :logout
-  (fn [db _]
-    (dissoc db :user)))
+  (fn [{:keys [db]} _]
+    {:http {:method POST
+            :url "/api/logout"
+            :ignore-response-body true
+            :success-event [:handle-logout]}
+    :db db/default-db}))
 
 (reg-event-db
   :unset-loading

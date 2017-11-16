@@ -8,9 +8,7 @@
 (defn logged-in? []
   (some? js/user))
 
-(defn logout []
-  (POST "/api/logout"
-        {:handler #(dispatch [:logout])}))
+
 
 (defn login [params error on-close]
   (reset! error nil)

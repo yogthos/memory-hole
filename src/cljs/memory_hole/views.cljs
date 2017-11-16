@@ -1,6 +1,6 @@
 (ns memory-hole.views
   (:require [reagent.core :as r]
-            [re-frame.core :refer [subscribe]]
+            [re-frame.core :refer [subscribe dispatch]]
             [memory-hole.bootstrap :as bs]
             [memory-hole.routes :refer [context-url href navigate!]]
             [memory-hole.pages.common :refer [loading-throbber error-modal]]
@@ -8,7 +8,7 @@
             [memory-hole.pages.admin.users :refer [users-page]]
             [memory-hole.pages.home :refer [home-page]]
             [memory-hole.pages.issues :refer [edit-issue-page view-issue-page]]
-            [memory-hole.pages.auth :refer [login-page logout]]))
+            [memory-hole.pages.auth :refer [login-page]]))
 
 (defn nav-link [url title page]
   (let [active-page (subscribe [:active-page])]
@@ -30,7 +30,7 @@
     [bs/Nav {:pull-right true}
      [bs/NavDropdown
       {:id "logout-menu" :title screenname}
-      [bs/MenuItem {:on-click logout} "Logout"]]]]])
+      [bs/MenuItem {:on-click #(dispatch [:logout])} "Logout"]]]]])
 
 (defmulti pages (fn [page _] page))
 (defmethod pages :home [_ _] [home-page])
