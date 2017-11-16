@@ -28,8 +28,9 @@
 (defn home-page-events [& events]
   (.scrollTo js/window 0 0)
   (run-events (into
-                [[:load-tags]
-                 [:set-active-page :home]]
+               [[:load-tags]
+                [:load-groups]
+                [:set-active-page :home]]
                 events)))
 
 ;; -------------------------
@@ -38,7 +39,7 @@
   (home-page-events [:load-issues :recent]))
 
 (secretary/defroute (context-url "/search/:query") [query]
-  (home-page-events [:search-for-issues query]))
+  (home-page-events [:load-issues :search query]))
 
 (secretary/defroute (context-url "/all-issues") []
   (home-page-events [:select-tag "All"]
@@ -54,33 +55,39 @@
 
 (secretary/defroute (context-url "/issues/:tag") [tag]
   (home-page-events [:select-tag tag]
-                    [:load-issues-for-tag tag]))
+                    [:load-issues :tag tag]))
 
 (secretary/defroute (context-url "/create-issue") []
   (dispatch-sync [:close-issue])
   (run-events
-    [[:load-tags]
-     [:set-active-page :edit-issue]]))
+   [[:load-tags]
+    [:load-groups]
+    [:set-active-page :edit-issue]]))
 
 (secretary/defroute (context-url "/edit-issue") []
   (if-not (or (logged-in?)
               (nil? @(subscribe [:issue])))
     (navigate! "/")
-    (dispatch [:set-active-page :edit-issue])))
+    (run-events [[:load-tags]
+                 [:load-groups]
+                 [:set-active-page :edit-issue]])))
 
 (secretary/defroute (context-url "/issue/:id") [id]
   (dispatch-sync [:close-issue])
   (run-events [[:load-tags]
+               [:load-groups]
                [:load-issue (js/parseInt id)]
                [:set-active-page :view-issue]]))
 
 (secretary/defroute (context-url "/users") []
-  (run-events [[:load-all-groups]
+  (run-events [[:load-groups]
                [:set-active-page :users]]))
 
 (secretary/defroute (context-url "/groups") []
-  (run-events [[:load-all-groups]
+  (run-events [[:load-groups]
                [:set-active-page :groups]]))
+
+;; Consider adding a group-detail page for batch removing/adding users to groups
 
 ;; -------------------------
 ;; History

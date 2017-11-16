@@ -21,16 +21,6 @@
           :error-handler #(ajax-error %)})
     nil))
 
-(reg-event-db
-  :add-tag
-  (fn [db [_ tag]]
-    (update db :tags conj tag)))
 
-(reg-event-fx
-  :create-tag
-  (fn [_ [_ tag]]
-    (POST "/api/tag"
-          {:params        {:tag tag}
-           :handler       #(dispatch [:add-tag %])
-           :error-handler #(ajax-error %)})
-    nil))
+
+

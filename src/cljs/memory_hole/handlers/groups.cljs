@@ -10,7 +10,7 @@
     (assoc db :groups groups)))
 
 (reg-event-db
-  :load-all-groups
+  :load-groups
   (fn [db _]
     (GET "/api/groups"
          {:handler       #(dispatch [:set-groups (:groups %)])

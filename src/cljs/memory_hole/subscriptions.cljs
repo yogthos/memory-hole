@@ -31,17 +31,22 @@
 (reg-sub :groups query)
 
 (reg-sub
- :user-belongs-to
+ :belongs-to
  :<-[:user]
  (fn [user _]
    (:belongs-to user)))
 
 (reg-sub
+ :ignored-groups
+ (fn [_ _]
+   #{}))
+
+(reg-sub
  :visible-issues
- :<-[:user-belongs-to]
+ :<-[:ignored-groups]
  :<-[:issues]
  (fn [[groups issues] _]
-   (filter (fn [{group :group-name}] ((set groups) group)) issues)))
+   (remove (fn [{group :group-name}] ((set groups) group)) issues)))
 
 
 ;;admin
