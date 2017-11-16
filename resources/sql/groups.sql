@@ -2,6 +2,14 @@
 -- Gets all the groups in the DB, in alphabetical order.
 select * from groups order by group_name asc;
 
+-- :name groups-for-user :? :*
+-- Gets groups user belongs to, or all groups if admin
+select distinct g.group_id, g.group_name from groups g
+left join users_groups ug
+on g.group_id = ug.group_id
+where ug.user_id = :user-id
+or (select admin from users where user_id = :user-id);
+
 -- :name create-group<! :<! :1
 -- :doc Inserts a new group.
 insert into groups (group_name)

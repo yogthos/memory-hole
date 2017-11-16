@@ -15,6 +15,7 @@ from support_issues si
   inner join support_issues_tags sit on si.support_issue_id = sit.support_issue_id
   inner join tags t on sit.tag_id = t.tag_id
   where si.delete_date is null
+  and  si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
 group by t.tag, t.tag_id
 order by t.tag asc;
 

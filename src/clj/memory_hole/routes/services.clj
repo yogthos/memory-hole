@@ -111,43 +111,45 @@
     ;;groups
     (GET "/groups" []
       :return groups/GroupsResult
-      :summary "list all groups"
-      (groups/groups))
+      :summary "list all groups current user belongs to (or all groups if admin)"
+      :current-user user
+      (groups/groups-by-user {:user-id (:user-id user)}))
 
     ;;tags
     (GET "/tags" []
       :return issues/TagsResult
       :summary "list available tags"
-      (issues/tags))
-
-    (POST "/tag" []
-      :body-params [tag :- s/Str]
-      :return issues/TagResult
-      :summary "add a new tag"
-      (issues/add-tag! {:tag tag}))
+      :current-user user
+      (issues/tags {:user-id (:user-id user)}))
 
     ;;issues
     (GET "/issues" []
       :return issues/IssueSummaryResults
       :summary "list all issues"
-      (issues/all-issues))
+      :current-user user
+      (issues/all-issues {:user-id (:user-id user)}))
 
     (GET "/recent-issues" []
       :return issues/IssueSummaryResults
       :summary "list 10 most recent issues"
-      (issues/recent-issues 10))
+      :current-user user
+      (issues/recent-issues {:user-id (:user-id user)
+                             :limit 10}))
 
     (GET "/issues-by-views/:offset/:limit" []
       :path-params [offset :- s/Int limit :- s/Int]
       :return issues/IssueSummaryResults
       :summary "list issues by views using the given offset and limit"
-      (issues/issues-by-views {:offset offset :limit limit}))
+      :current-user user
+      (issues/issues-by-views {:user-id (:user-id user) :offset offset :limit limit}))
 
     (GET "/issues-by-tag/:tag" []
       :path-params [tag :- s/Str]
       :return issues/IssueSummaryResults
       :summary "list issues by the given tag"
-      (issues/issues-by-tag {:tag tag}))
+      :current-user user
+      (issues/issues-by-tag {:tag tag
+                             :user-id (:user-id user)}))
 
     (GET "/issues-by-group/:group" []
          :path-params [group :- s/Str]
@@ -167,9 +169,11 @@
                     offset :- s/Int]
       :return issues/IssueSummaryResults
       :summary "search for issues matching the query"
+      :current-user user
       (issues/search-issues {:query  query
                              :limit  limit
-                             :offset offset}))
+                             :offset offset
+                             :user-id (:user-id user)}))
 
     (GET "/issue/:id" []
       :path-params [id :- s/Int]

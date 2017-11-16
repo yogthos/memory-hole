@@ -59,17 +59,14 @@
   {(s/optional-key :tags)  [Tag]
    (s/optional-key :error) s/Str})
 
-(handler tags []
-  (ok {:tags (db/ranked-tags)}))
+(handler tags [m]
+  (ok {:tags (db/ranked-tags m)}))
 
-(handler add-tag! [m]
-  (ok {:tag (merge m (db/create-tag<! m))}))
+(handler all-issues [m]
+  (ok {:issues (db/issues m)}))
 
-(handler all-issues []
-  (ok {:issues (db/issues {})}))
-
-(handler recent-issues [limit]
-  (ok {:issues (db/recently-viewed-issues {:limit limit})}))
+(handler recent-issues [m]
+  (ok {:issues (db/recently-viewed-issues m)}))
 
 (handler add-issue! [issue]
   (ok (db/create-issue-with-tags! issue)))

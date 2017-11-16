@@ -23,6 +23,9 @@
 (handler groups []
          (ok {:groups (db/groups)}))
 
+(handler groups-by-user [user]
+         (ok {:groups (db/groups-for-user (select-keys user [:user-id]))}))
+
 (handler add-group! [group]
   (if-let [errors (v/validate-group group [])]
     (do

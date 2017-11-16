@@ -69,8 +69,8 @@ SELECT
 FROM support_issues si
   LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
   LEFT JOIN tags t ON sit.tag_id = t.tag_id
-WHERE
-  si.delete_date IS NULL
+WHERE si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
+AND si.delete_date IS NULL
 GROUP BY
   si.support_issue_id
 ORDER BY last_viewed_date;
@@ -92,6 +92,7 @@ FROM support_issues si
   LEFT JOIN tags t ON sit.tag_id = t.tag_id
 WHERE
   si.delete_date IS NULL
+  and si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
 GROUP BY
   si.support_issue_id
 ORDER BY si.last_viewed_date ASC
@@ -114,6 +115,7 @@ FROM support_issues si
   LEFT JOIN tags t ON sit.tag_id = t.tag_id
 WHERE
   si.delete_date IS NULL
+  and si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
 GROUP BY si.support_issue_id
 ORDER BY si.views DESC
 OFFSET :offset
@@ -137,6 +139,7 @@ FROM support_issues si
 WHERE
   t.tag = :tag AND
   delete_date IS NULL
+  and si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
 GROUP BY
   si.support_issue_id
 ORDER BY last_viewed_date;
@@ -193,5 +196,6 @@ FROM support_issues si
     LEFT JOIN support_issues_tags sit ON si.support_issue_id = sit.support_issue_id
     LEFT JOIN tags t ON sit.tag_id = t.tag_id
     WHERE si.delete_date IS NULL
+    and si.support_issue_id IN (select support_issue_id from users_visible_issues where user_id = :user-id)
 GROUP BY si.support_issue_id
 ORDER BY last_viewed_date;
