@@ -56,26 +56,13 @@
 
 (reg-event-db
   :admin/set-group-users
-  (fn [db [_ group-name users]]
+  (fn [db [_ group-name {:keys [users]}]]
     (assoc-in db [:group-users group-name] users)))
 
-(reg-event-db
+(reg-event-fx
   :admin/load-group-users
-  (fn [db [_ group-name]]
-    (GET (str "/admin/users/group/" group-name)
-         :handler #(dispatch [:admin/set-group-users group-name (:users %)])
-         :error-handler #(ajax-error %))
-    db))
+  (fn [_ [_ group-name]]
+    {:http {:method GET
+            :url (str "/admin/users/group/" group-name)
+            :success-event [:admin/set-group-users group-name]}}))
 
-(reg-event-db
-  :admin/set-group-users
-  (fn [db [_ group-name users]]
-    (assoc-in db [:group-users group-name] users)))
-
-(reg-event-db
-  :admin/load-group-users
-  (fn [db [_ group-name]]
-    (GET (str "/admin/users/group/" group-name)
-         :handler #(dispatch [:admin/set-group-users group-name (:users %)])
-         :error-handler #(ajax-error %))
-    db))
