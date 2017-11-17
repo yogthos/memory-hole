@@ -212,12 +212,11 @@
 
 (defn edit-issue-page []
   (r/with-let [original-issue (subscribe [:issue])
-               group-list (mapv (fn [{:keys [group-name]}] {:id group-name :label group-name}) @(subscribe [:groups]))
+               group-list #(mapv (fn [{:keys [group-name]}] {:id group-name :label group-name}) @(subscribe [:groups]))
                edited-issue   (-> @original-issue
                                   (update :title #(or % ""))
                                   (update :summary #(or % ""))
                                   (update :detail #(or % ""))
-                                  (update :group-name #(or % (:id (first group-list))))
                                   (update :tags #(set (or % [])))
                                   r/atom)
                title          (r/cursor edited-issue [:title])
@@ -257,7 +256,7 @@
        [bs/ControlLabel "Issue Group"]
        [single-dropdown
         :model group
-        :choices group-list
+        :choices (group-list)
         :width "100%"
         :placeholder "Issue Group"
         :on-change #(reset! group %)]]

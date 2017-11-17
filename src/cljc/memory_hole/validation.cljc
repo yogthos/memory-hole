@@ -16,12 +16,14 @@
         ({[:title]   "Issue title is required"
           [:summary] "Issue summary is required"
           [:detail]  "Issue details are required"
+          [:group-name] "Issue must belong to a group"
           [:tags]    "Issue must have at least one tag"}
           path))
       issue
       :title v/required
       :summary v/required
       :detail v/required
+      :group-name v/required
       :tags [v/required [v/min-count 1]])))
 
 (defn pass-matches? [pass-confirm pass]
@@ -43,6 +45,7 @@
       :pass-confirm [[pass-matches? (:pass user)]]
       :screenname v/required
       :admin v/required
+      :belongs-to [v/required [v/min-count 1]]
       :is-active v/required)))
 
 (defn validate-update-user [user]
@@ -59,6 +62,7 @@
       :screenname v/required
       :admin v/required
       :pass-confirm [[pass-matches? (:pass user)]]
+      :belongs-to [v/required [v/min-count 1]]
       :is-active v/required)))
 
 (defn group-unique? [group-name other-groups]

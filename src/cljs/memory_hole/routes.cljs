@@ -58,7 +58,7 @@
                     [:load-issues :tag tag]))
 
 (secretary/defroute (context-url "/create-issue") []
-  (dispatch-sync [:close-issue])
+  (dispatch [:close-issue])
   (run-events
    [[:load-tags]
     [:load-groups]
@@ -73,7 +73,7 @@
                  [:set-active-page :edit-issue]])))
 
 (secretary/defroute (context-url "/issue/:id") [id]
-  (dispatch-sync [:close-issue])
+  (dispatch [:close-issue])
   (run-events [[:load-tags]
                [:load-groups]
                [:load-issue (js/parseInt id)]
