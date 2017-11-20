@@ -21,7 +21,7 @@
     [:a#logo (href "/")
      [:span "Issues"]]]
    [bs/Navbar.Collapse
-    (when admin
+    (when (and admin (not js/ldap))
       [bs/Nav
        [nav-link "/users" "Manage Users" :users]])
     (when admin
@@ -36,7 +36,7 @@
 (defmethod pages :home [_ _] [home-page])
 (defmethod pages :login [_ _] [login-page])
 (defmethod pages :users [_ user]
-  (if (:admin user)
+  (if (and (:admin user) (not js/ldap))
     [users-page]
     (navigate! "/")))
 (defmethod pages :groups [_ user]
