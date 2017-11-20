@@ -101,8 +101,9 @@
         (merge {:member-of    []
                 :account-name userid}))))
 
-(defn should-ldap-user-be-admin? [user]
-  true)
+(defn should-ldap-user-be-admin? [{:keys [account-name member-of]}]
+  (boolean (or ((set (:ldap-admin-users env)) account-name)
+               (some (set (:ldap-admin-groups env)) member-of))))
 
 (defn ldap-login [userid pass]
   (when-let [user (authenticate-ldap userid pass)]
