@@ -24,20 +24,37 @@
         "Save"]]]]))
 
 (defn add-group []
-  (r/with-let [group-name (r/atom "")]
-    [:div.form-horizontal
-     [:legend "Add Group"]
-     [bs/FormGroup
-      [bs/ControlLabel
-       {:class "col-lg-2"}
-       "Group Name"]
-      [:div.col-lg-10
-       [bs/FormControl
-        {:type        :text
-         :value       @group-name
-         :on-change   #(reset! group-name (-> % .-target .-value))
-         :placeholder "Enter group name"}]]]
-     [save-button {:group-name (string/trim @group-name)} #(reset! group-name "")]]))
+  (let [default-group (if js/ldap
+                        {:group-name ""
+                         :distinguished-name ""}
+                        {:group-name ""})]
+    (r/with-let [group (r/atom default-group)]
+      [:div.form-horizontal
+       [:legend "Add Group"]
+       [bs/FormGroup
+        [bs/ControlLabel
+         {:class "col-lg-2"}
+         "Group Name"]
+        [:div.col-lg-10
+         [bs/FormControl
+          {:type        :text
+           :value       (:group-name @group)
+           :on-change   #(swap! group assoc :group-name (-> % .-target .-value))
+           :placeholder "Enter group name"}]]
+        (when js/ldap
+          [bs/ControlLabel
+           {:class "col-lg-2"}
+           "Distinguished Name"])
+        (when js/ldap
+          [:div.col-lg-10
+           [bs/FormControl
+            {:type        :text
+             :value       (:distinguished-name @group)
+             :on-change   #(swap! group assoc :distinguished-name (-> % .-target .-value))
+             :placeholder "Enter LDAP distinguished name"}]])]
+       [save-button (-> @group
+                        (update :group-name string/trim))
+        #(reset! group default-group)]])))
 
 (defn group-info [{:keys [group-name] :as group}]
   (dispatch [:admin/load-group-users group-name])
