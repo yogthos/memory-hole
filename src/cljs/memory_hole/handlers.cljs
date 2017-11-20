@@ -55,7 +55,8 @@
     {:http {:method POST
             :url "/api/logout"
             :ignore-response-body true
-            :success-event [:handle-logout]}
+            :success-event [:handle-logout]
+            :error-event [:handle-logout]}
     :db db/default-db}))
 
 (reg-event-db
