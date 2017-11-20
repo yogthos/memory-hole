@@ -72,7 +72,8 @@
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
-        ({[:group-name] "Group name is required and must be unique"}
+        ({[:group-name] "Group name is required and must be unique"
+          [:distinguished-name] "Distinguished Name"}
           path))
       group
       :group-name [v/required

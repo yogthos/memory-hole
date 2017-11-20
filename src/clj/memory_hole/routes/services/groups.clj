@@ -10,6 +10,7 @@
 (def Group
   {:group-id                     s/Num
    :group-name                   s/Str
+   (s/optional-key :distinguished-name) s/Str
    (s/optional-key :create-date) Date})
 
 (def GroupResult

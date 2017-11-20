@@ -8,6 +8,7 @@
             [memory-hole.routes.services.auth :as auth]
             [memory-hole.routes.services.groups :as groups]
             [memory-hole.routes.services.issues :as issues]
+            [memory-hole.config :refer [env]]
             [buddy.auth.accessrules :refer [restrict]]
             [buddy.auth :refer [authenticated?]]))
 
@@ -94,10 +95,14 @@
 
     ;;groups
     (POST "/group" []
-      :body-params [group-name :- s/Str]
+          :body-params [group-name :- s/Str
+                        distinguished-name :- (s/maybe s/Str)]
       :return groups/GroupResult
       :summary "add a new group"
-      (groups/add-group! {:group-name group-name})))
+      (if (contains? env :ldap)
+        (groups/add-group! {:group-name group-name
+                            :distinguished-name distinguished-name})
+        (groups/add-group! {:group-name group-name}))))
 
   (context "/api" []
     :auth-rules authenticated?

@@ -91,7 +91,9 @@
       (bad-request {:error "invalid user"}))
     (ok
       {:user
-       (db/update-or-insert-user-with-belongs-to! user)})))
+       (db/update-or-insert-user-with-belongs-to! (cond-> user
+                                                    pass (update :pass hashers/encrypt)
+                                                    pass (assoc :update-password? true)))})))
 
 (defn local-login [userid pass]
   (when-let [user (authenticate-local userid pass)]
@@ -99,15 +101,18 @@
         (merge {:member-of    []
                 :account-name userid}))))
 
+(defn should-ldap-user-be-admin? [user]
+  true)
+
 (defn ldap-login [userid pass]
   (when-let [user (authenticate-ldap userid pass)]
     (-> user
         ;; user :screenname as preferred name
         ;; fall back to userid if not supplied
-        (assoc :admin false
+        (assoc :admin (should-ldap-user-be-admin? user)
                :is-active true)
         (update-in [:screenname] #(or (not-empty %) userid))
-        (db/update-user-info!))))
+        (db/update-or-insert-user-with-belongs-to!))))
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
   (if-let [user (if (:ldap env)
