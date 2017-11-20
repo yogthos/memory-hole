@@ -195,34 +195,36 @@
 
 (defn update-or-insert-user-with-belongs-to!
   "updates a user and modifies their group membership."
-  [{:keys [screenname pass admin is-active belongs-to] :as user}]
+  [{:keys [screenname pass admin is-active belongs-to member-of update-password?] :as user}]
   (conman/with-transaction [*db*]
-    (let [existing-user (user-by-screenname {:screenname screenname})
-          {:keys [user-id]} (or (not-empty existing-user)
-                                (insert-user<! {:screenname screenname
-                                                :admin admin
-                                                :is-active is-active
-                                                :pass pass}))
+    (let [belongs-to (into [] (distinct (concat belongs-to member-of)))
+          existing-user (user-by-screenname {:screenname screenname})
+          user-exists? (not (empty? existing-user))
+          {:keys [user-id]} (if user-exists?
+                              existing-user
+                              (insert-user<! {:screenname screenname
+                                              :admin admin
+                                              :is-active is-active
+                                              :pass pass}))
           old-groups (:belongs-to existing-user nil)
           del-groups (remove (set belongs-to) old-groups)
           add-groups (remove (set old-groups) belongs-to)]
-      (when (not-empty existing-user)
-        (if pass
+      (when user-exists?
+        (if update-password?
           (update-user-with-pass<! (-> user
-                                       (update :pass hashers/encrypt)
                                        (select-keys [:screenname
                                                      :pass
                                                      :admin
                                                      :is-active
-                                                     :user-id]))))
-        (update-user<! {:user-id    user-id
-                        :admin      admin
-                        :is-active  is-active
-                        :screenname screenname})
-        (when (not-empty del-groups)
-          (remove-user-from-groups! {:user-id user-id
-                                     :groups del-groups})))
-      (when (not-empty add-groups)
+                                                     :user-id])))
+          (update-user<! {:user-id    user-id
+                          :admin      admin
+                          :is-active  is-active
+                          :screenname screenname})))
+      (when-not (empty? del-groups)
+        (remove-user-from-groups! {:user-id user-id
+                                   :groups del-groups}))
+      (when-not (empty? add-groups)
         (add-user-to-groups! {:user-id user-id
                               :groups add-groups}))
       (select-keys
