@@ -45,7 +45,7 @@
                            [(if new-user?
                               :admin/create-user-profile
                               :admin/update-user-profile)
-                            @user])
+                            (update @user :belongs-to (fn [belongs-to] (map :group-id belongs-to)))])
                          (close-editor)))}
         "Save"]]]]))
 
@@ -61,32 +61,42 @@
       :on-change   #(reset! cursor (-> % .-target .-value))
       :placeholder placeholder}]]])
 
-(defn group-selector [selected-group-name & [ignored-groups]]
+(defn group-selector [selected-group & [ignored-groups]]
   (r/with-let [groups @(subscribe [:groups])]
     [bs/DropdownButton
      {:id     "group-selector"
-      :title  (or @selected-group-name "Select Group")
+      :title  (:group-name @selected-group "Select Group")
       :bsSize "small"}
      (->> groups
           (remove (if-let [ignore (not-empty (set @ignored-groups))]
-                    (fn [{:keys [group-name]}] (ignore group-name))
+                    (fn [group] (ignore group))
                     (fn [_] false)))
           (map-indexed
-            (fn [idx {:keys [group-id group-name]}]
+            (fn [idx {:keys [group-id group-name] :as group}]
               ^{:key group-id}
               [bs/MenuItem
                {:id       group-id
-                :on-click #(reset! selected-group-name group-name)}
+                :on-click #(reset! selected-group group)}
                group-name]))
           (doall))]))
 
 (defn group-list-selector [group-list]
+  ;; GROSS
+  (let [groups @(subscribe [:groups])]
+    (swap! group-list
+           (partial map
+                    (fn [group-or-group-id]
+                      (if (string? group-or-group-id)
+                        (some
+                         (fn [{:keys [group-id] :as g}] (when (= group-or-group-id group-id) g))
+                         groups)
+                        group-or-group-id)))))
   [:div
    (into [:div.list-group]
          (map (fn [group] [bs/Button
                            {:class "btn-danger"
                             :on-click #(swap! group-list (fn [l] (remove (partial = group) l)))}
-                           group " x"])
+                           (:group-name group) " x"])
               @group-list))
    (let [group (r/atom nil)]
      [bs/ButtonGroup
@@ -103,7 +113,6 @@
                         (update :pass identity)
                         (update :pass-confirm identity)
                         (update :admin boolean)
-                        (update :belongs-to #(if (empty? %) ["Default"] %))
                         (update :is-active boolean)
                         r/atom)]
     [:div.form-horizontal

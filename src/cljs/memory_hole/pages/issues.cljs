@@ -212,7 +212,7 @@
 
 (defn edit-issue-page []
   (r/with-let [original-issue (subscribe [:issue])
-               group-list #(mapv (fn [{:keys [group-name]}] {:id group-name :label group-name}) @(subscribe [:groups]))
+               group-list #(mapv (fn [{:keys [group-name group-id]}] {:id group-id :label group-name}) @(subscribe [:groups]))
                edited-issue   (-> @original-issue
                                   (update :title #(or % ""))
                                   (update :summary #(or % ""))
@@ -222,7 +222,7 @@
                title          (r/cursor edited-issue [:title])
                summary        (r/cursor edited-issue [:summary])
                detail         (r/cursor edited-issue [:detail])
-               group          (r/cursor edited-issue [:group-name])
+               group          (r/cursor edited-issue [:group-id])
                tags           (r/cursor edited-issue [:tags])]
     [v-box
      :size "auto"

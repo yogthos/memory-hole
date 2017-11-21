@@ -96,12 +96,12 @@
     ;;groups
     (POST "/group" []
           :body-params [group-name :- s/Str
-                        distinguished-name :- (s/maybe s/Str)]
+                        group-id :- (s/maybe s/Str)]
       :return groups/GroupResult
       :summary "add a new group"
       (if (contains? env :ldap)
         (groups/add-group! {:group-name group-name
-                            :distinguished-name distinguished-name})
+                            :group-id group-id})
         (groups/add-group! {:group-name group-name}))))
 
   (context "/api" []
@@ -159,8 +159,10 @@
     (GET "/issues-by-group/:group" []
          :path-params [group :- s/Str]
          :return issues/IssueSummaryResults
-         :summary "list issues by the given group"
-         (issues/issues-by-group {:group group}))
+         :current-user user
+         :summary "list issues by the given group name"
+         (issues/issues-by-group {:group-name group
+                                  :user-id (:user-id user)}))
 
     (DELETE "/issue/:id" []
       :path-params [id :- s/Int]
@@ -191,16 +193,16 @@
       :body-params [title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
-                    group-name :- s/Str
+                    group-id :- s/Str
                     tags :- [s/Str]]
       :return s/Int
       :summary "adds a new issue"
       (issues/add-issue!
-        {:title   title
-         :summary summary
-         :detail  detail
-         :tags    tags
-         :group-name group-name
+        {:title    title
+         :summary  summary
+         :detail   detail
+         :tags     tags
+         :group-id group-id
          :user-id (:user-id user)}))
 
     (PUT "/issue" []
@@ -209,7 +211,7 @@
                     title :- s/Str
                     summary :- s/Str
                     detail :- s/Str
-                    group-name :- s/Str
+                    group-id :- s/Str
                     tags :- [s/Str]]
       :return s/Int
       :summary "update an existing issue"
@@ -219,7 +221,7 @@
          :summary          summary
          :detail           detail
          :tags             tags
-         :group-name       group-name
+         :group-id         group-id
          :user-id          (:user-id user)}))
 
     ;;attachments

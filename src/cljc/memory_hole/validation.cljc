@@ -16,14 +16,14 @@
         ({[:title]   "Issue title is required"
           [:summary] "Issue summary is required"
           [:detail]  "Issue details are required"
-          [:group-name] "Issue must belong to a group"
+          [:group-id] "Issue must belong to a group"
           [:tags]    "Issue must have at least one tag"}
           path))
       issue
       :title v/required
       :summary v/required
       :detail v/required
-      :group-name v/required
+      :group-id v/required
       :tags [v/required [v/min-count 1]])))
 
 (defn pass-matches? [pass-confirm pass]
@@ -72,8 +72,7 @@
   (format-validation-errors
     (b/validate
       (fn [{:keys [path]}]
-        ({[:group-name] "Group name is required and must be unique"
-          [:distinguished-name] "Distinguished Name"}
+        ({[:group-name] "Group name is required and must be unique"}
           path))
       group
       :group-name [v/required

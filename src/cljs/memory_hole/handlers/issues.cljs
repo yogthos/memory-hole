@@ -58,14 +58,14 @@
 ;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :create-issue
-  (fn [_ [_ {:keys [title summary detail group-name tags] :as issue}]]
+  (fn [_ [_ {:keys [title summary detail group-id tags] :as issue}]]
     {:http {:method POST
             :url "/api/issue"
             :success-event [:view-issue]
             :ajax-map {:params {:title      title
                                 :summary    summary
                                 :detail     detail
-                                :group-name group-name
+                                :group-id group-id
                                 :tags    (vec tags)}}}}))
 
 (reg-event-fx
@@ -76,7 +76,7 @@
 ;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :save-issue
-  (fn [_ [_ {:keys [support-issue-id title summary group-name detail tags] :as issue}]]
+  (fn [_ [_ {:keys [support-issue-id title summary group-id detail tags] :as issue}]]
     {:http {:method PUT
             :url "/api/issue"
             :success-event [:view-issue support-issue-id]
@@ -85,7 +85,7 @@
                                 :title            title
                                 :summary          summary
                                 :detail           detail
-                                :group-name       group-name
+                                :group-id       group-id
                                 :tags             (vec tags)}}}}))
 
 (reg-event-fx

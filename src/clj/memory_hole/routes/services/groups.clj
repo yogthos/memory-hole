@@ -8,18 +8,17 @@
   (:import java.util.Date))
 
 (def Group
-  {:group-id                     s/Num
+  {(s/optional-key :group-id)    s/Str
    :group-name                   s/Str
-   (s/optional-key :distinguished-name) s/Str
    (s/optional-key :create-date) Date})
 
 (def GroupResult
   {(s/optional-key :group) Group
-   (s/optional-key :error)      s/Str})
+   (s/optional-key :error) s/Str})
 
 (def GroupsResult
   {(s/optional-key :groups) [Group]
-   (s/optional-key :error)      s/Str})
+   (s/optional-key :error)  s/Str})
 
 (handler groups []
          (ok {:groups (db/groups)}))

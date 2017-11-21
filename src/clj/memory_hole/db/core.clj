@@ -206,7 +206,7 @@
                                               :admin admin
                                               :is-active is-active
                                               :pass pass}))
-          old-groups (:belongs-to existing-user nil)
+          old-groups (:belongs-to existing-user [])
           del-groups (remove (set belongs-to) old-groups)
           add-groups (remove (set old-groups) belongs-to)]
       (when user-exists?

@@ -26,7 +26,7 @@
 (defn add-group []
   (let [default-group (if js/ldap
                         {:group-name ""
-                         :distinguished-name ""}
+                         :group-id ""}
                         {:group-name ""})]
     (r/with-let [group (r/atom default-group)]
       [:div.form-horizontal
