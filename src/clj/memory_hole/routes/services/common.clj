@@ -2,7 +2,10 @@
   (:require [clojure.tools.logging :as log]
             [ring.util.http-response :refer [internal-server-error]]))
 
-(defmacro handler [fn-name args & body]
+(defmacro handler
+  "wraps handler in a try-catch block with built in logging"
+  {:style/indent :defn}
+  [fn-name args & body]
   `(defn ~fn-name ~args
      (try
        ~@body
