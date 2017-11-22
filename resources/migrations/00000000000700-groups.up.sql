@@ -1,7 +1,5 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 CREATE TABLE groups (
-  group_id text NOT NULL PRIMARY KEY default gen_random_uuid()::text,
+  group_id text NOT NULL PRIMARY KEY default uuid_in(md5(random()::text || now()::text)::cstring)::text,
   group_name text NOT NULL UNIQUE,
   create_date timestamp not null default (now() at time zone 'utc')
 );

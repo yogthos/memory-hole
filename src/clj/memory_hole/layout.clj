@@ -21,7 +21,7 @@
         template
         (assoc params
           :page template
-          :ldap (contains? env :ldap)
+          :ldap (boolean (contains? env :ldap))
           :user *identity*
           :timestamp timestamp
           :csrf-token *anti-forgery-token*

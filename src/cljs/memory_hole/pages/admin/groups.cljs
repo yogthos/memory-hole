@@ -49,8 +49,8 @@
           [:div.col-lg-10
            [bs/FormControl
             {:type        :text
-             :value       (:distinguished-name @group)
-             :on-change   #(swap! group assoc :distinguished-name (-> % .-target .-value))
+             :value       (:group-id @group)
+             :on-change   #(swap! group assoc :group-id (-> % .-target .-value))
              :placeholder "Enter LDAP distinguished name"}]])]
        [save-button (-> @group
                         (update :group-name string/trim))
