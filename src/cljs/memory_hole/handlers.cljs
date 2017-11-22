@@ -49,9 +49,10 @@
  :handle-logout
  (fn [_ _]
    {:reload-page true}))
+
 (reg-event-fx
   :logout
-  (fn [{:keys [db]} _]
+  (fn [_ _]
     {:http {:method POST
             :url "/api/logout"
             :ignore-response-body true

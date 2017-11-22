@@ -28,7 +28,10 @@
 
 (reg-sub :login-events query)
 
-(reg-sub :groups query)
+(reg-sub
+ :groups
+ (fn [db _]
+   (distinct (:groups db))))
 
 (reg-sub
  :belongs-to

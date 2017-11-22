@@ -8,8 +8,6 @@
 (defn logged-in? []
   (some? js/user))
 
-
-
 (defn login [params error on-close]
   (reset! error nil)
   (let [{:keys [userid pass]} @params]

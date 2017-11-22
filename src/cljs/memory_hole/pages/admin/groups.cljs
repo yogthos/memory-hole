@@ -78,11 +78,10 @@
          [group-info group])])))
 
 (defn groups-page []
-  (r/with-let [show-new-group-form? (r/atom false)]
-    [:div
-     [:div.row
-      [:div.col-sm-12
-       [add-group]]]
-     [:hr]
-     [:legend "Current Groups"]
-     [group-list]]))
+  [:div
+   [:div.row
+    [:div.col-sm-12
+     [add-group]]]
+   [:hr]
+   [:legend "Current Groups"]
+   [group-list]])

@@ -36,17 +36,17 @@
        [:button.btn.btn-sm.btn-success
         {:pull-right true
          :on-click   #(let [new-user? (nil? user-id)]
-                       (when-not (reset! errors
-                                         ((if new-user?
-                                            v/validate-create-user
-                                            v/validate-update-user)
-                                           @user))
-                         (dispatch
-                           [(if new-user?
-                              :admin/create-user-profile
-                              :admin/update-user-profile)
-                            (update @user :belongs-to (fn [belongs-to] (map :group-id belongs-to)))])
-                         (close-editor)))}
+                        (when-not (reset! errors
+                                          ((if new-user?
+                                             v/validate-create-user
+                                             v/validate-update-user)
+                                            @user))
+                          (dispatch
+                            [(if new-user?
+                               :admin/create-user-profile
+                               :admin/update-user-profile)
+                             (update @user :belongs-to (fn [belongs-to] (map :group-id belongs-to)))])
+                          (close-editor)))}
         "Save"]]]]))
 
 (defn field-group [label cursor type placeholder]
@@ -80,21 +80,22 @@
                group-name]))
           (doall))]))
 
+(defn group-filter [groups]
+  (fn [group-or-group-id]
+    (if (string? group-or-group-id)
+      (some
+        (fn [{:keys [group-id] :as g}]
+          (when (= group-or-group-id group-id) g))
+        groups)
+      group-or-group-id)))
+
 (defn group-list-selector [group-list]
   ;; GROSS
-  (let [groups @(subscribe [:groups])]
-    (swap! group-list
-           (partial map
-                    (fn [group-or-group-id]
-                      (if (string? group-or-group-id)
-                        (some
-                         (fn [{:keys [group-id] :as g}] (when (= group-or-group-id group-id) g))
-                         groups)
-                        group-or-group-id)))))
+  (swap! group-list (partial map (group-filter @(subscribe [:groups]))))
   [:div
    (into [:div.list-group]
          (map (fn [group] [bs/Button
-                           {:class "btn-danger"
+                           {:class    "btn-danger"
                             :on-click #(swap! group-list (fn [l] (remove (partial = group) l)))}
                            (:group-name group) " x"])
               @group-list))
@@ -104,8 +105,8 @@
       [bs/Button {:on-click (fn []
                               (swap! group-list conj @group)
                               (reset! group nil))
-                  :bsSize "small"
-                  :class "btn-success"} "Add to Group"]])])
+                  :bsSize   "small"
+                  :class    "btn-success"} "Add to Group"]])])
 
 (defn edit-user [title user-map close-editor]
   (r/with-let [user (-> user-map

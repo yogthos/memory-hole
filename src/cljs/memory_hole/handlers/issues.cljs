@@ -58,7 +58,7 @@
 ;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :create-issue
-  (fn [_ [_ {:keys [title summary detail group-id tags] :as issue}]]
+  (fn [_ [_ {:keys [title summary detail group-id tags]}]]
     {:http {:method POST
             :url "/api/issue"
             :success-event [:view-issue]
@@ -76,7 +76,7 @@
 ;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :save-issue
-  (fn [_ [_ {:keys [support-issue-id title summary group-id detail tags] :as issue}]]
+  (fn [_ [_ {:keys [support-issue-id title summary group-id detail tags]}]]
     {:http {:method PUT
             :url "/api/issue"
             :success-event [:view-issue support-issue-id]
@@ -85,7 +85,7 @@
                                 :title            title
                                 :summary          summary
                                 :detail           detail
-                                :group-id       group-id
+                                :group-id         group-id
                                 :tags             (vec tags)}}}}))
 
 (reg-event-fx
@@ -95,7 +95,7 @@
 
 (reg-event-db
   :delete-issue
-  (fn [db [_ support-issue-id]]
+  (fn [_ [_ support-issue-id]]
     {:http {:method DELETE
             :url (str "/api/issue/" support-issue-id)
             :ignore-response-body true

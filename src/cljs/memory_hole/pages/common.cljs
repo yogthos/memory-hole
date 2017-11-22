@@ -3,8 +3,7 @@
             [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.bootstrap :as bs]))
 
-(defn loading-throbber
-  []
+(defn loading-throbber []
   (let [loading? (subscribe [:loading?])]
     (when @loading?
       [bs/Modal

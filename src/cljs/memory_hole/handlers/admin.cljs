@@ -2,7 +2,6 @@
   (:require [re-frame.core :as rf :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [ajax.core :refer [GET POST PUT]]))
 
-
 ;;users
 
 (reg-event-db
