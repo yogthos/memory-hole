@@ -70,14 +70,24 @@
 (handler recent-issues [m]
   (ok {:issues (db/recently-viewed-issues m)}))
 
+;; Don't need to check if user can access issue, only need to use built in group membership checking
 (handler add-issue! [issue]
-  (ok (db/create-issue-with-tags! issue)))
+  (if-some [result (db/create-issue-with-tags! issue)]
+    (ok result)
+    (bad-request {:error (str "Issue not found for: " (select-keys issue [:user-id :support-issue-id]))})))
 
 (handler update-issue! [issue]
-  (ok (db/update-issue-with-tags! issue)))
+  (if-some [result (db/run-query-if-user-can-access-issue
+                    (select-keys issue [:user-id :support-issue-id])
+                    #(db/update-issue-with-tags! issue))]
+    (ok result)
+    (bad-request {:error (str "Issue not found for: " (select-keys issue [:user-id :support-issue-id]))})))
 
-(handler issue [m]
-  (if-let [issue (db/support-issue m)]
+(handler issue [{:keys [user-id support-issue-id] :as m}]
+  (if-some [issue (db/run-query-if-user-can-access-issue
+                   {:user-id user-id
+                    :support-issue-id support-issue-id}
+                   #(db/support-issue (dissoc m :user-id)))]
     (ok {:issue issue})
     (bad-request {:error (str "Issue not found for: " m)})))
 
@@ -93,5 +103,10 @@
 (handler search-issues [m]
   (ok {:issues (db/search-issues (update m :query #(str "'" % "'")))}))
 
-(handler delete-issue! [m]
-  (ok (db/dissoc-from-tags-and-delete-issue-and-files! m)))
+(handler delete-issue! [{:keys [user-id support-issue-id] :as m}]
+  (if-some [result (db/run-query-if-user-can-access-issue
+                    {:user-id user-id
+                     :support-issue-id support-issue-id}
+                    #(db/dissoc-from-tags-and-delete-issue-and-files! (dissoc m :user-id)))]
+    (ok result)
+    (bad-request {:error (str "Issue not found for: " m)})))

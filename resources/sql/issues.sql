@@ -218,7 +218,7 @@ GROUP BY si.support_issue_id, g.group_name
 ORDER BY last_viewed_date;
 
 
--- :name user-can-edit-issue? :? :*
+-- :name user-can-access-issue? :? :*
 -- :doc Returns the issue if it can be edited by the user
 
 SELECT si.support_issue_id

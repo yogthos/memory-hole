@@ -95,14 +95,12 @@
 
     ;;groups
     (POST "/group" []
-          :body-params [group-name :- s/Str
-                        group-id :- (s/maybe s/Str)]
+      :body [group groups/Group]
       :return groups/GroupResult
       :summary "add a new group"
       (if (contains? env :ldap)
-        (groups/add-group! {:group-name group-name
-                            :group-id group-id})
-        (groups/add-group! {:group-name group-name}))))
+        (groups/add-group! (select-keys group [:group-id :group-name]))
+        (groups/add-group! (select-keys group [:group-name])))))
 
   (context "/api" []
     :auth-rules authenticated?
@@ -167,8 +165,10 @@
     (DELETE "/issue/:id" []
       :path-params [id :- s/Int]
       :return s/Int
+      :current-user user
       :summary "delete the issue with the given id"
-      (issues/delete-issue! {:support-issue-id id}))
+      (issues/delete-issue! {:support-issue-id id
+                             :user-id (:user-id user)}))
 
     (POST "/search-issues" []
       :body-params [query :- s/Str
@@ -186,7 +186,9 @@
       :path-params [id :- s/Int]
       :return issues/IssueResult
       :summary "returns the issue with the given id"
-      (issues/issue {:support-issue-id id}))
+      :current-user user
+      (issues/issue {:support-issue-id id
+                     :user-id (:user-id user)}))
 
     (POST "/issue" []
       :current-user user
@@ -229,21 +231,27 @@
       :multipart-params [support-issue-id :- s/Int
                          file :- TempFileUpload]
       :middleware [wrap-multipart-params]
+      :current-user user
       :summary "handles file upload"
       :return attachments/AttachmentResult
-      (attachments/attach-file-to-issue! support-issue-id file))
+      (attachments/attach-file-to-issue! {:support-issue-id support-issue-id
+                                          :user-id (:user-id user)} file))
 
     (GET "/file/:support-issue-id/:name" []
       :summary "load a file from the database matching the support issue id and the filename"
       :path-params [support-issue-id :- s/Int
                     name :- s/Str]
-      (attachments/load-file-data {:support-issue-id support-issue-id
+      :current-user user
+      (attachments/load-file-data {:user-id (:user-id user)
+                                   :support-issue-id support-issue-id
                                    :name             name}))
 
     (DELETE "/file/:support-issue-id/:name" []
       :summary "delete a file from the database"
       :path-params [support-issue-id :- s/Int
                     name :- s/Str]
+      :current-user user
       :return attachments/AttachmentResult
-      (attachments/remove-file-from-issue! {:support-issue-id support-issue-id
+      (attachments/remove-file-from-issue! {:user-id (:user-id user)
+                                            :support-issue-id support-issue-id
                                             :name             name}))))

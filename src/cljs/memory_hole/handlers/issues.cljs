@@ -27,7 +27,7 @@
                    :success-event [:set-issues]}
                   (case mode
                     :all {:url "/api/issues"}
-                    :recent {:url "api/recent-issues"}
+                    :recent {:url "/api/recent-issues"}
                     :most-viewed {:url "/api/issues-by-views/0/20"}
                     :tag {:url (str "/api/issues-by-tag/" (first params))}
                     :search {:method POST
@@ -55,7 +55,6 @@
  (fn [_ [_ issue-id]]
    {:navigate (str "/issue/" issue-id)}))
 
-;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :create-issue
   (fn [_ [_ {:keys [title summary detail group-id tags]}]]
@@ -73,7 +72,6 @@
  (fn [_ [_ issue-id]]
    {:navigate (str "/issue/" issue-id)}))
 
-;; REFACTOR INTO HTTP FX
 (reg-event-fx
   :save-issue
   (fn [_ [_ {:keys [support-issue-id title summary group-id detail tags]}]]
@@ -93,7 +91,7 @@
  (fn [_ _]
    {:navigate "/"}))
 
-(reg-event-db
+(reg-event-fx
   :delete-issue
   (fn [_ [_ support-issue-id]]
     {:http {:method DELETE

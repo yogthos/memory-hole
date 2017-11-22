@@ -10,7 +10,6 @@ select u.user_id, screenname, array_agg(ug.group_id) as belongs_to, admin, last_
 from users u
 left join users_groups ug on u.user_id = ug.user_id
 where screenname = :screenname
-and is_active = true
 group by u.user_id;
 
 -- :name users-by-screenname :? :*
