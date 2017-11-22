@@ -15,6 +15,7 @@
 
 (reg-sub :user query)
 
+
 (reg-sub :tags query)
 
 (reg-sub :selected-tag query)
@@ -27,6 +28,28 @@
 
 (reg-sub :login-events query)
 
+(reg-sub
+ :groups
+ (fn [db _]
+   (distinct (:groups db))))
+
+(reg-sub
+ :belongs-to
+ :<-[:user]
+ (fn [user _]
+   (:belongs-to user)))
+
+(reg-sub
+ :visible-issues
+ :<-[:issues]
+ (fn [issues _]
+   issues))
+
+
 ;;admin
 (reg-sub :admin/users query)
 
+(reg-sub
+  :admin/group-users
+  (fn [db [_ group-name]]
+    (get-in db [:group-users group-name])))

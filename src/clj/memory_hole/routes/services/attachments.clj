@@ -19,22 +19,30 @@
     (clojure.java.io/copy input buffer)
     (.toByteArray buffer)))
 
-(handler attach-file-to-issue! [support-issue-id {:keys [tempfile filename content-type]}]
-  (if
-    (empty? filename)
+(handler attach-file-to-issue! [{:keys [support-issue-id user-id] :as m} {:keys [tempfile filename content-type]}]
+  (if (empty? filename)
     (bad-request "a file must be selected")
     (let [db-file-name (.replaceAll filename "[^a-zA-Z0-9-_\\.]" "")]
-      (db/save-file! {:support-issue-id support-issue-id
-                      :type             content-type
-                      :name             db-file-name
-                      :data             (file->byte-array tempfile)})
-      (ok {:name db-file-name}))))
+      (if (db/run-query-if-user-can-access-issue
+           (select-keys m [:user-id :support-issue-id])
+           #(db/save-file! {:support-issue-id support-issue-id
+                            :type             content-type
+                            :name             db-file-name
+                            :data             (file->byte-array tempfile)}))
+        (ok {:name db-file-name})
+        (bad-request {:error (str "Issue not found for: " (select-keys m [:user-id :support-issue-id]))})))))
 
 (handler remove-file-from-issue! [opts]
-  (ok (db/delete-file<! opts)))
+  (if-some [result (db/run-query-if-user-can-access-issue
+                    (select-keys opts [:user-id :support-issue-id])
+                    #(db/delete-file<! (dissoc opts :user-id)))]
+    (ok result)
+    (bad-request {:error (str "Issue not found for: " (select-keys opts [:user-id :support-issue-id]))})))
 
 (handler load-file-data [file]
-  (if-let [{:keys [type data]} (db/load-file-data file)]
+  (if-let [{:keys [type data]} (db/run-query-if-user-can-access-issue
+                                (select-keys file [:user-id :support-issue-id])
+                                #(db/load-file-data (dissoc file :user-id)))]
     (-> (ByteArrayInputStream. data)
         (ok)
         (content-type type))

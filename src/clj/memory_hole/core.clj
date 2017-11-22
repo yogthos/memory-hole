@@ -53,7 +53,7 @@ repl-server
 
 (defn -main [& args]
   (cond
-    (some #{"migrate" "rollback"} args)
+    (some #{"migrate" "rollback" "reset"} args)
     (do
       (mount/start #'memory-hole.config/env)
       (migrations/migrate args (select-keys env [:database-url]))

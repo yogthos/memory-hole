@@ -45,6 +45,7 @@
    :admin                           s/Bool
    :is-active                       s/Bool
    :last-login                      java.util.Date
+   (s/optional-key :belongs-to)     [(s/maybe s/Str)]
    (s/optional-key :member-of)      [(s/maybe s/Str)]
    (s/optional-key :account-name)   (s/maybe s/Str)
    (s/optional-key :client-ip)      s/Str
@@ -67,12 +68,18 @@
      (db/users-by-screenname
        {:screenname (str "%" screenname "%")})}))
 
+(handler find-users-by-group [group-name]
+  (ok
+    {:users
+     (db/users-by-group
+       {:group-name group-name})}))
+
 (handler register! [user]
   (if-let [errors (v/validate-create-user user)]
     (do
       (log/error "error creating user:" errors)
       (bad-request {:error "invalid user"}))
-    (db/insert-user<!
+    (db/insert-user-with-belongs-to!
       (-> user
           (dissoc :pass-confirm)
           (update-in [:pass] hashers/encrypt)))))
@@ -84,12 +91,9 @@
       (bad-request {:error "invalid user"}))
     (ok
       {:user
-       (if pass
-         (db/update-user-with-pass<!
-           (-> user
-               (dissoc :pass-confirm)
-               (update :pass hashers/encrypt)))
-         (db/update-user<! user))})))
+       (db/update-or-insert-user-with-belongs-to! (cond-> user
+                                                    pass (update :pass hashers/encrypt)
+                                                    pass (assoc :update-password? true)))})))
 
 (defn local-login [userid pass]
   (when-let [user (authenticate-local userid pass)]
@@ -97,15 +101,19 @@
         (merge {:member-of    []
                 :account-name userid}))))
 
+(defn should-ldap-user-be-admin? [{:keys [account-name member-of]}]
+  (boolean (or ((set (:ldap-admin-users env)) account-name)
+               (some (set (:ldap-admin-groups env)) member-of))))
+
 (defn ldap-login [userid pass]
   (when-let [user (authenticate-ldap userid pass)]
     (-> user
         ;; user :screenname as preferred name
         ;; fall back to userid if not supplied
-        (assoc :admin false
+        (assoc :admin (should-ldap-user-be-admin? user)
                :is-active true)
         (update-in [:screenname] #(or (not-empty %) userid))
-        (db/update-user-info!))))
+        (db/update-or-insert-user-with-belongs-to!))))
 
 (defn login [userid pass {:keys [remote-addr server-name session]}]
   (if-let [user (if (:ldap env)

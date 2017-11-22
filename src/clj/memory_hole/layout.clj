@@ -1,6 +1,7 @@
 (ns memory-hole.layout
   (:require [selmer.parser :as parser]
             [selmer.filters :as filters]
+            [memory-hole.config :refer [env]]
             [ring.util.http-response :refer [content-type ok]]
             [ring.util.anti-forgery :refer [anti-forgery-field]]
             [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]))
@@ -20,6 +21,7 @@
         template
         (assoc params
           :page template
+          :ldap (contains? env :ldap)
           :user *identity*
           :timestamp timestamp
           :csrf-token *anti-forgery-token*

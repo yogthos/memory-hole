@@ -32,7 +32,7 @@
                  [org.webjars/bootstrap "3.3.6"]
                  [org.webjars/font-awesome "4.7.0"]
                  [org.webjars/webjars-locator-jboss-vfs "0.1.0"]
-                 [postgresql "9.3-1102.jdbc41"]
+                 [org.postgresql/postgresql "42.1.4"]
                  [re-com "2.1.0"]
                  [re-frame "0.9.4"]
                  [reagent "0.6.1"]
@@ -94,14 +94,15 @@
    :project/dev  {:dependencies [[binaryage/devtools "0.9.4"]
                                  [com.cemerick/piggieback "0.2.2"]
                                  [doo "0.1.7"]
-                                 [figwheel-sidecar "0.5.10"]
-                                 [pjstadig/humane-test-output "0.8.2"]
-                                 [prone "1.1.4"]
-                                 [ring/ring-devel "1.6.1"]
-                                 [ring/ring-mock "0.3.0"]]
+                                 [figwheel-sidecar "0.5.14"]
+                                 [pjstadig/humane-test-output "0.8.1"]
+                                 [prone "1.1.1"]
+                                 [ring/ring-devel "1.5.0"]
+                                 [ring/ring-mock "0.3.0"]
+                                 [re-frisk "0.5.2"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.14.0"]
                                  [lein-doo "0.1.7"]
-                                 [lein-figwheel "0.5.10"]]
+                                 [lein-figwheel "0.5.14"]]
                   :cljsbuild
                   {:builds
                    {:app
@@ -113,7 +114,8 @@
                       :output-dir "target/cljsbuild/public/js/out"
                       :source-map true
                       :optimizations :none
-                      :pretty-print true}}}}
+                      :pretty-print true
+                      :preloads [re-frisk.preload]}}}}
 
 
 

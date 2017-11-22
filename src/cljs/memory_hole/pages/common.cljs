@@ -3,8 +3,7 @@
             [re-frame.core :refer [dispatch subscribe]]
             [memory-hole.bootstrap :as bs]))
 
-(defn loading-throbber
-  []
+(defn loading-throbber []
   (let [loading? (subscribe [:loading?])]
     (when @loading?
       [bs/Modal
@@ -27,10 +26,10 @@
        {:on-click #(dispatch [:set-error] nil)}
        "OK"]]]))
 
-(defn validation-modal [errors]
+(defn validation-modal [title errors]
   [bs/Modal {:show (boolean @errors)}
    [bs/Modal.Header
-    [bs/Modal.Title "Missing required fields"]]
+    [bs/Modal.Title title]]
    [bs/Modal.Body
     [:ul
      (for [[_ error] @errors]

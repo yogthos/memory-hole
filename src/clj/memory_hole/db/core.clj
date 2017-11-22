@@ -1,13 +1,14 @@
 (ns memory-hole.db.core
   (:require
-    [cheshire.core :refer [generate-string parse-string]]
-    [clojure.java.jdbc :as jdbc]
-    [clojure.set :refer [difference]]
-    [clojure.walk :refer [postwalk]]
-    [conman.core :as conman]
-    [cuerdas.core :as string]
-    [mount.core :refer [defstate]]
-    [memory-hole.config :refer [env]])
+   [cheshire.core :refer [generate-string parse-string]]
+   [clojure.java.jdbc :as jdbc]
+   [clojure.set :refer [difference]]
+   [clojure.walk :refer [postwalk]]
+   [conman.core :as conman]
+   [cuerdas.core :as string]
+   [mount.core :refer [defstate]]
+   [memory-hole.config :refer [env]]
+   [buddy.hashers :as hashers])
   (:import org.postgresql.util.PGobject
            java.sql.Array
            clojure.lang.IPersistentMap
@@ -25,6 +26,7 @@
                         "sql/issues.sql"
                         "sql/tags.sql"
                         "sql/users.sql"
+                        "sql/groups.sql"
                         "sql/attachments.sql")
 
 (defn ->kebab-case-keyword* [k]
@@ -137,25 +139,34 @@
                             (set current-tags))]
       (create-tag<! {:tag tag}))))
 
-(defn reset-issue-tags! [support-issue-id tags]
+(defn reset-issue-tags! [user-id support-issue-id tags]
   (create-missing-tags tags)
   (dissoc-tags-from-issue!
-    {:support-issue-id support-issue-id})
+   {:support-issue-id support-issue-id
+    :user-id user-id})
   (assoc-tags-with-issue!
-    {:support-issue-id support-issue-id
-     :tags             tags}))
+   {:support-issue-id support-issue-id
+    :tags             tags
+    :user-id user-id}))
 
-(defn create-issue-with-tags! [{:keys [tags] :as issue}]
-  (conman/with-transaction [*db*]
-    (let [support-issue-id (:support-issue-id
-                             (add-issue<! (dissoc issue :tags)))]
-      (reset-issue-tags! support-issue-id tags)
-      support-issue-id)))
+(defn user-can-access-group [{:keys [user-id group-id]}]
+  (some
+   (comp (partial = group-id) :group-id)
+   (groups-for-user {:user-id user-id})))
 
-(defn update-issue-with-tags! [{:keys [support-issue-id tags] :as issue}]
+(defn create-issue-with-tags! [{:keys [tags user-id] :as issue}]
   (conman/with-transaction [*db*]
-    (reset-issue-tags! support-issue-id tags)
-    (update-issue! (dissoc issue :tags))))
+    (when (user-can-access-group (select-keys issue [:user-id :group-id]))
+      (let [support-issue-id (:support-issue-id
+                              (add-issue<! (dissoc issue :tags)))]
+        (reset-issue-tags! user-id support-issue-id tags)
+        support-issue-id))))
+
+(defn update-issue-with-tags! [{:keys [user-id support-issue-id tags] :as issue}]
+  (conman/with-transaction [*db*]
+    (when (user-can-access-group (select-keys issue [:user-id :group-id]))
+      (reset-issue-tags! user-id support-issue-id tags)
+      (update-issue! (dissoc issue :tags)))))
 
 (defn dissoc-from-tags-and-delete-issue-and-files! [m]
   (conman/with-transaction [*db*]
@@ -178,3 +189,65 @@
                         :is-active  is-active
                         :pass       pass})))))
 
+(defn insert-user-with-belongs-to!
+  "inserts a user and adds them to specified groups in a transaction."
+  [{:keys [screenname pass admin is-active belongs-to] :as user}]
+  (conman/with-transaction [*db*]
+    (let [{:keys [user-id]}
+          (insert-user<! {:screenname screenname
+                          :admin admin
+                          :is-active is-active
+                          :pass pass})]
+      (add-user-to-groups! {:user-id user-id
+                            :groups belongs-to})
+      (user-by-screenname {:screenname screenname}))))
+
+(defn update-or-insert-user-with-belongs-to!
+  "updates a user and modifies their group membership."
+  [{:keys [screenname pass admin is-active belongs-to member-of update-password?] :as user}]
+  (conman/with-transaction [*db*]
+    (let [belongs-to (into [] (distinct (concat belongs-to member-of)))
+          existing-user (user-by-screenname {:screenname screenname})
+          user-exists? (not (empty? existing-user))
+          {:keys [user-id]} (if user-exists?
+                              existing-user
+                              (insert-user<! {:screenname screenname
+                                              :admin admin
+                                              :is-active is-active
+                                              :pass pass}))
+          old-groups (:belongs-to existing-user [])
+          del-groups (remove (set belongs-to) old-groups)
+          add-groups (remove (set old-groups) belongs-to)]
+      (when user-exists?
+        (if update-password?
+          (update-user-with-pass<! (-> user
+                                       (select-keys [:screenname
+                                                     :pass
+                                                     :admin
+                                                     :is-active
+                                                     :user-id])))
+          (update-user<! {:user-id    user-id
+                          :admin      admin
+                          :is-active  is-active
+                          :screenname screenname})))
+      (when-not (empty? del-groups)
+        (remove-user-from-groups! {:user-id user-id
+                                   :groups del-groups}))
+      (when-not (empty? add-groups)
+        (add-user-to-groups! {:user-id user-id
+                              :groups add-groups}))
+      (select-keys
+       (user-by-screenname {:screenname screenname})
+       [:user-id
+        :screenname
+        :admin
+        :is-active
+        :last-login
+        :belongs-to]))))
+
+(defn run-query-if-user-can-access-issue
+  "runs query-fn with no args if user can access, otherwise returns nil"
+  [{:keys [user-id support-issue-id] :as m} query-fn]
+  (conman/with-transaction [*db*]
+    (when (user-can-access-issue? m)
+      (query-fn))))

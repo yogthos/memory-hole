@@ -12,9 +12,11 @@ select * from tags order by tag asc;
 -- :doc Gets all tags in the DB, ordered by tag name asc.
 select count(si.*) as tag_count, t.tag_id, t.tag
 from support_issues si
+  left join groups g on g.group_id = si.group_id
   inner join support_issues_tags sit on si.support_issue_id = sit.support_issue_id
   inner join tags t on sit.tag_id = t.tag_id
   where si.delete_date is null
+  AND (si.group_id IN (select group_id from users_groups where user_id = :user-id) or (select admin from users where user_id = :user-id))
 group by t.tag, t.tag_id
 order by t.tag asc;
 

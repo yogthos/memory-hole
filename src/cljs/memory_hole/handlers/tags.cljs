@@ -5,7 +5,7 @@
 
 (reg-event-db
   :set-tags
-  (fn [db [_ tags]]
+  (fn [db [_ {:keys [tags]}]]
     (assoc db :tags tags)))
 
 (reg-event-db
@@ -16,21 +16,10 @@
 (reg-event-fx
   :load-tags
   (fn [_ _]
-    (GET "/api/tags"
-         {:handler       #(dispatch [:set-tags (:tags %)])
-          :error-handler #(ajax-error %)})
-    nil))
+    {:http {:method GET
+            :url "/api/tags"
+            :success-event [:set-tags]}}))
 
-(reg-event-db
-  :add-tag
-  (fn [db [_ tag]]
-    (update db :tags conj tag)))
 
-(reg-event-fx
-  :create-tag
-  (fn [_ [_ tag]]
-    (POST "/api/tag"
-          {:params        {:tag tag}
-           :handler       #(dispatch [:add-tag %])
-           :error-handler #(ajax-error %)})
-    nil))
+
+

@@ -11,3 +11,5 @@ profiles.clj
 .nrepl-port
 /log
 *.iml
+
+figwheel_server\.log

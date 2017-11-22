@@ -68,7 +68,7 @@
       [bs/ListGroup
        (for [{:keys [tag-id tag tag-count]} (sorted-tags tags @sort-type)]
          ^{:key tag-id}
-         [tag-control tag tag-count selected #(navigate! (str "/issues/" tag))])]]]))
+         [tag-control tag tag-count selected #(navigate! (str "/issues/" (js/encodeURIComponent tag)))])]]]))
 
 (defn filter-control [title selected on-click]
   [:button.btn.btn-xs
@@ -95,7 +95,7 @@
 
 (defn home-page []
   (r/with-let [tags     (subscribe [:tags])
-               issues   (subscribe [:issues])
+               issues   (subscribe [:visible-issues])
                selected (subscribe [:selected-tag])]
     [:div.container
      [:div.row

@@ -8,6 +8,9 @@
            goog.net.EventType
            [goog.events EventType]))
 
+;; Should be re-frame effect maybe? also, getting mime-type warning:
+;; "Resource interpreted as Document but transferred with MIME type application/json ..."
+
 (defn upload-file! [upload-form-id on-success on-error]
   (let [io (IframeIo.)]
     (gev/listen

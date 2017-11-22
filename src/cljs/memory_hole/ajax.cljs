@@ -4,11 +4,11 @@
 
 (defn ajax-error [response]
   (if (= 401 (:status response))
-    (dispatch [:logout])
+    (dispatch [:logout-client])
     (dispatch [:set-error (-> response :response :error)])))
 
 (defn request-defaults [request]
-  (dispatch [:set-loading])
+  ;; (dispatch [:set-loading])
   (-> request
       (update :uri #(str js/context %))
       (update
@@ -19,7 +19,7 @@
            "x-csrf-token" js/csrfToken}))))
 
 (defn response-defaults [response]
-  (dispatch [:unset-loading])
+  ;; (dispatch [:unset-loading])
   response)
 
 (defn load-interceptors! []

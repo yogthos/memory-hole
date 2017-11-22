@@ -1,13 +1,13 @@
 (ns memory-hole.handlers.issues
   (:require [memory-hole.attachments :refer [upload-file!]]
-            [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
+            [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx reg-fx]]
             [memory-hole.routes :refer [navigate!]]
             [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [DELETE GET POST PUT]]))
 
 (reg-event-db
   :set-issue
-  (fn [db [_ issue]]
+  (fn [db [_ {issue :issue}]]
     (assoc db :issue issue)))
 
 (reg-event-db
@@ -17,114 +17,87 @@
 
 (reg-event-db
   :set-issues
-  (fn [db [_ issues]]
+  (fn [db [_ {issues :issues}]]
     (assoc db :issues issues)))
 
 (reg-event-fx
-  :load-all-issues
-  (fn [_ _]
-    (GET "/api/issues"
-         {:handler       #(dispatch [:set-issues (:issues %)])
-          :error-handler #(ajax-error %)})
-    nil))
+  :load-issues
+  (fn [_ [_ mode & params]]
+    {:http (merge {:method GET
+                   :success-event [:set-issues]}
+                  (case mode
+                    :all {:url "/api/issues"}
+                    :recent {:url "/api/recent-issues"}
+                    :most-viewed {:url "/api/issues-by-views/0/20"}
+                    :tag {:url (str "/api/issues-by-tag/" (first params))}
+                    :search {:method POST
+                             :url "/api/search-issues"
+                             :ajax-map {:params {:query (first params)
+                                                 :limit 10
+                                                 :offset 0}}}))}))
 
 (reg-event-fx
-  :load-recent-issues
-  (fn [_ _]
-    (GET "/api/recent-issues"
-         {:handler       #(dispatch [:set-issues (:issues %)])
-          :error-handler #(ajax-error %)})
-    nil))
+ :close-issue-and-error
+ (fn [_ [_ error]]
+   {:dispatch-n (list [:close-issue] [:ajax-error error])}))
 
 (reg-event-fx
-  :load-most-viewed-issues
-  (fn [_ _]
-    (GET "/api/issues-by-views/0/20"
-         {:handler       #(dispatch [:set-issues (:issues %)])
-          :error-handler #(ajax-error %)})
-    nil))
-
-(reg-event-fx
-  :load-issues-for-tag
-  (fn [_ [_ tag]]
-    (GET (str "/api/issues-by-tag/" tag)
-         {:handler       #(dispatch [:set-issues (:issues %)])
-          :error-handler #(ajax-error %)})
-    nil))
-
-(reg-event-fx
-  :search-for-issues
-  (fn [_ [_ query]]
-    (POST "/api/search-issues"
-          {:params        {:query  query
-                           :limit  10
-                           :offset 0}
-           :handler       #(dispatch [:set-issues (:issues %)])
-           :error-handler #(ajax-error %)})
-    nil))
-
-(reg-event-fx
-  :load-issue-detail
+  :load-issue
   (fn [_ [_ support-issue-id]]
-    (GET (str "/api/issue/" support-issue-id)
-         {:handler       #(dispatch [:set-issue (:issue %)])
-          :error-handler #(ajax-error %)})
-    nil))
+    {:http {:method GET
+            :url (str "/api/issue/" support-issue-id)
+            :success-event [:set-issue]
+            :error-event [:close-issue-and-error]}}))
 
-(reg-event-db
-  :load-and-view-issue
-  (fn [db [_ support-issue-id]]
-    (GET (str "/api/issue/" support-issue-id)
-         {:handler       #(do
-                           (dispatch-sync [:set-issue (:issue %)])
-                           (dispatch [:set-active-page :view-issue]))
-          :error-handler #(ajax-error %)})
-    (dissoc db :issue)))
 
-(reg-event-db
-  :process-issue-save
-  (fn [db issue]
-    (assoc db :active-page :view-issue
-              :issue issue)))
+(reg-event-fx
+ :view-issue
+ (fn [_ [_ issue-id]]
+   {:navigate (str "/issue/" issue-id)}))
 
 (reg-event-fx
   :create-issue
-  (fn [_ [_ {:keys [title summary detail tags] :as issue}]]
-    (POST "/api/issue"
-          {:params        {:title   title
-                           :summary summary
-                           :detail  detail
-                           :tags    (vec tags)}
-           :handler       #(do
-                            (dispatch [:load-tags] tags)
-                            (dispatch-sync [:set-issue (assoc issue :support-issue-id %)])
-                            (navigate! (str "/issue/" %)))
-           :error-handler #(ajax-error %)})
-    nil))
+  (fn [_ [_ {:keys [title summary detail group-id tags]}]]
+    {:http {:method POST
+            :url "/api/issue"
+            :success-event [:view-issue]
+            :ajax-map {:params {:title      title
+                                :summary    summary
+                                :detail     detail
+                                :group-id group-id
+                                :tags    (vec tags)}}}}))
+
+(reg-event-fx
+ :view-edited-issue
+ (fn [_ [_ issue-id]]
+   {:navigate (str "/issue/" issue-id)}))
 
 (reg-event-fx
   :save-issue
-  (fn [_ [_ {:keys [support-issue-id title summary detail tags] :as issue}]]
-    (PUT "/api/issue"
-         {:params        {:support-issue-id support-issue-id
-                          :title            title
-                          :summary          summary
-                          :detail           detail
-                          :tags             (vec tags)}
-          :handler       #(do
-                           (dispatch [:load-tags] tags)
-                           (dispatch-sync [:set-issue issue])
-                           (navigate! (str "/issue/" support-issue-id)))
-          :error-handler #(ajax-error %)})
-    nil))
+  (fn [_ [_ {:keys [support-issue-id title summary group-id detail tags]}]]
+    {:http {:method PUT
+            :url "/api/issue"
+            :success-event [:view-issue support-issue-id]
+            :ignore-response-body true
+            :ajax-map {:params {:support-issue-id support-issue-id
+                                :title            title
+                                :summary          summary
+                                :detail           detail
+                                :group-id         group-id
+                                :tags             (vec tags)}}}}))
+
+(reg-event-fx
+ :navigate-to-home-page
+ (fn [_ _]
+   {:navigate "/"}))
 
 (reg-event-fx
   :delete-issue
   (fn [_ [_ support-issue-id]]
-    (DELETE (str "/api/issue/" support-issue-id)
-            {:handler       #(navigate! "/")
-             :error-handler #(ajax-error %)})
-    nil))
+    {:http {:method DELETE
+            :url (str "/api/issue/" support-issue-id)
+            :ignore-response-body true
+            :success-event [:navigate-to-home-page]}}))
 
 (reg-event-db
   :attach-file
@@ -139,8 +112,8 @@
 (reg-event-fx
   :delete-file
   (fn [_ [_ support-issue-id filename]]
-    (DELETE (str "/api/file/" support-issue-id "/" filename)
-            {:handler #(dispatch [:remove-file-from-issue filename])
-             :error-handler #(ajax-error %)})
-    nil))
+    {:http {:method DELETE
+            :url (str "/api/file/" support-issue-id "/" filename)
+            :ignore-response-body true
+            :success-event [:remove-file-from-issue filename]}}))
 
