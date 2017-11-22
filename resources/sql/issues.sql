@@ -216,3 +216,12 @@ FROM support_issues si
     and (si.group_id IN (select group_id from users_groups where user_id = :user-id) or (select admin from users where user_id = :user-id))
 GROUP BY si.support_issue_id, g.group_name
 ORDER BY last_viewed_date;
+
+
+-- :name user-can-edit-issue? :? :*
+-- :doc Returns the issue if it can be edited by the user
+
+SELECT si.support_issue_id
+FROM support_issues si
+WHERE (si.group_id IN (select group_id from users_groups where user_id = :user-id) or (select admin from users where user_id = :user-id))
+AND si.support_issue_id = :support-issue-id;
