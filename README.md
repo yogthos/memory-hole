@@ -167,6 +167,19 @@ An example configuration might look as follows:
   :max-age 3600}}
 ```
 
+### LDAP Support
+
+There are two options for managing user groups when using LDAP, you can either assign
+admin users using the `sAMAccountName`, or specify groups that correspond to the `memberOf` key.
+
+```clojure
+:ldap-admin-users ["my-ldap-sAMAccountName" "another-ldap-sAMAccountName"]
+```
+
+```clojure
+:ldap-admin-groups ["CN=some-ldap-group,OU=foo123,DC=domain,DC=ca"]
+```
+
 ### HTTPS Support
 
 To enable HTTPS support in production add the the following configuration under the `:ssl` key:
