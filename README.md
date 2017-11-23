@@ -20,6 +20,9 @@ Memory Hole is a support issue organizer. It's designed to provide a way to orga
 - Issues are organized by user generated tags
 - Markdown with live preview for issues
 - Weighted full text search using PostgreSQL citext extension
+- Users can view/edit issues based on their group membership
+- If using LDAP, issues can be assigned to LDAP groups
+- LDAP groups can be aliased with user friendly names
 
 ## Prerequisites
 
@@ -81,7 +84,11 @@ Create a `profiles.clj` file in the project directory with the configuration set
 {:profiles/dev
  {:env
   {:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
-  ;;optional, will use internal table otherwise
+  ;;ldap is optional, will use internal table otherwise
+  ;;Admin users (able to manage groups) defined by their sAMAccountName
+  :ldap-admin-users ["my-ldap-sAMAccountName" "another-ldap-sAMAccountName"]
+  ;;Or Admin Groups defined by their distinguished names
+  :ldap-admin-groups ["CN=some-ldap-group,OU=foo123,DC=domain,DC=ca"]
   :ldap
   {:host
      {:address         "my-ldap-server.ca"
