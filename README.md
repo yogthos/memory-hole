@@ -169,6 +169,18 @@ An example configuration might look as follows:
 
 ### LDAP Support
 
+The LDAP connection configuration should be placed under the `:ldap` key as follows:
+
+```clojure
+:ldap
+  {:host
+     {:address         "my-ldap-server.ca"
+      :domain          "domain.ca"
+      :port            389
+      :connect-timeout (* 1000 5)
+      :timeout         (* 1000 30)}}
+```
+
 There are two options for managing user groups when using LDAP, you can either assign
 admin users using the `sAMAccountName`, or specify groups that correspond to the `memberOf` key.
 
