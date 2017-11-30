@@ -1,9 +1,9 @@
 (ns memory-hole.core
   (:require [reagent.core :as r]
-            [memory-hole.routes :refer [hook-browser-navigation!]]
+            [memory-hole.routes :refer [hook-browser-navigation! logged-in?]]
             [memory-hole.ajax :refer [load-interceptors!]]
             [memory-hole.views :refer [main-page]]
-            [memory-hole.pages.auth :refer [logged-in?]]
+            [memory-hole.pages.auth]
             [re-frame.core :refer [dispatch dispatch-sync]]
     ;;initialize handlers and subscriptions
             memory-hole.effects

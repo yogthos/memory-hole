@@ -36,3 +36,8 @@
 (reg-fx
  :reload-page
  (fn [_] (accountant/dispatch-current!)))
+
+(reg-fx
+ :set-user!
+ (fn [user]
+   (set! js/user (clj->js user))))

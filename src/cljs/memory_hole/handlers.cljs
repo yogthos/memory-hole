@@ -58,7 +58,8 @@
             :ignore-response-body true
             :success-event [:handle-logout]
             :error-event [:handle-logout]}
-    :db db/default-db}))
+     :db db/default-db
+     :set-user! nil}))
 
 (reg-event-db
   :unset-loading
