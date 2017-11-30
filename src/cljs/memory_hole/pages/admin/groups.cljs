@@ -56,12 +56,15 @@
                         (update :group-name string/trim))
         #(reset! group default-group)]])))
 
-(defn group-info [{:keys [group-name] :as group}]
+(defn group-info [{:keys [group-name group-id] :as group}]
+  ;; EWWWWWWWWWWWWWWWWWWWWWWWWWWWW
   (dispatch [:admin/load-group-users group-name])
   [bs/ListGroupItem
    [:div
     [:div
      [:b group-name]]
+    [:div
+     [:code group-id]]
     (if-let [users (not-empty @(subscribe [:admin/group-users group-name]))]
       [:div
        [:ul
