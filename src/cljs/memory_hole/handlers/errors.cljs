@@ -5,7 +5,7 @@
  :ajax-error
  (fn [_ [_ {status :status {error :error} :response}]]
    {:dispatch (if (= 401 status)
-                [:logout]
+                [:logout-client]
                 [:set-error error])}))
 
 (reg-event-db

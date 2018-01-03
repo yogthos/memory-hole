@@ -2,11 +2,6 @@
   (:require [re-frame.core :refer [dispatch]]
             [ajax.core :as ajax]))
 
-(defn ajax-error [response]
-  (if (= 401 (:status response))
-    (dispatch [:logout-client])
-    (dispatch [:set-error (-> response :response :error)])))
-
 (defn request-defaults [request]
   ;; (dispatch [:set-loading])
   (-> request

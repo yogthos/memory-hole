@@ -2,7 +2,6 @@
   (:require [memory-hole.attachments :refer [upload-file!]]
             [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx reg-fx]]
             [memory-hole.routes :refer [navigate!]]
-            [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [DELETE GET POST PUT]]))
 
 (reg-event-db

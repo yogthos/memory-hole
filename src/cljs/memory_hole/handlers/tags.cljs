@@ -1,6 +1,5 @@
 (ns memory-hole.handlers.tags
   (:require [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
-            [memory-hole.ajax :refer [ajax-error]]
             [ajax.core :refer [GET POST]]))
 
 (reg-event-db
