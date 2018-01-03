@@ -18,7 +18,7 @@ http-server
   :start
   (http/start
     (-> env
-        (assoc :handler (handler/app))
+        (assoc :handler #'handler/app)
         (update :port #(or (-> env :options :port) %))
         (merge
           (when-let [{:keys [port keystore keystore-pass]} (:ssl env)]
