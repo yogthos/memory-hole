@@ -39,5 +39,5 @@
 
 (reg-fx
  :set-user!
- (fn [user]
-   (set! js/user (clj->js user))))
+ (fn [user-identity]
+   (set! js/user (clj->js user-identity))))
