@@ -16,7 +16,7 @@
                  [compojure "1.6.0"]
                  [conman "0.6.6"]
                  [cprop "0.1.10"]
-                 [funcool/cuerdas "2.0.3"]
+                 [funcool/cuerdas "2.0.5"]
                  [luminus-immutant "0.2.3"]
                  [luminus-migrations "0.3.9"]
                  [luminus-nrepl "0.1.4"]
