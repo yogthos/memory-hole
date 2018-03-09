@@ -71,8 +71,12 @@ extension installed on PostgreSQL.
 5. Add the CITEXT extension to the schema:
 
         CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA memoryhole;
+        
+6. Make sure memoryhole is allowed to login:
 
-6. Exit the shell
+        ALTER ROLE "memoryhole" WITH LOGIN;
+
+7. Exit the shell
 
         \q
 
