@@ -17,7 +17,7 @@ select group_id, group_name
 from groups
 where group_id in (:v*:group-ids);
 
--- :name create-group<! :<! :1
+-- :name create-group<! :i! :1
 -- :doc Inserts a new group.
 insert into groups
 /*~ (if (contains? params :group-id) */
@@ -27,7 +27,7 @@ values (:group-id, :group-name)
 (group_name)
 values (:group-name)
 /*~) ~*/
-returning group_id, group_name;
+;
 
 -- :name add-user-to-groups! :! :n
 -- :doc adds user :user-id to each group in :groups

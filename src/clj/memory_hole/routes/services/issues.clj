@@ -101,7 +101,9 @@
          (ok {:issues (db/issues-by-group m)}))
 
 (handler search-issues [m]
-  (ok {:issues (db/search-issues (update m :query #(str "'" % "'")))}))
+         (ok {:issues (db/search-issues (-> m
+                                            (update :query #(str "'" % "'"))
+                                            (update :db-type (fn [x] db/*db-type*))))}))
 
 (handler delete-issue! [{:keys [user-id support-issue-id] :as m}]
   (if-some [result (db/run-query-if-user-can-access-issue

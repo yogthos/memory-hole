@@ -15,10 +15,8 @@ and   name = :name
 delete from files
 where support_issue_id = :support-issue-id
 
--- :name delete-file<! :<! :1
+-- :name delete-file<! :! :1
 -- :doc removes file from the database
 delete from files
 where support_issue_id = :support-issue-id
-and name = :name
-returning name;
-
+and name = :name;

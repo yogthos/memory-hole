@@ -1,8 +1,11 @@
--- :name insert-user<! :<! :1
+-- :name insert-user<! :i! :1
 -- :doc add a user
 insert into users (screenname, admin, last_login, is_active, pass)
-     values (:screenname, :admin, (select now() at time zone 'utc'), :is-active, :pass)
-returning user_id;
+     values (:screenname,
+     :admin,
+     --~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')," "now(),")
+     :is-active,
+     :pass);
 
 -- :name user-by-screenname :? :1
 -- :doc get a user based on the screenname
@@ -31,23 +34,21 @@ where g.group_name = :group-name
 and is_active = true
 group by u.user_id;
 
--- :name update-user-with-pass<! :<! :1
+-- :name update-user-with-pass<! :! :1
 -- :doc Updates all user fields
 update users
 set screenname = :screenname,
     pass = :pass,
     admin = :admin,
     is_active = :is-active,
-    last_login=(select now() at time zone 'utc')
-where user_id=:user-id
-returning user_id, screenname, last_login, is_active, admin;
+    last_login=--~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')" "now()")
+where user_id=:user-id;
 
--- :name update-user<! :<! :1
+-- :name update-user<! :! :1
 -- :doc Updates users fields except for pass
 update users
 set screenname = :screenname,
     admin = :admin,
     is_active = :is-active,
-    last_login=(select now() at time zone 'utc')
-where user_id=:user-id
-returning user_id, screenname, last_login, is_active, admin;
+    last_login=--~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')" "now()")
+where user_id=:user-id;

@@ -56,7 +56,7 @@ repl-server
     (some #{"migrate" "rollback" "reset"} args)
     (do
       (mount/start #'memory-hole.config/env)
-      (migrations/migrate args (select-keys env [:database-url]))
+      (migrations/migrate args (select-keys env [:database-url :migration-dir]))
       (System/exit 0))
     :else
     (start-app args)))

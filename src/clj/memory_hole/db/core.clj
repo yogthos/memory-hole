@@ -8,15 +8,25 @@
    [cuerdas.core :as string]
    [mount.core :refer [defstate]]
    [memory-hole.config :refer [env]]
-   [buddy.hashers :as hashers])
+   [buddy.hashers :as hashers]
+   [clojure.tools.logging :as log])
   (:import org.postgresql.util.PGobject
+           org.h2.jdbc.JdbcClob
            java.sql.Array
+           java.util.LinkedList
            clojure.lang.IPersistentMap
            clojure.lang.IPersistentVector
            [java.sql
             Date
             Timestamp
             PreparedStatement]))
+
+(defstate ^:dynamic *db-type*
+  :start (->> (:database-url env)
+              (re-find #"jdbc:([^.]+?):.+")
+              second
+              keyword)
+  :stop nil)
 
 (defstate ^:dynamic *db*
   :start (conman/connect! {:jdbc-url (env :database-url)})
@@ -51,10 +61,24 @@
   (letfn [(transform [[k v]] [(t k) v])]
     (postwalk (fn [x] (if (map? x) (into {} (map transform x)) x)) coll)))
 
+(defn unified-map-returning [x]
+  (if (map? x) x (first x)))
+
+(defn unified-handling-single [this result options]
+  (case (:command options)
+    :i!                (unified-map-returning result)
+    :insert            (unified-map-returning result)
+    :<!                (hugsql.adapter/result-one this result options)
+    :returning-execute (hugsql.adapter/result-one this result options)
+    :!                 (hugsql.adapter/result-one this result options)
+    :execute           (hugsql.adapter/result-one this result options)
+    :?                 (hugsql.adapter/result-one this result options)
+    :query             (hugsql.adapter/result-one this result options)))
+
 (defn result-one-snake->kebab
   [this result options]
-  (->> (hugsql.adapter/result-one this result options)
-       (transform-keys ->kebab-case-keyword)))
+  (->> (unified-handling-single this result options)
+       (transform-keys ->kebab-case-keyword*)))
 
 (defn result-many-snake->kebab
   [this result options]
@@ -95,9 +119,17 @@
          (remove nil?)
          (vec)))
 
+  LinkedList
+  (result-set-read-column [v _ _]
+    (vec v))
+
   PGobject
   (result-set-read-column [pgobj _metadata _index]
-    (deserialize pgobj)))
+    (deserialize pgobj))
+
+  JdbcClob
+  (result-set-read-column [h2obj _metadata _index]
+    (.getSubString h2obj 1 (.length h2obj))))
 
 (extend-type java.util.Date
   jdbc/ISQLParameter
@@ -125,19 +157,35 @@
   IPersistentVector
   (sql-value [value] (to-pg-json value)))
 
+(defn- retrieve-id [x]
+  (case *db-type*
+    :postgresql x
+    :h2         ((keyword "scope-identity()") x)))
+
+(defn with-returning
+  "Mimicks RETURNING statement by mapping id-name to .getReturnedKeys and merging it to m."
+  [f m id-name]
+  (let [id-keyword (keyword id-name)
+        result (f m)]
+    (if (contains? result id-keyword)
+      result
+      (->> {id-keyword (retrieve-id result)}
+           (merge m)))))
+
 (defn support-issue [m]
   (conman/with-transaction [*db*]
     (when-let [issue (not-empty (support-issue* m))]
       (-> issue
           (update :tags distinct)
           (update :files distinct)
-          (merge (inc-issue-views<! m))))))
+          (merge {:views (inc-issue-views! m)})
+          (merge (get-views-count m))))))
 
 (defn create-missing-tags [issue-tags]
   (let [current-tags (map :tag (tags))]
     (doseq [tag (difference (set issue-tags)
                             (set current-tags))]
-      (create-tag<! {:tag tag}))))
+      (with-returning create-tag<! {:tag tag} :tag-id))))
 
 (defn reset-issue-tags! [user-id support-issue-id tags]
   (create-missing-tags tags)
@@ -158,7 +206,7 @@
   (conman/with-transaction [*db*]
     (when (user-can-access-group (select-keys issue [:user-id :group-id]))
       (let [support-issue-id (:support-issue-id
-                              (add-issue<! (dissoc issue :tags)))]
+                              (with-returning add-issue<! (dissoc issue :tags) :support-issue-id))]
         (reset-issue-tags! user-id support-issue-id tags)
         support-issue-id))))
 
@@ -174,30 +222,19 @@
     (dissoc-tags-from-issue! m)
     (delete-issue! m)))
 
-(defn update-user-info! [{:keys [screenname pass admin is-active] :as user}]
-  (conman/with-transaction [*db*]
-    (merge
-      user
-      (if-let [{:keys [user-id]} (user-by-screenname {:screenname screenname})]
-        (update-user<! {:user-id    user-id
-                        :admin      admin
-                        :is-active  is-active
-                        :screenname screenname
-                        :pass       pass})
-        (insert-user<! {:screenname screenname
-                        :admin      admin
-                        :is-active  is-active
-                        :pass       pass})))))
-
 (defn insert-user-with-belongs-to!
   "inserts a user and adds them to specified groups in a transaction."
   [{:keys [screenname pass admin is-active belongs-to] :as user}]
   (conman/with-transaction [*db*]
     (let [{:keys [user-id]}
-          (insert-user<! {:screenname screenname
-                          :admin admin
-                          :is-active is-active
-                          :pass pass})]
+          (with-returning
+            insert-user<!
+            {:screenname screenname
+             :admin admin
+             :is-active is-active
+             :db-type *db-type*
+             :pass pass}
+            :user-id)]
       (add-user-to-groups! {:user-id user-id
                             :groups belongs-to})
       (user-by-screenname {:screenname screenname}))))
@@ -225,11 +262,13 @@
                                                      :pass
                                                      :admin
                                                      :is-active
-                                                     :user-id])))
+                                                     :user-id])
+                                       (merge {:db-type *db-type*})))
           (update-user<! {:user-id    user-id
                           :admin      admin
                           :is-active  is-active
-                          :screenname screenname})))
+                          :screenname screenname
+                          :db-type *db-type*})))
       (when-not (empty? del-groups)
         (remove-user-from-groups! {:user-id user-id
                                    :groups del-groups}))

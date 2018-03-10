@@ -1,0 +1,1 @@
+drop table support_issues_tags;

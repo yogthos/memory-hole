@@ -1,2 +1,3 @@
 {:production true
- :port 3000}
+ :port 3000
+ :migration-dir "migrations/postgresql"}

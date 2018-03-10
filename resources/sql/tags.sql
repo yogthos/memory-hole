@@ -1,8 +1,7 @@
--- :name create-tag<! :<! :1
+-- :name create-tag<! :i! :1
 -- :doc Insers a new tag.
 insert into tags(tag)
-    values (:tag)
-    returning tag_id;
+    values (:tag);
 
 -- :name tags :? :*
 -- Gets all the tags in the DB, in alphabetical order.

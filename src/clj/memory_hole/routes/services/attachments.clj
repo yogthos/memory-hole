@@ -35,7 +35,10 @@
 (handler remove-file-from-issue! [opts]
   (if-some [result (db/run-query-if-user-can-access-issue
                     (select-keys opts [:user-id :support-issue-id])
-                    #(db/delete-file<! (dissoc opts :user-id)))]
+                    (fn []
+                      (let [local-opts (dissoc opts :user-id)]
+                        (db/delete-file<! local-opts)
+                        (select-keys local-opts [:name]))))]
     (ok result)
     (bad-request {:error (str "Issue not found for: " (select-keys opts [:user-id :support-issue-id]))})))
 

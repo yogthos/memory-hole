@@ -31,4 +31,4 @@
     (do
       (log/error "error updating group:" group)
       (bad-request {:error "invalid group"}))
-    (ok {:group (merge group (db/create-group<! group))})))
+    (ok {:group (merge group (db/with-returning db/create-group<! group :group-id))})))
