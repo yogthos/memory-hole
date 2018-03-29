@@ -33,9 +33,8 @@
        [:button.btn.btn-sm.btn-danger
         {:on-click close-editor}
         "Cancel"]
-       [:button.btn.btn-sm.btn-success
-        {:pull-right true
-         :on-click   #(let [new-user? (nil? user-id)]
+       [:button.btn.btn-sm.btn-success.pull-right
+        {:on-click   #(let [new-user? (nil? user-id)]
                         (when-not (reset! errors
                                           ((if new-user?
                                              v/validate-create-user

@@ -128,7 +128,6 @@
        "Cancel"]
       [bs/Button
        {:bs-style   "success"
-        :pull-right true
         :on-click   #(when-not (reset! errors (v/validate-issue @edited-issue))
                       (if issue-id
                         (dispatch [:save-issue @edited-issue])

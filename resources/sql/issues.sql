@@ -6,20 +6,20 @@ VALUES (:title, :group-id, :summary, :detail, :user-id, :user-id);
 -- :name update-issue! :! :n
 -- :doc Updates the issue using optimistic concurrency (last-in wins)
 UPDATE support_issues
-SET title            = :title,
-    group_id         = :group-id,
-    summary          = :summary,
-    detail           = :detail,
-    last_updated_by  = :user-id,
-    update_date      = now(),
-    last_viewed_date = now()
+SET title              = :title,
+    group_id           = :group-id,
+    summary            = :summary,
+    detail             = :detail,
+    last_updated_by    = :user-id,
+    update_date        = now(),
+    last_modified_date = now()
 WHERE
   support_issue_id = :support-issue-id;
 
 -- :name inc-issue-views! :! :1
 -- :doc Updates the issue view count
 UPDATE support_issues
-SET views = views + 1
+SET views = views + 1, last_viewed_date = now()
 WHERE
   support_issue_id = :support-issue-id;
 
@@ -105,7 +105,7 @@ WHERE
   and (si.group_id IN (select group_id from users_groups where user_id = :user-id) or (select admin from users where user_id = :user-id))
 GROUP BY
   si.support_issue_id, g.group_name
-ORDER BY si.last_viewed_date ASC
+ORDER BY si.last_viewed_date DESC
 LIMIT :limit;
 
 -- :name issues-by-views :? :*

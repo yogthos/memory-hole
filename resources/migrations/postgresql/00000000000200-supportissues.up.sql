@@ -2,18 +2,19 @@ CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
 --;;
 CREATE TABLE support_issues
 (
-  support_issue_id SERIAL    NOT NULL,
-  title            TEXT      NOT NULL,
-  summary          TEXT      NOT NULL,
-  detail           TEXT      NOT NULL,
-  search_vector    TSVECTOR,
-  create_date      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
-  created_by       BIGINT    NOT NULL REFERENCES users (user_id),
-  update_date      TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
-  last_updated_by  BIGINT    NOT NULL REFERENCES users (user_id),
-  delete_date      TIME      NULL,
-  last_viewed_date TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
-  views            INTEGER   DEFAULT 1,
+  support_issue_id   SERIAL    NOT NULL,
+  title              TEXT      NOT NULL,
+  summary            TEXT      NOT NULL,
+  detail             TEXT      NOT NULL,
+  search_vector      TSVECTOR,
+  create_date        TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+  created_by         BIGINT    NOT NULL REFERENCES users (user_id),
+  update_date        TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+  last_updated_by    BIGINT    NOT NULL REFERENCES users (user_id),
+  delete_date        TIME      NULL,
+  last_viewed_date   TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+  last_modified_date TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc'),
+  views              INTEGER   DEFAULT 1,
   CONSTRAINT pk_support_issues PRIMARY KEY (support_issue_id)
 );
 --;;

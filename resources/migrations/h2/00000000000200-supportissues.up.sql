@@ -1,16 +1,17 @@
 CREATE TABLE support_issues
 (
-  support_issue_id SERIAL    NOT NULL,
-  title            TEXT      NOT NULL,
-  summary          TEXT      NOT NULL,
-  detail           TEXT      NOT NULL,
-  create_date      TIMESTAMP NOT NULL DEFAULT (now()),
-  created_by       BIGINT    NOT NULL REFERENCES users (user_id),
-  update_date      TIMESTAMP NOT NULL DEFAULT (now()),
-  last_updated_by  BIGINT    NOT NULL REFERENCES users (user_id),
-  delete_date      TIME      NULL,
-  last_viewed_date TIMESTAMP NOT NULL DEFAULT (now()),
-  views            INTEGER   DEFAULT 1,
+  support_issue_id   SERIAL    NOT NULL,
+  title              TEXT      NOT NULL,
+  summary            TEXT      NOT NULL,
+  detail             TEXT      NOT NULL,
+  create_date        TIMESTAMP NOT NULL DEFAULT (now()),
+  created_by         BIGINT    NOT NULL REFERENCES users (user_id),
+  update_date        TIMESTAMP NOT NULL DEFAULT (now()),
+  last_updated_by    BIGINT    NOT NULL REFERENCES users (user_id),
+  delete_date        TIME      NULL,
+  last_viewed_date   TIMESTAMP NOT NULL DEFAULT (now()),
+  last_modified_date TIMESTAMP NOT NULL DEFAULT (now()),
+  views              INTEGER   DEFAULT 1,
   CONSTRAINT pk_support_issues PRIMARY KEY (support_issue_id)
 );
 --;;

@@ -73,7 +73,7 @@ extension installed on PostgreSQL.
 5. Add the CITEXT extension to the schema:
 
         CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA memoryhole;
-        
+
 6. Make sure memoryhole is allowed to login:
 
         ALTER ROLE "memoryhole" WITH LOGIN;
@@ -81,13 +81,13 @@ extension installed on PostgreSQL.
 7. Exit the shell
 
         \q
-        
+
 This setup should lead to similar `:database-url` (eg. on local machine).
 
 ```clojure
 :database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
 ```
-        
+
 ### H2
 
 H2 DB can use various hosting scenarios, which are available on its [feature list](http://h2database.com/html/features.html).
@@ -112,7 +112,7 @@ Create a `profiles.clj` file in the project directory with the configuration set
 {:profiles/dev
  {:env
   {:database-url "jdbc:postgresql://localhost/postgres?user=memoryhole&password=memoryhole"
-  ;; :migratus {:migration-dir "migrations/h2"}
+  :migration-dir "migrations/postgresql"
   ;;ldap is optional, will use internal table otherwise
   ;;Admin users (able to manage groups) defined by their sAMAccountName
   :ldap-admin-users ["my-ldap-sAMAccountName" "another-ldap-sAMAccountName"]
@@ -174,7 +174,7 @@ The HTTP port defaults to `3000`, to set a custom port add the following key to 
 :port 80
 ```
 
-### Session Configuration 
+### Session Configuration
 
 The app defaults to using a server-side memory based session store.
 
