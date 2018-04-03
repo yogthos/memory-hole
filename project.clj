@@ -46,7 +46,6 @@
 
   :min-lein-version "2.0.0"
 
-  :java-source-paths ["src/java"]
   :jvm-opts ["-server" "-Dconf=.lein-env"]
   :source-paths ["src/clj" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
@@ -71,7 +70,7 @@
 
   :profiles
   {:uberjar {:omit-source true
-             :prep-tasks ["javac" "compile" ["cljsbuild" "once" "min"]]
+             :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
              :cljsbuild
              {:builds
               {:min

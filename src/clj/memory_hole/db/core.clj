@@ -104,7 +104,17 @@
 (defn to-date [^java.sql.Date sql-date]
   (-> sql-date (.getTime) (java.util.Date.)))
 
+(defn- db->clj [x]
+  "Converts common types returned from DB to Clojure data."
+  (condp = (type x)
+    java.io.BufferedReader (.readLine x)
+    x))
+
 (extend-protocol jdbc/IResultSetReadColumn
+  (Class/forName "[Ljava.lang.Object;")
+  (result-set-read-column [v _ _]
+    (vec (map db->clj v)))
+
   Date
   (result-set-read-column [v _ _] (to-date v))
 
