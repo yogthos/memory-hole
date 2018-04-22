@@ -1,33 +1,22 @@
 (ns memory-hole.pages.auth
-  (:require [cuerdas.core :as string]
-            [reagent.core :as r]
-            [ajax.core :refer [POST]]
+  (:require [reagent.core :as r]
             [memory-hole.bootstrap :as bs]
             [re-frame.core :refer [dispatch subscribe]]))
 
-(defn login [params error on-close]
-  (reset! error nil)
+(defn login [params on-close]
   (let [{:keys [userid pass]} @params]
-    (if (or (string/blank? userid) (string/blank? pass))
-      (reset! error "Username and password cannot be blank.")
-      (POST "/api/login"
-            {:params        {:userid userid :pass pass}
-             :error-handler #(reset! error "Invalid username/password.")
-             :handler       #(let [user (:user %)]
-                              (on-close)
-                              (dispatch [:login user])
-                              (dispatch [:set-active-page :home]))}))))
+    (dispatch [:login userid pass])))
 
 (defn login-page []
   (r/with-let [user      (subscribe [:user])
                params    (r/atom nil)
-               error     (r/atom nil)
+               error     (subscribe [:error])
                on-close  (fn []
                            (reset! params nil)
-                           (reset! error nil))
+                           (dispatch [:clear-error]))
                on-key-up (fn [e]
                            (if (= 13 (.-keyCode e))
-                             (login params error on-close)))]
+                             (login params on-close)))]
     (when-not @user
       [bs/Modal
        {:show    true
@@ -54,4 +43,4 @@
              :on-change #(swap! params assoc :pass (-> % .-target .-value))
              :on-key-up on-key-up}]]]]]
        [bs/Modal.Footer
-        [:button.btn.btn-sm.btn-primary {:on-click #(login params error on-close)} "Login"]]])))
+        [:button.btn.btn-sm.btn-primary {:on-click #(login params on-close)} "Login"]]])))
