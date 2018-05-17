@@ -38,7 +38,7 @@
           [:pass-confirm] "Password confirmation doesn't match"
           [:belongs-to]   "Must belong to at least one group"
           [:is-admin]     "You must specify whether the user is an admin"
-          [:active]       "You must pecify whether the user is active"}
+          [:active]       "You must specify whether the user is active"}
           path))
       user
       :pass [v/required [v/min-count 8]]
@@ -56,7 +56,7 @@
           [:is-admin]     "You must specify whether the user is an admin"
           [:belongs-to]   "Must belong to at least one group"
           [:pass-confirm] "Password confirmation doesn't match"
-          [:active]       "You must pecify whether the user is active"}
+          [:active]       "You must specify whether the user is active"}
           path))
       user
       :screenname v/required
@@ -73,7 +73,7 @@
     (b/validate
       (fn [{:keys [path]}]
         ({[:group-name] "Group name is required and must be unique"
-          [:group-id] "group id is optional"}
+          [:group-id] "Group id is optional"}
           path))
       group
       :group-name [v/required
