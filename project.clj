@@ -58,7 +58,10 @@
   :plugins [[lein-cprop "1.0.1"]
             [migratus-lein "0.4.1"]
             [lein-cljsbuild "1.1.7"]
-            [lein-immutant "2.1.0"]]
+            [lein-immutant "2.1.0"]
+
+            ; local additions
+            [io.sarnowski/lein-docker "1.0.0"]]
   :clean-targets ^{:protect false}
   [:target-path [:cljsbuild :builds :app :compiler :output-dir] [:cljsbuild :builds :app :compiler :output-to]]
   :figwheel
@@ -67,6 +70,8 @@
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
+
+  :docker {:image-name "yogthos/memory-hole"}
 
   :profiles
   {:uberjar {:omit-source true
