@@ -162,6 +162,27 @@
          (issues/issues-by-group {:group-name group
                                   :user-id (:user-id user)}))
 
+    (GET "/issues-by-content/:part" []
+         :path-params [part :- s/Str]
+         :query-params [limit :- s/Int]
+         :return issues/IssueHintResults
+         :current-user user
+         :summary "list issues starting with index prefix or title part"
+         (issues/issues-by-content {:index-prefix part
+                                    :titlepart    part
+                                    :user-id      (:user-id user)
+                                    :limit        limit}))
+
+    (GET "/issues-by-content/" []
+         :query-params [limit :- s/Int]
+         :return issues/IssueHintResults
+         :current-user user
+         :summary "list issues starting with index prefix or title part"
+         (issues/issues-by-content {:index-prefix nil
+                                    :titlepart    nil
+                                    :user-id      (:user-id user)
+                                    :limit        limit}))
+
     (DELETE "/issue/:id" []
       :path-params [id :- s/Int]
       :return s/Int

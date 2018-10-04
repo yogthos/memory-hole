@@ -185,6 +185,18 @@ GROUP BY
 si.support_issue_id, g.group_name
 ORDER BY last_viewed_date;
 
+-- :name issues-by-content :? :*
+-- :doc Gets all issues which starts with :index-prefix or :titlepart. :index-prefix and :titlepart should include propper wildcard.
+SELECT
+si.support_issue_id,
+si.title
+FROM support_issues si
+LEFT JOIN groups g ON g.group_id = si.group_id
+WHERE
+(si.support_issue_id like :index-prefix OR si.title like :titlepart)
+and (si.group_id IN (select group_id from users_groups where user_id = :user-id) or (select admin from users where user_id = :user-id))
+LIMIT :limit;
+
 -- :name delete-issue! :! :n
 -- :doc Deletes the support issue with the given support_issue_id
 UPDATE support_issues

@@ -14,6 +14,7 @@
     {% style "/assets/css/material-design-iconic-font.min.css" %}
     {% style "/assets/css/re-com.css" %}
     {% style "/css/simplemde.min.css" %}
+    {% style "/css/show-hint.css" %}
     {% style "/css/hljs.css" %}
     {% style "/css/tag-editor.css" %}
     {% style "/css/screen.css" %}
@@ -25,6 +26,8 @@
         var ldap = {{ldap}};
     </script>
     {% script "/js/simplemde.min.js" %}
+    {% script "/js/codemirror.js" %}
+    {% script "/js/show-hint.js" %}
     {% script "/js/hljs.js" %}
     <script src="{{servlet-context}}/js/app.js?{{timestamp}}" type="text/javascript"></script>
   </body>

@@ -45,12 +45,21 @@
                 :last-viewed-date
                 :views]))
 
+(def IssueHint
+  (select-keys Issue
+               [:support-issue-id
+                :title]))
+
 (def IssueResult
   {(s/optional-key :issue) Issue
    (s/optional-key :error) s/Str})
 
 (def IssueSummaryResults
   {(s/optional-key :issues) [IssueSummary]
+   (s/optional-key :error)  s/Str})
+
+(def IssueHintResults
+  {(s/optional-key :issues) [IssueHint]
    (s/optional-key :error)  s/Str})
 
 (def TagResult
@@ -99,6 +108,11 @@
 
 (handler issues-by-group [m]
          (ok {:issues (db/issues-by-group m)}))
+
+(handler issues-by-content [m]
+  (ok {:issues (db/issues-by-content (-> m
+                                         (update :index-prefix (fnil #(str % "%") "-1"))
+                                         (update :titlepart #(str "%" % "%"))))}))
 
 (handler search-issues [m]
          (ok {:issues (db/search-issues (-> m

@@ -84,7 +84,9 @@
                 {:output-to "target/cljsbuild/public/js/app.js"
                  :externs ["react/externs/react.js"
                            "public/js/simplemde.min.js"
-                           "public/js/hljs.js"]
+                           "public/js/hljs.js"
+                           "public/js/codemirror.js"
+                           "public/js/show-hint.js"]
                  :optimizations :advanced
                  :pretty-print false
                  :closure-warnings

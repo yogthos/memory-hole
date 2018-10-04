@@ -13,7 +13,8 @@
             [memory-hole.pages.common :refer [validation-modal confirm-modal]]
             [memory-hole.routes :refer [href navigate!]]
             [memory-hole.validation :as v]
-            [memory-hole.widgets.tag-editor :refer [tag-editor]]))
+            [memory-hole.widgets.tag-editor :refer [tag-editor]]
+            [memory-hole.widgets.md-editor :refer [editor]]))
 
 (def rounded-panel (flex-child-style "1"))
 
@@ -28,15 +29,15 @@
 (defn markdown-preview []
   (let [md-parser (js/showdown.Converter.)]
     (r/create-class
-      {:component-did-mount
-       #(highlight-code (r/dom-node %))
-       :component-did-update
-       #(highlight-code (r/dom-node %))
-       :reagent-render
-       (fn [content]
-         [:div
-          {:dangerouslySetInnerHTML
-           {:__html (.makeHtml md-parser (str content))}}])})))
+     {:component-did-mount
+      #(highlight-code (r/dom-node %))
+      :component-did-update
+      #(highlight-code (r/dom-node %))
+      :reagent-render
+      (fn [content]
+        [:div
+         {:dangerouslySetInnerHTML
+          {:__html (.makeHtml md-parser (str content))}}])})))
 
 (defn preview-panel [text]
   [box
@@ -46,38 +47,12 @@
    [:div.rounded-panel {:style rounded-panel}
     [markdown-preview text]]])
 
-(defn editor [text]
-  (r/create-class
-    {:component-did-mount
-     #(let [editor (js/SimpleMDE.
-                     (clj->js
-                       {:autofocus    true
-                        :spellChecker false
-                        :placeholder  "Issue details"
-                        :toolbar      ["bold"
-                                       "italic"
-                                       "strikethrough"
-                                       "|"
-                                       "heading"
-                                       "code"
-                                       "quote"
-                                       "|"
-                                       "unordered-list"
-                                       "ordered-list"
-                                       "|"
-                                       "link"
-                                       "image"]
-                        :element      (r/dom-node %)
-                        :initialValue @text}))]
-       (-> editor .-codemirror (.on "change" (fn [] (reset! text (.value editor))))))
-     :reagent-render
-     (fn [] [:textarea])}))
-
 (defn edit-panel [text]
-  [box
-   :class "issue-detail"
-   :size "auto"
-   :child [:div.issue-detail [editor text]]])
+  (let [hints (subscribe [:issue-hints])]
+    [box
+     :class "issue-detail"
+     :size "auto"
+     :child [:div.issue-detail [editor text hints]]]))
 
 (defn select-issue-keys [issue]
   (let [issue-keys [:title :tags :summary :detail]]
@@ -123,15 +98,15 @@
       [bs/Button
        {:bs-style "warning"
         :on-click #(if (issue-updated? @original-issue @edited-issue)
-                    (reset! confirm-open? true)
-                    (cancel-edit))}
+                     (reset! confirm-open? true)
+                     (cancel-edit))}
        "Cancel"]
       [bs/Button
        {:bs-style   "success"
         :on-click   #(when-not (reset! errors (v/validate-issue @edited-issue))
-                      (if issue-id
-                        (dispatch [:save-issue @edited-issue])
-                        (dispatch [:create-issue @edited-issue])))}
+                       (if issue-id
+                         (dispatch [:save-issue @edited-issue])
+                         (dispatch [:create-issue @edited-issue])))}
        "Save"]]]))
 
 (defn render-tags [tags]

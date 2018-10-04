@@ -1,5 +1,6 @@
 (ns memory-hole.subscriptions
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub reg-sub-raw subscribe]]
+            [re-frame.interop :refer [make-reaction]]))
 
 (reg-sub
   :db-state
@@ -21,6 +22,10 @@
 (reg-sub :selected-tag query)
 
 (reg-sub :issue query)
+
+(reg-sub :issue-hints query)
+
+(reg-sub :get-issue-hints query)
 
 (reg-sub :issues query)
 

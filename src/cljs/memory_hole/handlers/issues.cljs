@@ -66,6 +66,18 @@
                                 :group-id group-id
                                 :tags    (vec tags)}}}}))
 
+(reg-event-db
+ :issue-hints
+ (fn [db [_ issue-hints]]
+   (assoc db :issue-hints (atom issue-hints))))
+
+(reg-event-fx
+ :get-issue-hints
+ (fn [_ [_ issue-prefix limit]]
+   {:http {:method GET
+           :url (str "/api/issues-by-content/" issue-prefix "?limit=" limit)
+           :success-event [:issue-hints]}}))
+
 (reg-event-fx
  :view-edited-issue
  (fn [_ [_ issue-id]]
