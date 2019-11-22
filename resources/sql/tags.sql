@@ -9,7 +9,7 @@ select * from tags order by tag asc;
 
 -- :name ranked-tags :? :*
 -- :doc Gets all tags in the DB, ordered by tag name asc.
-select count(si.*) as tag_count, t.tag_id, t.tag
+select count(si.*) as tag_count, t.tag_id, t.tag, array_agg(si.group_id) as related_groups
 from support_issues si
   left join groups g on g.group_id = si.group_id
   inner join support_issues_tags sit on si.support_issue_id = sit.support_issue_id

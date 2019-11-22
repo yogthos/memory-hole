@@ -24,7 +24,7 @@
                  [metosin/ring-http-response "0.9.0"]
                  [mount "0.1.12"]
                  [org.clojars.pntblnk/clj-ldap "0.0.16"]
-                 [org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.238" :scope "provided"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.logging "0.4.0"]
