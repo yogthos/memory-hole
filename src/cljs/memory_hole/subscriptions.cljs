@@ -1,6 +1,8 @@
 (ns memory-hole.subscriptions
-  (:require [re-frame.core :refer [reg-sub reg-sub-raw subscribe]]
-            [re-frame.interop :refer [make-reaction]]))
+  (:require
+    [clojure.set :refer [intersection]]
+    [re-frame.core :refer [reg-sub reg-sub-raw subscribe]]
+    [re-frame.interop :refer [make-reaction]]))
 
 (reg-sub
   :db-state
@@ -34,27 +36,65 @@
 (reg-sub :login-events query)
 
 (reg-sub
- :groups
- (fn [db _]
-   (distinct (:groups db))))
+  :groups
+  (fn [db _]
+    (distinct (:groups db))))
 
 (reg-sub
- :belongs-to
- :<-[:user]
- (fn [user _]
-   (:belongs-to user)))
+  :belongs-to
+  :<- [:user]
+  (fn [user _]
+    (:belongs-to user)))
+
+(def generic-tags #{"Recent" "All" "Most Viewed"})
 
 (reg-sub
- :visible-issues
- :<-[:issues]
- (fn [issues _]
-   issues))
+  :visible-issues
+  :<- [:issues]
+  :<- [:selected-tag]
+  :<- [:belongs-to]
+  :<- [:admin?]
+  :<- [:admin/show-all-groups?]
+  (fn [[issues selected-tag belongs-to admin? show-all-groups?] _]
+    (let [issues (if (contains? generic-tags selected-tag)
+                   issues
+                   (filter
+                     (fn [{:keys [tags]}]
+                       ((set tags) selected-tag))
+                     issues))]
+      (if (and admin? show-all-groups?)
+        issues
+        (filter
+          (fn [{:keys [group-id]}]
+            ((set belongs-to) group-id))
+          issues)))))
 
+(reg-sub
+  :visible-tags
+  :<- [:tags]
+  :<- [:belongs-to]
+  :<- [:admin?]
+  :<- [:admin/show-all-groups?]
+  (fn [[tags belongs-to admin? show-all-groups?] _]
+    (if (and admin? show-all-groups?)
+      tags
+      (filter
+        (fn [{:keys [related-groups]}]
+          (not-empty
+            (intersection (set related-groups) (set belongs-to))))
+        tags))))
 
 ;;admin
+(reg-sub :admin?
+  :<- [:user]
+  (fn [user _]
+    (:admin user)))
+
 (reg-sub :admin/users query)
 
 (reg-sub
   :admin/group-users
   (fn [db [_ group-name]]
     (get-in db [:group-users group-name])))
+
+(reg-sub :admin/show-all-groups? query)

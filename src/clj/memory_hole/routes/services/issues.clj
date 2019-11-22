@@ -10,7 +10,8 @@
    :tag                               s/Str
    (s/optional-key :tag-count)        s/Num
    (s/optional-key :support-issue-id) s/Num
-   (s/optional-key :create-date)      Date})
+   (s/optional-key :create-date)      Date
+   (s/optional-key :related-groups)   [s/Str]})
 
 (def Issue
   {:support-issue-id             s/Num

@@ -20,15 +20,15 @@
     (assoc db :active-page page)))
 
 (reg-event-fx
- :navigate-to
- (fn [_ [_ url]]
-   {:navigate url}))
+  :navigate-to
+  (fn [_ [_ url]]
+    {:navigate url}))
 
 (reg-event-fx
   :run-login-events
   (fn [{{events :login-events :as db} :db} _]
     {:dispatch-n events
-     :db db}))
+     :db         db}))
 
 (reg-event-db
   :add-login-event
@@ -40,18 +40,18 @@
   (fn [_ [_ userid pass]]
     (if (or (string/blank? userid) (string/blank? pass))
       {:dispatch [:set-error "Username and password cannot be blank."]}
-      {:http {:method POST
-              :url "/api/login"
-              :ajax-map {:params {:userid userid :pass pass}}
+      {:http {:method        POST
+              :url           "/api/login"
+              :ajax-map      {:params {:userid userid :pass pass}}
               :success-event [:handle-login]
-              :error-event [:handle-login-error]}})))
+              :error-event   [:handle-login-error]}})))
 
 (reg-event-fx
   :handle-login
   (fn [{:keys [db]} [_ {:keys [user]}]]
     {:dispatch-n (list [:run-login-events]
                        [:set-active-page :home])
-     :db (assoc db :user user)}))
+     :db         (assoc db :user user)}))
 
 (reg-event-fx
   :handle-login-error
@@ -59,24 +59,24 @@
     {:dispatch [:set-error "Invalid username/password."]}))
 
 (reg-event-db
- :logout-client
- (fn [db _]
-   (dissoc db :user)))
+  :logout-client
+  (fn [db _]
+    (dissoc db :user)))
 
 (reg-event-fx
- :handle-logout
- (fn [_ _]
-   {:reload-page true}))
+  :handle-logout
+  (fn [_ _]
+    {:reload-page true}))
 
 (reg-event-fx
   :logout
   (fn [_ _]
-    {:http {:method POST
-            :url "/api/logout"
-            :ignore-response-body true
-            :success-event [:handle-logout]
-            :error-event [:handle-logout]}
-     :db db/default-db
+    {:http      {:method               POST
+                 :url                  "/api/logout"
+                 :ignore-response-body true
+                 :success-event        [:handle-logout]
+                 :error-event          [:handle-logout]}
+     :db        db/default-db
      :set-user! nil}))
 
 (reg-event-db
@@ -85,18 +85,23 @@
     (dissoc db :loading? :error :should-be-loading?)))
 
 (reg-event-db
- :set-loading-for-real-this-time
- (fn [{:keys [should-be-loading?] :as db} _]
-   (if should-be-loading?
-     (assoc db :loading? true)
-     db)))
+  :set-loading-for-real-this-time
+  (fn [{:keys [should-be-loading?] :as db} _]
+    (if should-be-loading?
+      (assoc db :loading? true)
+      db)))
 
 (reg-event-fx
   :set-loading
   (fn [{db :db} _]
     {:dispatch-later [{:ms 100 :dispatch [:set-loading-for-real-this-time]}]
-     :db (-> db
-            (assoc :should-be-loading? true)
-            (dissoc :error))}))
+     :db             (-> db
+                         (assoc :should-be-loading? true)
+                         (dissoc :error))}))
 
+;; admin
 
+(reg-event-db
+  :admin/show-all-groups?
+  (fn [db [_ val]]
+    (assoc db :admin/show-all-groups? val)))

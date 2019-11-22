@@ -1,6 +1,6 @@
 (ns memory-hole.pages.home
   (:require [reagent.core :as r]
-            [re-frame.core :refer [subscribe]]
+            [re-frame.core :refer [subscribe dispatch]]
             [memory-hole.pages.issues :refer [markdown-preview]]
             [memory-hole.key-events :refer [on-enter]]
             [memory-hole.bootstrap :as bs]
@@ -11,7 +11,7 @@
 (defn issue-search []
   (r/with-let [search    (r/atom nil)
                do-search #(when-let [value (not-empty @search)]
-                           (navigate! (str "/search/" value)))]
+                            (navigate! (str "/search/" value)))]
     [bs/FormGroup
      [bs/InputGroup
       [bs/FormControl
@@ -46,11 +46,11 @@
                   (sort-by :tag-count)
                   (reverse)))))
 
-(defn tag-control [title count selected on-click]
+(defn tag-control [tag count selected]
   [bs/ListGroupItem
-   {:on-click on-click
-    :active   (= title selected)}
-   [:b title] " "
+   {:on-click #(navigate! (str "/issues/" (js/encodeURIComponent tag)))
+    :active   (= tag selected)}
+   [:b tag] " "
    (when count [bs/Badge count])])
 
 (defn tags-panel [tags selected]
@@ -68,7 +68,7 @@
       [bs/ListGroup
        (for [{:keys [tag-id tag tag-count]} (sorted-tags tags @sort-type)]
          ^{:key tag-id}
-         [tag-control tag tag-count selected #(navigate! (str "/issues/" (js/encodeURIComponent tag)))])]]]))
+         [tag-control tag tag-count selected])]]]))
 
 (defn filter-control [title selected on-click]
   [:button.btn.btn-xs
@@ -93,11 +93,29 @@
    (when-not (contains? #{"All" "Recent" "Most Viewed"} selected)
      [:button.btn.btn-xs.btn-success selected])])
 
+(defn admin-groups-toggle []
+  (r/with-let [admin?           (subscribe [:admin?])
+               show-all-groups? (subscribe [:admin/show-all-groups?])]
+    (when admin?
+      [:div.row
+       [:div.col-sm-12
+        [:h3 "Admin: "
+         [:div.btn-toolbar
+          [:button.btn.btn-xs
+           {:class    (if @show-all-groups? "btn-default" "btn-success")
+            :on-click #(dispatch [:admin/show-all-groups? false])}
+           "Only my groups"]
+          [:button.btn.btn-xs
+           {:class    (if @show-all-groups? "btn-success" "btn-default")
+            :on-click #(dispatch [:admin/show-all-groups? true])}
+           "All groups"]]]]])))
+
 (defn home-page []
-  (r/with-let [tags     (subscribe [:tags])
+  (r/with-let [tags     (subscribe [:visible-tags])
                issues   (subscribe [:visible-issues])
                selected (subscribe [:selected-tag])]
     [:div.container
+     [admin-groups-toggle]
      [:div.row
       [:div.col-sm-3
        [tags-panel @tags @selected]]
