@@ -112,7 +112,7 @@
 
 (handler issues-by-content [m]
   (ok {:issues (db/issues-by-content (-> m
-                                         (update :index-prefix (fnil #(str % "%") "-1"))
+                                         (update :issue-id (fn [id] (try (Integer/parseInt id) (catch Exception _ -1))))
                                          (update :titlepart #(str "%" % "%"))))}))
 
 (handler search-issues [m]

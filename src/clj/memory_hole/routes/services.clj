@@ -167,19 +167,9 @@
          :query-params [limit :- s/Int]
          :return issues/IssueHintResults
          :current-user user
-         :summary "list issues starting with index prefix or title part"
-         (issues/issues-by-content {:index-prefix part
+         :summary "list issues matching issue id or starting with title part"
+         (issues/issues-by-content {:issue-id     part
                                     :titlepart    part
-                                    :user-id      (:user-id user)
-                                    :limit        limit}))
-
-    (GET "/issues-by-content/" []
-         :query-params [limit :- s/Int]
-         :return issues/IssueHintResults
-         :current-user user
-         :summary "list issues starting with index prefix or title part"
-         (issues/issues-by-content {:index-prefix nil
-                                    :titlepart    nil
                                     :user-id      (:user-id user)
                                     :limit        limit}))
 
