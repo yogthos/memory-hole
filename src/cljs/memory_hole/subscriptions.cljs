@@ -46,28 +46,19 @@
   (fn [user _]
     (:belongs-to user)))
 
-(def generic-tags #{"Recent" "All" "Most Viewed"})
-
 (reg-sub
   :visible-issues
   :<- [:issues]
-  :<- [:selected-tag]
   :<- [:belongs-to]
   :<- [:admin?]
   :<- [:admin/show-all-groups?]
-  (fn [[issues selected-tag belongs-to admin? show-all-groups?] _]
-    (let [issues (if (contains? generic-tags selected-tag)
-                   issues
-                   (filter
-                     (fn [{:keys [tags]}]
-                       ((set tags) selected-tag))
-                     issues))]
-      (if (and admin? show-all-groups?)
-        issues
-        (filter
-          (fn [{:keys [group-id]}]
-            ((set belongs-to) group-id))
-          issues)))))
+  (fn [[issues belongs-to admin? show-all-groups?] _]
+    (if (and admin? show-all-groups?)
+      issues
+      (filter
+        (fn [{:keys [group-id]}]
+          ((set belongs-to) group-id))
+        issues))))
 
 (reg-sub
   :visible-tags

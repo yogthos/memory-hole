@@ -96,7 +96,7 @@
 (defn admin-groups-toggle []
   (r/with-let [admin?           (subscribe [:admin?])
                show-all-groups? (subscribe [:admin/show-all-groups?])]
-    (when admin?
+    (when @admin?
       [:div.row
        [:div.col-sm-12
         [:h3 "Admin: "

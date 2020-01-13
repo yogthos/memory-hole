@@ -101,7 +101,7 @@
     (aset
      editor
      "codemirror"
-     (.fromTextArea js/CodeMirror (-> editor .-codemirror .getTextArea)))
+     (.fromTextArea js/CodeMirror (-> editor .-codemirror .getTextArea) (clj->js {:lineWrapping true})))
     ;; manipulate DOM so element is on right place
     (.insertBefore (-> editor
                        .-codemirror
